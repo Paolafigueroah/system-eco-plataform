@@ -13,6 +13,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { supabaseChatService as chatService } from '../services/supabaseChatService';
+import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatMessage from './ChatMessage';
 
 const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
@@ -22,14 +23,36 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesUnsubscribe = useRef(null);
+  const { subscribeToMessages, unsubscribe } = useRealtime();
 
   useEffect(() => {
     if (conversation) {
       loadMessages();
       // Marcar mensajes como leídos
       chatService.markMessagesAsRead(conversation.id, currentUser.id);
+
+      // Suscripción en tiempo real a nuevos mensajes
+      if (messagesUnsubscribe.current) {
+        unsubscribe(messagesUnsubscribe.current);
+        messagesUnsubscribe.current = null;
+      }
+      const sub = subscribeToMessages(conversation.id, (payload) => {
+        if (payload?.new) {
+          setMessages((prev) => [...prev, payload.new]);
+        } else {
+          // Fallback: recargar si el payload no trae el new
+          loadMessages();
+        }
+      });
+      messagesUnsubscribe.current = sub;
     }
-  }, [conversation, currentUser.id]);
+    return () => {
+      if (messagesUnsubscribe.current) {
+        unsubscribe(messagesUnsubscribe.current);
+        messagesUnsubscribe.current = null;
+      }
+    };
+  }, [conversation, currentUser.id, subscribeToMessages, unsubscribe]);
 
   useEffect(() => {
     scrollToBottom();

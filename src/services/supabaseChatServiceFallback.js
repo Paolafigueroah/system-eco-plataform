@@ -139,4 +139,11 @@ export const supabaseChatServiceFallback = {
       return supabaseUtils.handleError(error, 'Obtener usuarios (fallback)');
     }
   }
+  ,
+
+  // Alinear API con el servicio principal
+  getAllUsers: async (currentUserId) => {
+    // Reutiliza el método existente para mantener compatibilidad
+    return await supabaseChatServiceFallback.getAvailableUsers(currentUserId);
+  }
 };

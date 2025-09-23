@@ -39,7 +39,20 @@ const Favorites = () => {
     try {
       const result = await supabaseFavoritesService.getFavoritesStats(user.id);
       if (result.success) {
-        setStats(result.data);
+        // Normalizar estructura para el UI actual
+        const raw = result.data;
+        const normalized = {
+          total_favorites: raw.totalFavorites ?? raw.total_favorites ?? 0,
+          categories: Array.isArray(raw.categories)
+            ? raw.categories.map((category) => (
+                typeof category === 'string'
+                  ? { category, count: favorites.filter(f => f.category === category).length }
+                  : category
+              ))
+            : [],
+          transaction_types: raw.transaction_types || []
+        };
+        setStats(normalized);
       }
     } catch (error) {
       console.error('Error cargando estadísticas:', error);

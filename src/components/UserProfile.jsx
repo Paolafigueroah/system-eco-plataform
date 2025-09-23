@@ -59,7 +59,14 @@ const UserProfile = ({ userId, onClose }) => {
     try {
       const result = await supabaseAuthService.getUserStats(userId);
       if (result.success) {
-        setStats(result.data);
+        // Normalizar a lo que espera el UI
+        const raw = result.data;
+        setStats({
+          total_products: raw.total_products ?? raw.products ?? 0,
+          total_views: raw.total_views ?? raw.views ?? 0,
+          categories: raw.categories ?? [],
+          transaction_types: raw.transaction_types ?? [],
+        });
       }
     } catch (error) {
       console.error('Error cargando estadísticas:', error);

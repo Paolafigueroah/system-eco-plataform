@@ -14,13 +14,15 @@ import {
   Circle
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { supabaseChatService as chatService } from '../services/supabaseChatService';
+import { supabaseChatService as chatService, chatUtils } from '../services/supabaseChatService';
 import { supabaseChatServiceFallback } from '../services/supabaseChatServiceFallback';
+import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatConversation from './ChatConversation';
 import ChatConversationList from './ChatConversationList';
 
 const Chat = ({ onClose, useFallback = false }) => {
   const { user } = useAuth();
+  const { subscribeToConversations, unsubscribe } = useRealtime();
   
   // Usar servicio fallback si es necesario
   const currentChatService = useFallback ? supabaseChatServiceFallback : chatService;
@@ -37,8 +39,25 @@ const Chat = ({ onClose, useFallback = false }) => {
   useEffect(() => {
     if (user) {
       loadConversations();
+
+      // Suscripción a cambios en conversaciones (nuevo mensaje, creación, etc.)
+      if (conversationsUnsubscribe.current) {
+        unsubscribe(conversationsUnsubscribe.current);
+        conversationsUnsubscribe.current = null;
+      }
+      const sub = subscribeToConversations(user.id, () => {
+        // Refrescar lista cuando haya cambios relevantes
+        loadConversations();
+      });
+      conversationsUnsubscribe.current = sub;
     }
-  }, [user]);
+    return () => {
+      if (conversationsUnsubscribe.current) {
+        unsubscribe(conversationsUnsubscribe.current);
+        conversationsUnsubscribe.current = null;
+      }
+    };
+  }, [user, subscribeToConversations, unsubscribe]);
 
   const loadConversations = async () => {
     try {
@@ -72,7 +91,8 @@ const Chat = ({ onClose, useFallback = false }) => {
 
   const handleNewConversation = async () => {
     try {
-      const result = await currentChatService.getAvailableUsers(user.id);
+      // Usar API expuesta por los servicios: getAllUsers
+      const result = await currentChatService.getAllUsers(user.id);
       
       if (result.success) {
         setAvailableUsers(result.data);
@@ -95,15 +115,18 @@ const Chat = ({ onClose, useFallback = false }) => {
         await loadConversations();
         setShowNewConversationModal(false);
         
-        // Seleccionar la nueva conversación
-        const newConversation = conversations.find(c => 
+        // Seleccionar directamente la conversación creada si viene en data
+        const created = result.data;
+        if (created) {
+          handleConversationSelect(created);
+          return;
+        }
+        // Fallback: buscarla en lista actualizada
+        const updated = (prev => prev)(conversations).find(c => 
           (c.buyer_id === user.id && c.seller_id === otherUserId) ||
           (c.buyer_id === otherUserId && c.seller_id === user.id)
         );
-        
-        if (newConversation) {
-          handleConversationSelect(newConversation);
-        }
+        if (updated) handleConversationSelect(updated);
       } else {
         console.error('Error al crear conversación:', result.error);
       }
