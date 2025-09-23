@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { supabaseProductService } from '../services/supabaseProductService';
+import { migrationConfig } from '../config/migrationConfig';
+import sqliteProductService from '../services/sqliteProductService';
+import supabaseProductService from '../services/supabaseProductService';
 import { useRealtime } from '../hooks/useRealtime';
 import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
 import { 
@@ -37,6 +39,36 @@ const Dashboard = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [userProducts, setUserProducts] = useState([]);
+
+  // Función para obtener el servicio correcto
+  const getProductService = () => {
+    return migrationConfig.databaseType === 'supabase' ? supabaseProductService : sqliteProductService;
+  };
+
+  // Función para agregar más productos
+  const handleAddMoreProducts = async () => {
+    if (migrationConfig.databaseType !== 'sqlite') {
+      alert('Esta función solo está disponible en modo SQLite');
+      return;
+    }
+
+    try {
+      const { addMoreProducts } = await import('../utils/addMoreProducts.js');
+      const sqliteConfig = await import('../sqliteConfig.js');
+      const result = await addMoreProducts(sqliteConfig.default);
+      
+      if (result.success) {
+        alert('¡Productos adicionales agregados exitosamente!');
+        // Recargar datos
+        loadUserData();
+      } else {
+        alert('Error al agregar productos: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al agregar productos');
+    }
+  };
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalViews: 0,
@@ -85,7 +117,10 @@ const Dashboard = () => {
       }
       
       // Cargar productos del usuario
-      const productsResult = await supabaseProductService.getProductsByUserId(user.id);
+      const productService = getProductService();
+      const productsResult = migrationConfig.databaseType === 'supabase' 
+        ? await productService.getProductsByUserId(user.id)
+        : await productService.getProductsByUser(user.id);
       
       if (productsResult.success) {
         setUserProducts(productsResult.data);
@@ -151,7 +186,8 @@ const Dashboard = () => {
     if (!deletingProduct || !user) return;
 
     try {
-      const result = await supabaseProductService.deleteProduct(deletingProduct.id);
+      const productService = getProductService();
+      const result = await productService.deleteProduct(deletingProduct.id);
       
       if (result.success) {
         // Remover el producto de la lista
@@ -244,12 +280,12 @@ const Dashboard = () => {
     <div className="space-y-8">
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="dashboard-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
             <p className="text-gray-600 dark:text-gray-400">Bienvenido de vuelta, {user.displayName}</p>
             </div>
-          <div className="flex flex-col sm:flex-row gap-3 sm:space-x-3">
+          <div className="dashboard-buttons flex flex-col sm:flex-row gap-3 sm:space-x-3">
 
             <button
               onClick={() => setShowUserProfile(true)}
@@ -265,12 +301,21 @@ const Dashboard = () => {
               <Plus size={20} />
               <span>Publicar Producto</span>
             </button>
+            {migrationConfig.databaseType === 'sqlite' && (
+              <button
+                onClick={handleAddMoreProducts}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200 inline-flex items-center space-x-2"
+              >
+                <Package size={20} />
+                <span>+ Productos</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div className="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-3 sm:p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
@@ -357,7 +402,7 @@ const Dashboard = () => {
         </div>
 
         {userProducts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="products-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userProducts.map((product) => (
               <div key={product.id} className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-3">

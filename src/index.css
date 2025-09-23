@@ -36,6 +36,49 @@
   .grid-mobile {
     @apply grid-cols-1 gap-3;
   }
+
+  /* Dashboard responsive improvements */
+  .dashboard-header {
+    @apply flex-col gap-3;
+  }
+
+  .dashboard-buttons {
+    @apply flex-col w-full gap-2;
+  }
+
+  .dashboard-buttons button {
+    @apply w-full justify-center;
+  }
+
+  .stats-grid {
+    @apply grid-cols-1 gap-3;
+  }
+
+  .products-grid {
+    @apply grid-cols-1 gap-4;
+  }
+}
+
+/* Tablet responsive */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .stats-grid {
+    @apply grid-cols-2 gap-4;
+  }
+
+  .products-grid {
+    @apply grid-cols-2 gap-4;
+  }
+}
+
+/* Desktop responsive */
+@media (min-width: 1025px) {
+  .stats-grid {
+    @apply grid-cols-4 gap-6;
+  }
+
+  .products-grid {
+    @apply grid-cols-2 lg:grid-cols-3 gap-6;
+  }
 }
 
 /* Dark mode text contrast improvements - SIMPLIFIED FIX */
