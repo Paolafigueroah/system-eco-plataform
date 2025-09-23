@@ -32,14 +32,14 @@ const Navbar = () => {
 
   return (
     <nav className="glass-effect backdrop-blur-md border-b border-white/20 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-40">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
               <span className="text-white font-bold text-xl">♻</span>
             </div>
-            <span className="text-xl sm:text-2xl font-bold gradient-text group-hover:scale-105 transition-transform duration-300">
+            <span className="hidden sm:block text-xl sm:text-2xl font-bold gradient-text group-hover:scale-105 transition-transform duration-300 truncate max-w-[12ch]">
               Economía Circular
             </span>
           </Link>

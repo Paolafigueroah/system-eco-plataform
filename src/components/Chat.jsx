@@ -80,6 +80,11 @@ const Chat = ({ onClose, useFallback = false }) => {
   };
 
   const handleConversationSelect = (conversation) => {
+    // Normalizar id: si viene como conv_... (fallback), no permitir envío
+    if (conversation && typeof conversation.id === 'string' && conversation.id.startsWith('conv_')) {
+      alert('Esta conversación es temporal. Crea una nueva conversación válida para chatear.');
+      return;
+    }
     setSelectedConversation(conversation);
     setShowConversationList(false);
   };
@@ -117,7 +122,7 @@ const Chat = ({ onClose, useFallback = false }) => {
         
         // Seleccionar directamente la conversación creada si viene en data
         const created = result.data;
-        if (created) {
+        if (created && created.id && (!String(created.id).startsWith('conv_'))) {
           handleConversationSelect(created);
           return;
         }
@@ -126,7 +131,7 @@ const Chat = ({ onClose, useFallback = false }) => {
           (c.buyer_id === user.id && c.seller_id === otherUserId) ||
           (c.buyer_id === otherUserId && c.seller_id === user.id)
         );
-        if (updated) handleConversationSelect(updated);
+        if (updated && (!String(updated.id).startsWith('conv_'))) handleConversationSelect(updated);
       } else {
         console.error('Error al crear conversación:', result.error);
       }
