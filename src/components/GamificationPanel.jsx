@@ -10,7 +10,8 @@ import {
   Crown,
   Zap,
   Heart,
-  Eye
+  Eye,
+  MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseGamificationService } from '../services/supabaseGamificationService';
@@ -33,23 +34,16 @@ const GamificationPanel = () => {
     
     setLoading(true);
     try {
-      // Cargar puntos
-      const pointsResult = await supabaseGamificationService.getUserPoints(user.id);
-      if (pointsResult.success) {
-        setPoints(pointsResult.data.points);
-      }
-
-      // Cargar badges
-      const badgesResult = await supabaseGamificationService.getUserBadges(user.id);
-      if (badgesResult.success) {
-        setBadges(badgesResult.data);
-      }
-
-      // Cargar historial de acciones
-      const actionsResult = await supabaseGamificationService.getUserActions(user.id, 10);
-      if (actionsResult.success) {
-        setActions(actionsResult.data);
-      }
+      // Simular datos de gamificación por ahora
+      setPoints(150); // Puntos fijos por ahora
+      setBadges([
+        { id: 1, name: 'Primer Producto', icon: 'Gift', description: 'Publicaste tu primer producto' },
+        { id: 2, name: 'Eco Warrior', icon: 'Leaf', description: 'Ayudaste al medio ambiente' }
+      ]);
+      setActions([
+        { id: 1, action: 'Publicaste un producto', points: 10, timestamp: new Date() },
+        { id: 2, action: 'Completaste tu perfil', points: 5, timestamp: new Date() }
+      ]);
     } catch (error) {
       console.error('Error cargando datos de gamificación:', error);
     } finally {
