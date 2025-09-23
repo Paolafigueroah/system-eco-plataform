@@ -13,7 +13,9 @@ import {
   Edit
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { migrationConfig } from '../config/migrationConfig';
 import { sqliteProductService } from '../services/sqliteProductService';
+import { supabaseProductService } from '../services/supabaseProductService';
 
 const EditarProducto = ({ product, onProductUpdated, onClose }) => {
   const { user } = useAuth();
@@ -155,29 +157,49 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
     setErrors({});
 
     try {
-      // Crear datos del producto para actualización
-      const productData = {
-        title: formData.titulo,
-        description: formData.descripcion,
-        category: formData.categoria,
-        condition: formData.estado,
-        transactionType: formData.tipoTransaccion,
-        price: formData.precio ? parseFloat(formData.precio) : 0,
-        location: formData.ubicacion,
-        userId: user.id,
-        userEmail: user.email,
-        userName: user.display_name || user.email,
-        images: imageFiles.length > 0 ? imageFiles.map(file => file.name).join(',') : product.images
-      };
+      // Seleccionar servicio según configuración
+      const service = migrationConfig.databaseType === 'supabase' 
+        ? supabaseProductService 
+        : sqliteProductService;
 
-      const result = await sqliteProductService.updateProduct(product.id, productData);
+      // Datos compatibles con cada backend
+      const productData = migrationConfig.databaseType === 'supabase'
+        ? {
+            title: formData.titulo,
+            description: formData.descripcion,
+            category: formData.categoria,
+            condition_product: formData.estado,
+            transaction_type: formData.tipoTransaccion,
+            price: formData.precio ? parseFloat(formData.precio) : 0,
+            location: formData.ubicacion,
+            images: imageFiles.length > 0 
+              ? imageFiles.map(file => file.name) 
+              : (Array.isArray(product.images) ? product.images : (product.images || '').split(',').filter(Boolean))
+          }
+        : {
+            title: formData.titulo,
+            description: formData.descripcion,
+            category: formData.categoria,
+            condition: formData.estado,
+            transactionType: formData.tipoTransaccion,
+            price: formData.precio ? parseFloat(formData.precio) : 0,
+            location: formData.ubicacion,
+            userId: user.id,
+            userEmail: user.email,
+            userName: user.display_name || user.email,
+            images: imageFiles.length > 0 
+              ? imageFiles.map(file => file.name).join(',') 
+              : (Array.isArray(product.images) ? product.images.join(',') : product.images)
+          };
+
+      const result = await service.updateProduct(product.id, productData);
 
       if (result.success) {
         setSuccess(true);
         
         // Llamar callback de éxito
         if (onProductUpdated) {
-          onProductUpdated(result.product);
+          onProductUpdated(result.data || result.product);
         }
 
         // Cerrar modal después de 2 segundos
