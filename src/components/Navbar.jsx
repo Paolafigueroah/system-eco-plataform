@@ -72,7 +72,9 @@ const Navbar = () => {
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
-              <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
+              <div className="hidden lg:flex items-center flex-shrink-0 bg-white/60 dark:bg-gray-800/60 rounded-xl px-2 py-1 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+                {/* Actions */}
+                <div className="flex items-center space-x-2">
                 <Link
                   to="/dashboard"
                   className="btn btn-sm btn-outline btn-primary flex items-center space-x-2"
@@ -109,20 +111,28 @@ const Navbar = () => {
                   <Bell size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Notificaciones</span>
                 </button>
-                <ChatNotifications onOpenChat={() => navigate('/chat')} />
-                <div className="hidden lg:flex items-center space-x-2 text-sm min-w-0">
-                  <User size={16} />
-                  <span className="text-base-content/80 truncate max-w-[24ch] 2xl:max-w-none" title={user?.display_name || user?.displayName || user?.email || 'Usuario'}>
-                    {user?.display_name || user?.displayName || user?.email || 'Usuario'}
-                  </span>
+                  <ChatNotifications onOpenChat={() => navigate('/chat')} />
                 </div>
-                <button
-                  onClick={handleSignOut}
-                  className="btn btn-sm btn-outline btn-error flex items-center space-x-2"
-                >
-                  <LogOut size={16} />
-                  <span className="hidden sm:inline">Cerrar Sesión</span>
-                </button>
+                {/* Divider */}
+                <div className="hidden xl:block mx-2 w-px h-6 bg-gray-200 dark:bg-gray-700" />
+                {/* User chip + logout */}
+                <div className="hidden lg:flex items-center space-x-2">
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-sm">
+                    <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold">
+                      {(user?.display_name || user?.displayName || user?.email || 'U').slice(0,1).toUpperCase()}
+                    </div>
+                    <span className="text-base-content/80 truncate max-w-[22ch] 2xl:max-w-none" title={user?.display_name || user?.displayName || user?.email || 'Usuario'}>
+                      {user?.display_name || user?.displayName || user?.email || 'Usuario'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    className="btn btn-sm bg-emerald-600 hover:bg-emerald-700 text-white border-none"
+                  >
+                    <LogOut size={16} />
+                    <span className="hidden sm:inline">Cerrar Sesión</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="hidden md:flex">
