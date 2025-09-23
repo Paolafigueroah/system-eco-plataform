@@ -283,7 +283,7 @@ const Contact = () => {
             </div>
 
             {/* FAQ Section */}
-            <div className="card bg-gradient-to-r from-emerald-50 to-sky-50">
+            <div className="card bg-gradient-to-r from-emerald-50 to-sky-50 dark:from-emerald-900/20 dark:to-sky-900/20">
               <h3 className="text-xl font-semibold text-base-content mb-4">
                 Preguntas Frecuentes
               </h3>

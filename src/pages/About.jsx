@@ -132,13 +132,13 @@ const About = () => {
       </section>
 
       {/* Features List */}
-      <section className="py-16 bg-gradient-to-r from-emerald-50 to-sky-50 rounded-2xl">
+      <section className="py-16 bg-gradient-to-r from-emerald-50 to-sky-50 dark:from-emerald-900/20 dark:to-sky-900/20 rounded-2xl">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-4">
               Funcionalidades Principales
             </h2>
-            <p className="text-lg text-base-content/70">
+            <p className="text-lg text-base-content/70 dark:text-base-content/90">
               Todo lo que necesitas para participar en la economía circular.
             </p>
           </div>
@@ -147,7 +147,7 @@ const About = () => {
             {features.map((feature, index) => (
               <div key={index} className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                <span className="text-base-content/80">{feature}</span>
+                <span className="text-base-content/80 dark:text-base-content/90">{feature}</span>
               </div>
             ))}
           </div>

@@ -321,10 +321,10 @@ const Dashboard = () => {
       </div>
 
       {/* Impacto Ambiental */}
-      <div className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-6">
+      <div className="bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-lg p-6">
         <div className="flex items-center mb-4">
-          <Leaf className="text-emerald-600 mr-2" size={24} />
-          <h2 className="text-xl font-bold text-gray-900">Tu Impacto Ambiental</h2>
+          <Leaf className="text-emerald-600 dark:text-emerald-400 mr-2" size={24} />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Tu Impacto Ambiental</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">

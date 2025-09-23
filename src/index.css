@@ -15,28 +15,68 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  /* Mobile-first responsive improvements */
-  @media (max-width: 640px) {
-    .container {
-      @apply px-3;
-    }
-    
-    .text-responsive {
-      @apply text-sm;
-    }
-    
-    .btn-mobile {
-      @apply w-full text-sm py-2 px-3;
-    }
-    
-    .card-mobile {
-      @apply p-3;
-    }
-    
-    .grid-mobile {
-      @apply grid-cols-1 gap-3;
-    }
+/* Mobile-first responsive improvements */
+@media (max-width: 640px) {
+  .container {
+    @apply px-3;
   }
+  
+  .text-responsive {
+    @apply text-sm;
+  }
+  
+  .btn-mobile {
+    @apply w-full text-sm py-2 px-3;
+  }
+  
+  .card-mobile {
+    @apply p-3;
+  }
+  
+  .grid-mobile {
+    @apply grid-cols-1 gap-3;
+  }
+}
+
+/* Dark mode text contrast improvements */
+.dark .text-base-content\/70 {
+  @apply text-base-content/90;
+}
+
+.dark .text-base-content\/80 {
+  @apply text-base-content/95;
+}
+
+/* Ensure text is always visible in dark mode */
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50,
+.dark .bg-gradient-to-r.from-sky-50.to-emerald-50 {
+  @apply text-gray-100;
+}
+
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h1,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h2,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h3,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h4,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h5,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h6,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h1,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h2,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h3,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h4,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h5,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h6 {
+  @apply text-gray-100;
+}
+
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 p,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 span,
+.dark .bg-gradient-to-r.from-emerald-50.to-sky-50 div,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 p,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 span,
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 div {
+  @apply text-gray-200;
+}
 
   * {
     scrollbar-width: thin;
