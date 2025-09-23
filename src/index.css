@@ -38,25 +38,32 @@
   }
 }
 
-/* Dark mode text contrast improvements - AGGRESSIVE FIX */
+/* Dark mode text contrast improvements - SIMPLIFIED FIX */
+.dark .text-base-content {
+  color: #f3f4f6 !important;
+}
+
 .dark .text-base-content\/70 {
-  @apply text-base-content/95 !important;
+  color: #d1d5db !important;
 }
 
 .dark .text-base-content\/80 {
-  @apply text-base-content/100 !important;
+  color: #e5e7eb !important;
 }
 
-/* Force all text to be visible in dark mode */
+/* Fix headings in dark mode */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #f3f4f6 !important;
+}
+
+/* Fix text in gradient backgrounds */
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50,
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50,
-.dark .bg-gradient-to-r.from-sky-50.to-emerald-50,
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20,
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 {
-  @apply text-gray-100 !important;
+  color: #f3f4f6 !important;
 }
 
-/* Force all headings to be visible */
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h1,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h2,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h3,
@@ -81,10 +88,9 @@
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h4,
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h5,
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h6 {
-  @apply text-gray-100 !important;
+  color: #f3f4f6 !important;
 }
 
-/* Force all text elements to be visible */
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 p,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 span,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 div,
@@ -97,76 +103,30 @@
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 p,
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 span,
 .dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 div {
-  @apply text-gray-200 !important;
+  color: #e5e7eb !important;
 }
 
-/* Specific fix for About page features list */
-.dark section.bg-gradient-to-r .text-base-content\/80 {
-  @apply text-gray-100 !important;
-}
-
-.dark section.bg-gradient-to-r .text-base-content\/70 {
-  @apply text-gray-200 !important;
-}
-
-/* Fix for any remaining invisible text */
+/* Fix common text colors in dark mode */
 .dark .text-gray-600,
 .dark .text-gray-700,
 .dark .text-gray-800,
 .dark .text-gray-900 {
-  @apply text-gray-200 !important;
+  color: #e5e7eb !important;
 }
 
-/* Ensure DaisyUI base-content works in dark mode */
-.dark .text-base-content {
-  @apply text-gray-100 !important;
-}
-
-/* Global dark mode text fixes */
-.dark .text-base-content\/70 {
-  @apply text-gray-300 !important;
-}
-
-.dark .text-base-content\/80 {
-  @apply text-gray-200 !important;
-}
-
-/* Fix all headings in dark mode */
-.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-  @apply text-gray-100 !important;
-}
-
-/* Fix all paragraphs and spans in dark mode */
-.dark p, .dark span, .dark div {
-  color: inherit;
-}
-
-/* Specific fixes for common text patterns */
-.dark .font-semibold, .dark .font-bold {
-  @apply text-gray-100 !important;
-}
-
-.dark .font-medium {
-  @apply text-gray-200 !important;
-}
-
-/* Fix labels and form elements */
+/* Fix form elements */
 .dark label {
-  @apply text-gray-200 !important;
+  color: #e5e7eb !important;
 }
 
-/* Ensure cards have proper text contrast */
-.dark .card {
-  @apply bg-base-200;
-}
-
+/* Fix cards */
 .dark .card h1, .dark .card h2, .dark .card h3, 
 .dark .card h4, .dark .card h5, .dark .card h6 {
-  @apply text-gray-100 !important;
+  color: #f3f4f6 !important;
 }
 
 .dark .card p, .dark .card span {
-  @apply text-gray-200 !important;
+  color: #e5e7eb !important;
 }
 
   * {
