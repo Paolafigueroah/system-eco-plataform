@@ -144,7 +144,7 @@ const UserProfile = ({ userId, onClose }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Perfil de Usuario</h1>
@@ -156,10 +156,10 @@ const UserProfile = ({ userId, onClose }) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Información del usuario */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-800">Información Personal</h2>
               {!isEditing ? (
@@ -206,7 +206,7 @@ const UserProfile = ({ userId, onClose }) => {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Nombre */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

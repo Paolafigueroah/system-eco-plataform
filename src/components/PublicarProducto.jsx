@@ -129,9 +129,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
       newErrors.precio = 'El precio debe ser un número válido';
     }
 
-    if (images.length === 0) {
-      newErrors.images = 'Al menos una imagen es requerida';
-    }
+    // No bloqueamos por imágenes para facilitar pruebas en Supabase
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

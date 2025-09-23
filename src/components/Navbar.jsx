@@ -53,14 +53,14 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+                  className={`flex items-center space-x-2 px-4 py-3 rounded-xl transition-all duration-300 font-medium ring-1 ${
                     isActive
-                      ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 shadow-lg'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:shadow-md'
+                      ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50/90 dark:bg-emerald-900/30 ring-emerald-200/70 dark:ring-emerald-700 shadow-lg'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-gray-50/90 dark:hover:bg-gray-700/50 ring-transparent hover:ring-emerald-200/60 hover:shadow-md'
                   }`}
                 >
-                  <Icon size={20} />
-                  <span>{item.label}</span>
+                  <Icon size={20} strokeWidth={2.5} className="shrink-0" />
+                  <span className="font-semibold">{item.label}</span>
                 </Link>
               );
             })}
@@ -77,28 +77,28 @@ const Navbar = () => {
                   to="/dashboard"
                   className="btn btn-sm btn-outline btn-primary flex items-center space-x-2"
                 >
-                  <Package size={16} />
+                  <Package size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Dashboard</span>
                 </Link>
                 <Link
                   to="/chat"
                   className="btn btn-sm btn-outline btn-secondary flex items-center space-x-2"
                 >
-                  <MessageCircle size={16} />
+                  <MessageCircle size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Chat</span>
                 </Link>
                 <Link
                   to="/profile"
                   className="btn btn-sm btn-outline btn-accent flex items-center space-x-2"
                 >
-                  <User size={16} />
+                  <User size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Perfil</span>
                 </Link>
                 <Link
                   to="/favorites"
                   className="btn btn-sm btn-outline btn-error flex items-center space-x-2"
                 >
-                  <Heart size={16} />
+                  <Heart size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Favoritos</span>
                 </Link>
                 <button
@@ -106,13 +106,13 @@ const Navbar = () => {
                   className="btn btn-sm btn-outline btn-warning flex items-center space-x-2 relative"
                   title="Notificaciones"
                 >
-                  <Bell size={16} />
+                  <Bell size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Notificaciones</span>
                 </button>
                 <ChatNotifications onOpenChat={() => navigate('/chat')} />
                 <div className="hidden md:flex items-center space-x-2 text-sm">
                   <User size={16} />
-                  <span className="text-base-content/80">
+                  <span className="text-base-content/80 truncate max-w-[16ch]">
                     {user?.display_name || user?.displayName || user?.email || 'Usuario'}
                   </span>
                 </div>
@@ -155,14 +155,14 @@ const Navbar = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors duration-200 ${
+                    className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors duration-200 ${
                       isActive
-                        ? 'bg-emerald-600 text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-emerald-600 text-white shadow'
+                        : 'text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <Icon size={18} />
-                    <span>{item.label}</span>
+                    <Icon size={18} strokeWidth={2.5} className={isActive ? 'text-white' : 'text-emerald-700 dark:text-emerald-300'} />
+                    <span className="font-semibold">{item.label}</span>
                   </Link>
                 );
               })}
@@ -174,33 +174,33 @@ const Navbar = () => {
                      <Link
                        to="/dashboard"
                        onClick={() => setIsOpen(false)}
-                       className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-primary text-primary-content hover:bg-primary-focus transition-colors duration-200"
+                       className="flex items-center space-x-3 px-3 py-3 rounded-lg bg-primary text-primary-content hover:bg-primary-focus transition-colors duration-200"
                      >
-                       <Package size={18} />
+                       <Package size={18} strokeWidth={2.5} className="text-white" />
                        <span>Dashboard</span>
                      </Link>
                      <Link
                        to="/chat"
                        onClick={() => setIsOpen(false)}
-                       className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-secondary text-secondary-content hover:bg-secondary-focus transition-colors duration-200"
+                       className="flex items-center space-x-3 px-3 py-3 rounded-lg bg-secondary text-secondary-content hover:bg-secondary-focus transition-colors duration-200"
                      >
-                       <MessageCircle size={18} />
+                       <MessageCircle size={18} strokeWidth={2.5} className="text-white" />
                        <span>Chat</span>
                      </Link>
                      <Link
                        to="/profile"
                        onClick={() => setIsOpen(false)}
-                       className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-accent text-accent-content hover:bg-accent-focus transition-colors duration-200"
+                       className="flex items-center space-x-3 px-3 py-3 rounded-lg bg-accent text-accent-content hover:bg-accent-focus transition-colors duration-200"
                      >
-                       <User size={18} />
+                       <User size={18} strokeWidth={2.5} className="text-white" />
                        <span>Perfil</span>
                      </Link>
                      <Link
                        to="/favorites"
                        onClick={() => setIsOpen(false)}
-                       className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-error text-error-content hover:bg-error-focus transition-colors duration-200"
+                       className="flex items-center space-x-3 px-3 py-3 rounded-lg bg-error text-error-content hover:bg-error-focus transition-colors duration-200"
                      >
-                       <Heart size={18} />
+                       <Heart size={18} strokeWidth={2.5} className="text-white" />
                        <span>Favoritos</span>
                      </Link>
                      <button
@@ -208,14 +208,14 @@ const Navbar = () => {
                          setIsOpen(false);
                          setShowNotifications(true);
                        }}
-                       className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-warning text-warning-content hover:bg-warning-focus transition-colors duration-200"
+                       className="flex items-center space-x-3 px-3 py-3 rounded-lg bg-warning text-warning-content hover:bg-warning-focus transition-colors duration-200"
                      >
-                       <Bell size={18} />
+                       <Bell size={18} strokeWidth={2.5} className="text-white" />
                        <span>Notificaciones</span>
                      </button>
                      <div className="flex items-center space-x-3 px-3 py-2 text-base-content/70">
-                       <User size={18} />
-                       <span>{user?.display_name || user?.displayName || user?.email || 'Usuario'}</span>
+                       <User size={18} strokeWidth={2.5} />
+                       <span className="truncate max-w-[70%]">{user?.display_name || user?.displayName || user?.email || 'Usuario'}</span>
                      </div>
                      <button
                        onClick={() => {
