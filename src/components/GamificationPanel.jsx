@@ -183,7 +183,7 @@ const GamificationPanel = () => {
           </h3>
         </div>
         
-        {badges.length === 0 ? (
+        {(!badges || badges.length === 0) ? (
           <p className="text-gray-500 text-center py-4">
             Aún no has ganado ningún badge. ¡Sigue participando!
           </p>
@@ -216,7 +216,7 @@ const GamificationPanel = () => {
           </h3>
         </div>
         
-        {actions.length === 0 ? (
+        {(!actions || actions.length === 0) ? (
           <p className="text-gray-500 text-center py-4">
             Aún no tienes actividad registrada.
           </p>

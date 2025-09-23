@@ -122,7 +122,7 @@ default:
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Product Image */}
-      <div className="relative h-48 bg-gray-200">
+      <div className="relative h-48 sm:h-56 bg-gray-200">
         {product.images && product.images.length > 0 ? (
           <img
             src={Array.isArray(product.images) ? product.images[0] : product.images.split(',')[0]} // URL real de la imagen
@@ -161,12 +161,12 @@ default:
       </div>
 
       {/* Product Info */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="mb-3">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
             {product.title}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
             {product.description}
           </p>
         </div>
