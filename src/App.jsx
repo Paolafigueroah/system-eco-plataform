@@ -36,10 +36,10 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden">
             <ErrorBoundary>
               <Navbar />
-              <main className="container mx-auto px-4 py-8">
+              <main className="container mx-auto px-4 py-8 overflow-x-hidden">
                 <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />

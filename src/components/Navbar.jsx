@@ -31,7 +31,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="glass-effect backdrop-blur-md border-b border-white/20 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-40">
+    <nav className="glass-effect backdrop-blur-md border-b border-white/20 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-40 overflow-x-hidden">
       <div className="container mx-auto px-3 sm:px-4 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
           {/* Logo */}
