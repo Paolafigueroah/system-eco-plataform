@@ -67,7 +67,7 @@ const Navbar = () => {
           </div>
 
           {/* Theme Toggle & Auth Buttons & Mobile Menu Button */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0">
             <ToggleTheme />
 
             {/* Auth Buttons */}
@@ -110,9 +110,9 @@ const Navbar = () => {
                   <span className="hidden sm:inline">Notificaciones</span>
                 </button>
                 <ChatNotifications onOpenChat={() => navigate('/chat')} />
-                <div className="hidden md:flex items-center space-x-2 text-sm">
+                <div className="hidden md:flex items-center space-x-2 text-sm min-w-0">
                   <User size={16} />
-                  <span className="text-base-content/80 truncate max-w-[16ch]">
+                  <span className="text-base-content/80 truncate max-w-[14ch] lg:max-w-[20ch]">
                     {user?.display_name || user?.displayName || user?.email || 'Usuario'}
                   </span>
                 </div>

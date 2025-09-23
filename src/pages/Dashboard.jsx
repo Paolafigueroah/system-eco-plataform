@@ -167,6 +167,14 @@ const Dashboard = () => {
     setShowEditProduct(true);
   };
 
+  const goToProfile = () => {
+    window.location.href = '/profile';
+  };
+
+  const goToFavorites = () => {
+    window.location.href = '/favorites';
+  };
+
   const handleProductUpdated = (updatedProduct) => {
     setUserProducts(prev => 
       prev.map(product => 
@@ -288,7 +296,7 @@ const Dashboard = () => {
           <div className="dashboard-buttons flex flex-col sm:flex-row gap-3 sm:space-x-3">
 
             <button
-              onClick={() => setShowUserProfile(true)}
+              onClick={goToProfile}
               className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200 inline-flex items-center space-x-2"
             >
               <Users size={20} />

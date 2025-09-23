@@ -249,9 +249,13 @@ default:
               <Trash2 size={16} />
             </button>
           )}
-          <button className="bg-sky-600 text-white p-2 rounded-lg hover:bg-sky-700 transition-colors duration-200">
+          <Link
+            to="/chat"
+            className="bg-sky-600 text-white p-2 rounded-lg hover:bg-sky-700 transition-colors duration-200"
+            title="Abrir chat"
+          >
             <MessageCircle size={16} />
-          </button>
+          </Link>
         </div>
 
         {/* Seller Info */}
