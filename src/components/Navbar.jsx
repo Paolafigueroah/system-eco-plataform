@@ -31,7 +31,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="glass-effect backdrop-blur-md border-b border-white/20 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-40 overflow-x-hidden">
+    <nav className="glass-effect backdrop-blur-md border-b border-white/20 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-40 overflow-x-hidden relative">
       <div className="w-full max-w-[1600px] mx-auto px-4 xl:px-8">
         <div className="flex justify-between items-center py-3 flex-wrap gap-2">
           {/* Logo */}
@@ -66,9 +66,16 @@ const Navbar = () => {
             })}
           </div>
 
+          {/* Theme Toggle (absolute on desktop) */}
+          <div className="hidden lg:block absolute right-4 top-3">
+            <ToggleTheme />
+          </div>
+
           {/* Theme Toggle & Auth Buttons & Mobile Menu Button */}
           <div className="flex items-center gap-2 md:gap-3 lg:gap-4 min-w-0 flex-shrink-0 flex-wrap justify-end">
-            <ToggleTheme />
+            <div className="lg:hidden">
+              <ToggleTheme />
+            </div>
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
@@ -103,14 +110,6 @@ const Navbar = () => {
                   <Heart size={16} strokeWidth={2.5} />
                   <span className="hidden sm:inline">Favoritos</span>
                 </Link>
-                <button
-                  onClick={() => setShowNotifications(true)}
-                  className="btn btn-sm btn-outline btn-warning flex items-center space-x-2 relative"
-                  title="Notificaciones"
-                >
-                  <Bell size={16} strokeWidth={2.5} />
-                  <span className="hidden sm:inline">Notificaciones</span>
-                </button>
                   <ChatNotifications onOpenChat={() => navigate('/chat')} />
                 </div>
                 {/* Divider */}
@@ -124,6 +123,14 @@ const Navbar = () => {
                     <span className="text-base-content/80 truncate max-w-[22ch] 2xl:max-w-none" title={user?.display_name || user?.displayName || user?.email || 'Usuario'}>
                       {user?.display_name || user?.displayName || user?.email || 'Usuario'}
                     </span>
+                    {/* Notifications icon next to email */}
+                    <button
+                      onClick={() => setShowNotifications(true)}
+                      className="p-1.5 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
+                      title="Notificaciones"
+                    >
+                      <Bell size={16} />
+                    </button>
                   </div>
                   <button
                     onClick={handleSignOut}

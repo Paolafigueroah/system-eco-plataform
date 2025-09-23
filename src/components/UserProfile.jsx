@@ -147,7 +147,7 @@ const UserProfile = ({ userId, onClose }) => {
     <div className="max-w-5xl mx-auto p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Perfil de Usuario</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Perfil de Usuario</h1>
         <button
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -159,9 +159,9 @@ const UserProfile = ({ userId, onClose }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Información del usuario */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Información Personal</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Información Personal</h2>
               {!isEditing ? (
                 <button
                   onClick={handleEdit}
@@ -209,7 +209,7 @@ const UserProfile = ({ userId, onClose }) => {
             <div className="space-y-3 sm:space-y-4">
               {/* Nombre */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <User className="w-4 h-4 inline mr-2" />
                   Nombre de usuario
                 </label>
@@ -223,13 +223,13 @@ const UserProfile = ({ userId, onClose }) => {
                     placeholder="Nombre de usuario"
                   />
                 ) : (
-                  <p className="text-gray-900 font-medium">{user.display_name}</p>
+                  <p className="text-gray-900 dark:text-gray-100 font-medium">{user.display_name}</p>
                 )}
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Mail className="w-4 h-4 inline mr-2" />
                   Email
                 </label>
@@ -243,17 +243,17 @@ const UserProfile = ({ userId, onClose }) => {
                     placeholder="Email"
                   />
                 ) : (
-                  <p className="text-gray-900">{user.email}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{user.email}</p>
                 )}
               </div>
 
               {/* Fecha de registro */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <Calendar className="w-4 h-4 inline mr-2" />
                   Miembro desde
                 </label>
-                <p className="text-gray-900">{formatDate(user.created_at)}</p>
+                <p className="text-gray-900 dark:text-gray-100">{formatDate(user.created_at)}</p>
               </div>
             </div>
           </div>
@@ -261,7 +261,7 @@ const UserProfile = ({ userId, onClose }) => {
 
         {/* Estadísticas */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
               <BarChart3 className="w-5 h-5 mr-2" />
               Estadísticas
@@ -270,22 +270,22 @@ const UserProfile = ({ userId, onClose }) => {
             {stats ? (
               <div className="space-y-4">
                 {/* Total de productos */}
-                <div className="bg-blue-50 rounded-lg p-4">
+                <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-blue-600 font-medium">Productos Publicados</p>
-                      <p className="text-2xl font-bold text-blue-800">{stats.total_products}</p>
+                      <p className="text-sm text-blue-600 dark:text-blue-300 font-medium">Productos Publicados</p>
+                      <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">{stats.total_products}</p>
                     </div>
                     <Package className="w-8 h-8 text-blue-600" />
                   </div>
                 </div>
 
                 {/* Total de vistas */}
-                <div className="bg-green-50 rounded-lg p-4">
+                <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-600 font-medium">Total de Vistas</p>
-                      <p className="text-2xl font-bold text-green-800">{stats.total_views}</p>
+                      <p className="text-sm text-green-600 dark:text-green-300 font-medium">Total de Vistas</p>
+                      <p className="text-2xl font-bold text-green-800 dark:text-green-200">{stats.total_views}</p>
                     </div>
                     <Eye className="w-8 h-8 text-green-600" />
                   </div>
@@ -293,7 +293,7 @@ const UserProfile = ({ userId, onClose }) => {
 
                 {/* Categorías */}
                 {stats.categories.length > 0 && (
-                  <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4">
                     <h3 className="text-sm font-medium text-purple-600 mb-3 flex items-center">
                       <Tag className="w-4 h-4 mr-1" />
                       Productos por Categoría
@@ -301,8 +301,8 @@ const UserProfile = ({ userId, onClose }) => {
                     <div className="space-y-2">
                       {stats.categories.map((category, index) => (
                         <div key={index} className="flex justify-between text-sm">
-                          <span className="text-purple-700">{category.category}</span>
-                          <span className="font-medium text-purple-800">{category.count}</span>
+                          <span className="text-purple-700 dark:text-purple-300">{category.category}</span>
+                          <span className="font-medium text-purple-800 dark:text-purple-200">{category.count}</span>
                         </div>
                       ))}
                     </div>
@@ -311,7 +311,7 @@ const UserProfile = ({ userId, onClose }) => {
 
                 {/* Tipos de transacción */}
                 {stats.transaction_types.length > 0 && (
-                  <div className="bg-orange-50 rounded-lg p-4">
+                  <div className="bg-orange-50 dark:bg-orange-900/30 rounded-lg p-4">
                     <h3 className="text-sm font-medium text-orange-600 mb-3 flex items-center">
                       <DollarSign className="w-4 h-4 mr-1" />
                       Por Tipo de Transacción
@@ -319,8 +319,8 @@ const UserProfile = ({ userId, onClose }) => {
                     <div className="space-y-2">
                       {stats.transaction_types.map((type, index) => (
                         <div key={index} className="flex justify-between text-sm">
-                          <span className="text-orange-700 capitalize">{type.transaction_type}</span>
-                          <span className="font-medium text-orange-800">{type.count}</span>
+                          <span className="text-orange-700 dark:text-orange-300 capitalize">{type.transaction_type}</span>
+                          <span className="font-medium text-orange-800 dark:text-orange-200">{type.count}</span>
                         </div>
                       ))}
                     </div>
