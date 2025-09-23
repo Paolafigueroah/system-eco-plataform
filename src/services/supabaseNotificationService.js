@@ -2,38 +2,11 @@ import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
 // Servicio de notificaciones con Supabase
 export const supabaseNotificationService = {
-  // Crear notificación
-  createNotification: async (userId, type, title, message, data = {}) => {
-    try {
-      console.log('🔔 Supabase: Creando notificación...', { userId, type, title });
-      
-      const { data: notification, error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: userId,
-          type, // 'message', 'favorite', 'product_view', 'system'
-          title,
-          message,
-          data,
-          is_read: false,
-          created_at: new Date().toISOString()
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      return supabaseUtils.handleSuccess(notification, 'Crear notificación');
-    } catch (error) {
-      return supabaseUtils.handleError(error, 'Crear notificación');
-    }
-  },
-
   // Obtener notificaciones del usuario
   getUserNotifications: async (userId, limit = 20) => {
     try {
       console.log('🔔 Supabase: Obteniendo notificaciones...', userId);
-      
+
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -43,27 +16,55 @@ export const supabaseNotificationService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Obtener notificaciones');
+      return supabaseUtils.handleSuccess(data || [], 'Obtener notificaciones');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener notificaciones');
     }
   },
 
-  // Marcar notificación como leída
-  markAsRead: async (notificationId) => {
+  // Crear notificación
+  createNotification: async (userId, title, message, type = 'info') => {
     try {
-      console.log('🔔 Supabase: Marcando notificación como leída...', notificationId);
-      
-      const { error } = await supabase
+      console.log('🔔 Supabase: Creando notificación...', { userId, title, type });
+
+      const { data, error } = await supabase
         .from('notifications')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('id', notificationId);
+        .insert({
+          user_id: userId,
+          title,
+          message,
+          type,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(null, 'Marcar como leída');
+      return supabaseUtils.handleSuccess(data, 'Crear notificación');
     } catch (error) {
-      return supabaseUtils.handleError(error, 'Marcar como leída');
+      return supabaseUtils.handleError(error, 'Crear notificación');
+    }
+  },
+
+  // Marcar notificación como leída
+  markAsRead: async (notificationId, userId) => {
+    try {
+      console.log('🔔 Supabase: Marcando notificación como leída...', notificationId);
+
+      const { data, error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Marcar notificación como leída');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Marcar notificación como leída');
     }
   },
 
@@ -71,24 +72,27 @@ export const supabaseNotificationService = {
   markAllAsRead: async (userId) => {
     try {
       console.log('🔔 Supabase: Marcando todas las notificaciones como leídas...', userId);
-      
-      const { error } = await supabase
+
+      const { data, error } = await supabase
         .from('notifications')
-        .update({ is_read: true, read_at: new Date().toISOString() })
+        .update({ is_read: true })
         .eq('user_id', userId)
-        .eq('is_read', false);
+        .eq('is_read', false)
+        .select();
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(null, 'Marcar todas como leídas');
+      return supabaseUtils.handleSuccess(data, 'Marcar todas las notificaciones como leídas');
     } catch (error) {
-      return supabaseUtils.handleError(error, 'Marcar todas como leídas');
+      return supabaseUtils.handleError(error, 'Marcar todas las notificaciones como leídas');
     }
   },
 
   // Obtener conteo de notificaciones no leídas
   getUnreadCount: async (userId) => {
     try {
+      console.log('🔔 Supabase: Obteniendo conteo de notificaciones no leídas...', userId);
+
       const { count, error } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
@@ -97,60 +101,63 @@ export const supabaseNotificationService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(count || 0, 'Obtener conteo de no leídas');
+      return supabaseUtils.handleSuccess(count || 0, 'Obtener conteo de notificaciones no leídas');
     } catch (error) {
-      return supabaseUtils.handleError(error, 'Obtener conteo de no leídas');
+      return supabaseUtils.handleError(error, 'Obtener conteo de notificaciones no leídas');
     }
   },
 
   // Eliminar notificación
-  deleteNotification: async (notificationId) => {
+  deleteNotification: async (notificationId, userId) => {
     try {
       console.log('🔔 Supabase: Eliminando notificación...', notificationId);
-      
-      const { error } = await supabase
+
+      const { data, error } = await supabase
         .from('notifications')
         .delete()
-        .eq('id', notificationId);
+        .eq('id', notificationId)
+        .eq('user_id', userId)
+        .select()
+        .single();
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(null, 'Eliminar notificación');
+      return supabaseUtils.handleSuccess(data, 'Eliminar notificación');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Eliminar notificación');
     }
   },
 
-  // Crear notificaciones automáticas
-  notifyNewMessage: async (userId, senderName, messagePreview) => {
-    return await supabaseNotificationService.createNotification(
-      userId,
-      'message',
-      'Nuevo mensaje',
-      `${senderName} te envió un mensaje: "${messagePreview}"`,
-      { type: 'message' }
-    );
-  },
+  // Crear notificaciones de ejemplo
+  createSampleNotifications: async (userId) => {
+    try {
+      console.log('🔔 Supabase: Creando notificaciones de ejemplo...', userId);
 
-  notifyProductFavorited: async (userId, productTitle, userName) => {
-    return await supabaseNotificationService.createNotification(
-      userId,
-      'favorite',
-      'Producto agregado a favoritos',
-      `${userName} agregó tu producto "${productTitle}" a sus favoritos`,
-      { type: 'favorite' }
-    );
-  },
+      const sampleNotifications = [
+        {
+          user_id: userId,
+          title: '¡Bienvenido!',
+          message: 'Gracias por unirte a System Eco. ¡Comienza explorando productos!',
+          type: 'success'
+        },
+        {
+          user_id: userId,
+          title: 'Nuevo producto en tu categoría',
+          message: 'Se ha publicado un nuevo producto que podría interesarte.',
+          type: 'info'
+        }
+      ];
 
-  notifyProductViewed: async (userId, productTitle, viewerName) => {
-    return await supabaseNotificationService.createNotification(
-      userId,
-      'product_view',
-      'Producto visto',
-      `${viewerName} vio tu producto "${productTitle}"`,
-      { type: 'product_view' }
-    );
+      const { data, error } = await supabase
+        .from('notifications')
+        .insert(sampleNotifications)
+        .select();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Crear notificaciones de ejemplo');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Crear notificaciones de ejemplo');
+    }
   }
 };
-
-export default supabaseNotificationService;

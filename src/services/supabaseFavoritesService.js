@@ -23,7 +23,11 @@ export const supabaseFavoritesService = {
       if (error) throw error;
 
       // Incrementar contador de favoritos en el producto
-      await supabaseFavoritesService.incrementFavoriteCount(productId);
+      try {
+        await supabaseFavoritesService.incrementFavoriteCount(productId);
+      } catch (error) {
+        console.warn('No se pudo incrementar contador de favoritos:', error);
+      }
 
       return supabaseUtils.handleSuccess(data, 'Agregar a favoritos');
     } catch (error) {
@@ -50,7 +54,11 @@ export const supabaseFavoritesService = {
       if (error) throw error;
 
       // Decrementar contador de favoritos en el producto
-      await supabaseFavoritesService.decrementFavoriteCount(productId);
+      try {
+        await supabaseFavoritesService.decrementFavoriteCount(productId);
+      } catch (error) {
+        console.warn('No se pudo decrementar contador de favoritos:', error);
+      }
 
       return supabaseUtils.handleSuccess(data, 'Remover de favoritos');
     } catch (error) {

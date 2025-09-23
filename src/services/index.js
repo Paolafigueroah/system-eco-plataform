@@ -9,6 +9,7 @@ export { default as supabaseAuthService } from './supabaseAuthService';
 export { default as supabaseProductService } from './supabaseProductService';
 export { default as supabaseFavoritesService } from './supabaseFavoritesService';
 export { default as supabaseChatService } from './supabaseChatService';
+export { default as supabaseNotificationService } from './supabaseNotificationService';
 
 // Exportar servicios individuales también
 export * from './sqliteAuthService';
@@ -21,3 +22,4 @@ export * from './supabaseAuthService';
 export * from './supabaseProductService';
 export * from './supabaseFavoritesService';
 export * from './supabaseChatService';
+export * from './supabaseNotificationService';
