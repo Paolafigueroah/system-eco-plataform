@@ -6,7 +6,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ruwvfemrgkqlxg
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1d3ZmZW1yZ2txbHhncmVuZ2JwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1ODU0NzAsImV4cCI6MjA3NDE2MTQ3MH0.PAJ24UTBwMb6BSk3jhlq6D_szJawLqy09VdBk1HL8Ms';
 
 // Debug: Mostrar las variables cargadas
-console.log('🔧 Supabase Config Debug:');
+console.log('🔧 Supabase Config Debug (Updated):');
 console.log('VITE_SUPABASE_URL:', supabaseUrl);
 console.log('VITE_SUPABASE_ANON_KEY:', supabaseKey ? 'Loaded' : 'Missing');
 console.log('Environment variables:', {
