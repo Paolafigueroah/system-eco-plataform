@@ -83,7 +83,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user && user.id) {
-      // Suscribirse a cambios en productos en tiempo real
+      // Suscribirse a cambios en productos en tiempo real (una sola vez por usuario)
       const productsSubscription = subscribeToProducts((payload) => {
         console.log('📦 Producto actualizado en tiempo real:', payload);
         // Recargar productos cuando haya cambios
@@ -106,7 +106,7 @@ const Dashboard = () => {
         }
       };
     }
-  }, [user, subscribeToProducts, subscribeToUserPoints]);
+  }, [user?.id]);
 
   const loadUserData = async () => {
     setLoading(true);

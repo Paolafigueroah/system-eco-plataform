@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
 
 export const useRealtime = () => {
@@ -18,7 +18,7 @@ export const useRealtime = () => {
   }, []);
 
   // Suscribirse a productos
-  const subscribeToProducts = (callback) => {
+  const subscribeToProducts = useCallback((callback) => {
     const subscription = supabaseRealtimeService.subscribeToProducts(callback);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
@@ -26,10 +26,10 @@ export const useRealtime = () => {
       setIsConnected(true);
     }
     return subscription;
-  };
+  }, []);
 
   // Suscribirse a favoritos
-  const subscribeToFavorites = (userId, callback) => {
+  const subscribeToFavorites = useCallback((userId, callback) => {
     const subscription = supabaseRealtimeService.subscribeToFavorites(userId, callback);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
@@ -37,10 +37,10 @@ export const useRealtime = () => {
       setIsConnected(true);
     }
     return subscription;
-  };
+  }, []);
 
   // Suscribirse a mensajes
-  const subscribeToMessages = (conversationId, callback) => {
+  const subscribeToMessages = useCallback((conversationId, callback) => {
     const subscription = supabaseRealtimeService.subscribeToMessages(conversationId, callback);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
@@ -48,10 +48,10 @@ export const useRealtime = () => {
       setIsConnected(true);
     }
     return subscription;
-  };
+  }, []);
 
   // Suscribirse a conversaciones
-  const subscribeToConversations = (userId, callback) => {
+  const subscribeToConversations = useCallback((userId, callback) => {
     const subscription = supabaseRealtimeService.subscribeToConversations(userId, callback);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
@@ -59,10 +59,10 @@ export const useRealtime = () => {
       setIsConnected(true);
     }
     return subscription;
-  };
+  }, []);
 
   // Suscribirse a notificaciones
-  const subscribeToNotifications = (userId, callback) => {
+  const subscribeToNotifications = useCallback((userId, callback) => {
     const subscription = supabaseRealtimeService.subscribeToNotifications(userId, callback);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
@@ -70,10 +70,10 @@ export const useRealtime = () => {
       setIsConnected(true);
     }
     return subscription;
-  };
+  }, []);
 
   // Suscribirse a puntos
-  const subscribeToUserPoints = (userId, callback) => {
+  const subscribeToUserPoints = useCallback((userId, callback) => {
     const subscription = supabaseRealtimeService.subscribeToUserPoints(userId, callback);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
@@ -81,10 +81,10 @@ export const useRealtime = () => {
       setIsConnected(true);
     }
     return subscription;
-  };
+  }, []);
 
   // Desuscribirse de una suscripción específica
-  const unsubscribe = (subscription) => {
+  const unsubscribe = useCallback((subscription) => {
     if (subscription) {
       supabaseRealtimeService.unsubscribe(subscription);
       subscriptionsRef.current = subscriptionsRef.current.filter(sub => sub !== subscription);
@@ -94,15 +94,15 @@ export const useRealtime = () => {
         setIsConnected(false);
       }
     }
-  };
+  }, []);
 
   // Desuscribirse de todas las suscripciones
-  const unsubscribeAll = () => {
+  const unsubscribeAll = useCallback(() => {
     supabaseRealtimeService.unsubscribeAll();
     subscriptionsRef.current = [];
     setSubscriptions([]);
     setIsConnected(false);
-  };
+  }, []);
 
   return {
     isConnected,
