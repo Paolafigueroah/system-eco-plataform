@@ -38,6 +38,14 @@ Una aplicación React moderna construida con Tailwind CSS y soporte para múltip
 - DaisyUI
 - PostCSS
 
+## 🚀 **SITIO EN VIVO**
+
+**🌐 URL del sitio**: [https://system-eco-plataform.vercel.app](https://system-eco-plataform.vercel.app)
+
+**✅ Estado**: ✅ **DEPLOYADO Y FUNCIONANDO**
+
+---
+
 ## ⚡ Configuración Rápida
 
 ### 1. Instalación
