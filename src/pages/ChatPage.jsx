@@ -116,7 +116,7 @@ const ChatPage = () => {
               </button>
             </div>
             <div className="flex-1 h-[calc(100vh-80px)]">
-              <Chat onClose={() => setShowChat(false)} useFallback={migrationConfig.databaseType === 'supabase'} />
+              <Chat onClose={() => setShowChat(false)} useFallback={migrationConfig.databaseType !== 'supabase'} />
             </div>
           </div>
         </div>

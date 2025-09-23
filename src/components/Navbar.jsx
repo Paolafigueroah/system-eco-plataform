@@ -72,7 +72,7 @@ const Navbar = () => {
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
+              <div className="hidden md:flex items-center space-x-3">
                 <Link
                   to="/dashboard"
                   className="btn btn-sm btn-outline btn-primary flex items-center space-x-2"
@@ -125,13 +125,15 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <Link
-                to="/auth"
-                className="btn btn-sm btn-primary flex items-center space-x-2"
-              >
-                <User size={16} />
-                <span className="hidden sm:inline">Iniciar Sesión</span>
-              </Link>
+              <div className="hidden md:flex">
+                <Link
+                  to="/auth"
+                  className="btn btn-sm btn-primary flex items-center space-x-2"
+                >
+                  <User size={16} />
+                  <span className="hidden sm:inline">Iniciar Sesión</span>
+                </Link>
+              </div>
             )}
 
             <button
