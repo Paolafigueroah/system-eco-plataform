@@ -38,22 +38,25 @@
   }
 }
 
-/* Dark mode text contrast improvements */
+/* Dark mode text contrast improvements - AGGRESSIVE FIX */
 .dark .text-base-content\/70 {
-  @apply text-base-content/90;
+  @apply text-base-content/95 !important;
 }
 
 .dark .text-base-content\/80 {
-  @apply text-base-content/95;
+  @apply text-base-content/100 !important;
 }
 
-/* Ensure text is always visible in dark mode */
+/* Force all text to be visible in dark mode */
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50,
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50,
-.dark .bg-gradient-to-r.from-sky-50.to-emerald-50 {
-  @apply text-gray-100;
+.dark .bg-gradient-to-r.from-sky-50.to-emerald-50,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 {
+  @apply text-gray-100 !important;
 }
 
+/* Force all headings to be visible */
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h1,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h2,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 h3,
@@ -65,17 +68,105 @@
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50 h3,
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50 h4,
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50 h5,
-.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h6 {
-  @apply text-gray-100;
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 h6,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 h1,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 h2,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 h3,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 h4,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 h5,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 h6,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h1,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h2,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h3,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h4,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h5,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 h6 {
+  @apply text-gray-100 !important;
 }
 
+/* Force all text elements to be visible */
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 p,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 span,
 .dark .bg-gradient-to-r.from-emerald-50.to-sky-50 div,
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50 p,
 .dark .bg-gradient-to-r.from-emerald-50.to-green-50 span,
-.dark .bg-gradient-to-r.from-emerald-50.to-green-50 div {
-  @apply text-gray-200;
+.dark .bg-gradient-to-r.from-emerald-50.to-green-50 div,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 p,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 span,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-sky-900\/20 div,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 p,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 span,
+.dark .bg-gradient-to-r.from-emerald-900\/20.to-green-900\/20 div {
+  @apply text-gray-200 !important;
+}
+
+/* Specific fix for About page features list */
+.dark section.bg-gradient-to-r .text-base-content\/80 {
+  @apply text-gray-100 !important;
+}
+
+.dark section.bg-gradient-to-r .text-base-content\/70 {
+  @apply text-gray-200 !important;
+}
+
+/* Fix for any remaining invisible text */
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-900 {
+  @apply text-gray-200 !important;
+}
+
+/* Ensure DaisyUI base-content works in dark mode */
+.dark .text-base-content {
+  @apply text-gray-100 !important;
+}
+
+/* Global dark mode text fixes */
+.dark .text-base-content\/70 {
+  @apply text-gray-300 !important;
+}
+
+.dark .text-base-content\/80 {
+  @apply text-gray-200 !important;
+}
+
+/* Fix all headings in dark mode */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  @apply text-gray-100 !important;
+}
+
+/* Fix all paragraphs and spans in dark mode */
+.dark p, .dark span, .dark div {
+  color: inherit;
+}
+
+/* Specific fixes for common text patterns */
+.dark .font-semibold, .dark .font-bold {
+  @apply text-gray-100 !important;
+}
+
+.dark .font-medium {
+  @apply text-gray-200 !important;
+}
+
+/* Fix labels and form elements */
+.dark label {
+  @apply text-gray-200 !important;
+}
+
+/* Ensure cards have proper text contrast */
+.dark .card {
+  @apply bg-base-200;
+}
+
+.dark .card h1, .dark .card h2, .dark .card h3, 
+.dark .card h4, .dark .card h5, .dark .card h6 {
+  @apply text-gray-100 !important;
+}
+
+.dark .card p, .dark .card span {
+  @apply text-gray-200 !important;
 }
 
   * {
