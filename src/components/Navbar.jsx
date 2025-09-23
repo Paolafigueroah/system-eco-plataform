@@ -45,7 +45,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-2">
+          <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -113,7 +113,7 @@ const Navbar = () => {
                 <div className="hidden md:flex items-center space-x-2 text-sm">
                   <User size={16} />
                   <span className="text-base-content/80">
-                    {user?.displayName || user?.email || 'Usuario'}
+                    {user?.display_name || user?.displayName || user?.email || 'Usuario'}
                   </span>
                 </div>
                 <button
@@ -215,7 +215,7 @@ const Navbar = () => {
                      </button>
                      <div className="flex items-center space-x-3 px-3 py-2 text-base-content/70">
                        <User size={18} />
-                       <span>{user?.displayName || user?.email || 'Usuario'}</span>
+                       <span>{user?.display_name || user?.displayName || user?.email || 'Usuario'}</span>
                      </div>
                      <button
                        onClick={() => {
