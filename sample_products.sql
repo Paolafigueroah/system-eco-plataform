@@ -9,11 +9,11 @@ INSERT INTO products (
   price,
   category,
   transaction_type,
-  condition,
+  condition_product,
   location,
   user_id,
   images,
-  is_active,
+  status,
   created_at,
   updated_at
 ) VALUES 
@@ -29,7 +29,7 @@ INSERT INTO products (
   'Ciudad de México',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=500", "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '5 days',
   NOW() - INTERVAL '5 days'
 ),
@@ -45,7 +45,7 @@ INSERT INTO products (
   'Guadalajara',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=500", "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '3 days',
   NOW() - INTERVAL '3 days'
 ),
@@ -61,7 +61,7 @@ INSERT INTO products (
   'Monterrey',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '7 days',
   NOW() - INTERVAL '7 days'
 ),
@@ -78,7 +78,7 @@ INSERT INTO products (
   'Puebla',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1551028719-001c4b5e8caf?w=500", "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '2 days',
   NOW() - INTERVAL '2 days'
 ),
@@ -94,7 +94,7 @@ INSERT INTO products (
   'Tijuana',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '4 days',
   NOW() - INTERVAL '4 days'
 ),
@@ -111,7 +111,7 @@ INSERT INTO products (
   'Ciudad de México',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500", "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '1 day',
   NOW() - INTERVAL '1 day'
 ),
@@ -127,7 +127,7 @@ INSERT INTO products (
   'Querétaro',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '6 days',
   NOW() - INTERVAL '6 days'
 ),
@@ -144,7 +144,7 @@ INSERT INTO products (
   'Cancún',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=500", "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '8 days',
   NOW() - INTERVAL '8 days'
 ),
@@ -160,7 +160,7 @@ INSERT INTO products (
   'León',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '10 days',
   NOW() - INTERVAL '10 days'
 ),
@@ -177,7 +177,7 @@ INSERT INTO products (
   'Mérida',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '12 days',
   NOW() - INTERVAL '12 days'
 ),
@@ -193,7 +193,7 @@ INSERT INTO products (
   'Toluca',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=500", "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '15 days',
   NOW() - INTERVAL '15 days'
 ),
@@ -210,7 +210,7 @@ INSERT INTO products (
   'Aguascalientes',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=500", "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '9 days',
   NOW() - INTERVAL '9 days'
 ),
@@ -226,7 +226,7 @@ INSERT INTO products (
   'Saltillo',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500", "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '11 days',
   NOW() - INTERVAL '11 days'
 ),
@@ -243,7 +243,7 @@ INSERT INTO products (
   'Cancún',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500", "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '13 days',
   NOW() - INTERVAL '13 days'
 ),
@@ -259,7 +259,7 @@ INSERT INTO products (
   'Ciudad de México',
   (SELECT id FROM auth.users LIMIT 1),
   '["https://images.unsplash.com/photo-1549317336-206569e8475c?w=500", "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500"]',
-  true,
+  'active',
   NOW() - INTERVAL '14 days',
   NOW() - INTERVAL '14 days'
 );
