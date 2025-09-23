@@ -135,10 +135,15 @@ const Chat = ({ onClose, useFallback = false }) => {
     }
   };
 
-  const filteredConversations = conversations.filter(conversation => {
-    // Filtrar por búsqueda (implementar lógica de búsqueda por nombre de usuario)
-    return true; // Por ahora mostrar todas
-  });
+  const filteredConversations = React.useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return conversations;
+    return conversations.filter(c => {
+      const name = (c.other_user?.name || c.other_user?.email || '').toLowerCase();
+      const last = (c.last_message || '').toLowerCase();
+      return name.includes(term) || last.includes(term);
+    });
+  }, [conversations, searchTerm]);
 
   if (!user) {
     return (
@@ -156,7 +161,7 @@ const Chat = ({ onClose, useFallback = false }) => {
     <div className="flex h-full bg-base-100">
       {/* Lista de Conversaciones */}
       {showConversationList && (
-        <div className="w-full md:w-80 border-r border-base-300 flex flex-col">
+        <div className="w-full md:w-80 xl:w-96 border-r border-base-300 flex flex-col">
           {/* Header */}
           <div className="p-4 border-b border-base-300 bg-base-200">
             <div className="flex items-center justify-between mb-4">
@@ -180,13 +185,13 @@ const Chat = ({ onClose, useFallback = false }) => {
 
             {/* Búsqueda */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Buscar conversaciones..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input input-bordered w-full pl-10"
+                className="input input-bordered w-full pl-10 dark:placeholder-gray-400"
               />
             </div>
           </div>

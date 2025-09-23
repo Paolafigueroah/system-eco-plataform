@@ -58,7 +58,7 @@ const ChatConversationList = ({
                 {chatUtils.getInitials(participantName)}
               </div>
               {unread && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center ring-2 ring-white dark:ring-gray-800">
                   <Circle className="w-2 h-2 text-white fill-current" />
                 </div>
               )}
@@ -78,7 +78,7 @@ const ChatConversationList = ({
               </div>
               
               <p className={`text-sm truncate ${
-                unread ? 'text-base-content font-medium' : 'text-gray-500'
+                unread ? 'text-base-content font-medium' : 'text-gray-500 dark:text-gray-400'
               }`}>
                 {getLastMessagePreview(conversation)}
               </p>
