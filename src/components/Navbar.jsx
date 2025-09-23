@@ -32,10 +32,10 @@ const Navbar = () => {
 
   return (
     <nav className="glass-effect backdrop-blur-md border-b border-white/20 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-40 overflow-x-hidden">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-20">
+      <div className="w-full max-w-[1600px] mx-auto px-4 xl:px-8">
+        <div className="flex justify-between items-center py-3 flex-wrap gap-2">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group min-w-0">
+          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group min-w-0 flex-shrink-0">
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
               <span className="text-white font-bold text-xl">♻</span>
             </div>
@@ -45,7 +45,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">
+          <div className="hidden lg:flex items-center space-x-1 xl:space-x-2 flex-1 justify-center min-w-0">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -67,12 +67,12 @@ const Navbar = () => {
           </div>
 
           {/* Theme Toggle & Auth Buttons & Mobile Menu Button */}
-          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0">
+          <div className="flex items-center gap-2 md:gap-3 lg:gap-4 min-w-0 flex-shrink-0 flex-wrap justify-end">
             <ToggleTheme />
 
             {/* Auth Buttons */}
             {isAuthenticated ? (
-              <div className="hidden md:flex items-center space-x-3">
+              <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
                 <Link
                   to="/dashboard"
                   className="btn btn-sm btn-outline btn-primary flex items-center space-x-2"
@@ -110,9 +110,9 @@ const Navbar = () => {
                   <span className="hidden sm:inline">Notificaciones</span>
                 </button>
                 <ChatNotifications onOpenChat={() => navigate('/chat')} />
-                <div className="hidden md:flex items-center space-x-2 text-sm min-w-0">
+                <div className="hidden lg:flex items-center space-x-2 text-sm min-w-0">
                   <User size={16} />
-                  <span className="text-base-content/80 truncate max-w-[14ch] lg:max-w-[20ch]">
+                  <span className="text-base-content/80 truncate max-w-[24ch] 2xl:max-w-none" title={user?.display_name || user?.displayName || user?.email || 'Usuario'}>
                     {user?.display_name || user?.displayName || user?.email || 'Usuario'}
                   </span>
                 </div>
