@@ -1,0 +1,215 @@
+import { supabase, supabaseUtils } from '../supabaseConfig.js';
+
+// Servicio de autenticación con Supabase
+export const supabaseAuthService = {
+  // Registrar nuevo usuario
+  signUp: async (email, password, displayName) => {
+    try {
+      console.log('🔐 Supabase: Registrando usuario...', email);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      // Si el registro es exitoso, actualizar el perfil
+      if (data.user) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            display_name: displayName,
+            email: email,
+            updated_at: new Date().toISOString()
+          });
+
+        if (updateError) {
+          console.warn('⚠️ Error actualizando perfil:', updateError);
+        }
+      }
+
+      return supabaseUtils.handleSuccess(data, 'Registro de usuario');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Registro de usuario');
+    }
+  },
+
+  // Iniciar sesión
+  signIn: async (email, password) => {
+    try {
+      console.log('🔐 Supabase: Iniciando sesión...', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      // Retornar solo los datos básicos, el listener de auth state manejará el resto
+      return supabaseUtils.handleSuccess({ user: data.user }, 'Inicio de sesión');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Inicio de sesión');
+    }
+  },
+
+  // Cerrar sesión
+  signOut: async () => {
+    try {
+      console.log('🔐 Supabase: Cerrando sesión...');
+      
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(null, 'Cierre de sesión');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Cierre de sesión');
+    }
+  },
+
+  // Obtener usuario actual
+  getCurrentUser: async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+
+      if (user) {
+        // Obtener perfil completo del usuario
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.warn('⚠️ Error obteniendo perfil:', profileError);
+        }
+
+        const userWithProfile = {
+          id: user.id,
+          email: user.email,
+          display_name: profile?.display_name || user.user_metadata?.display_name || user.email,
+          created_at: user.created_at,
+          profile: profile
+        };
+
+        return supabaseUtils.handleSuccess(userWithProfile, 'Obtener usuario actual');
+      }
+
+      return supabaseUtils.handleSuccess(null, 'Obtener usuario actual');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Obtener usuario actual');
+    }
+  },
+
+  // Cambiar contraseña
+  changePassword: async (newPassword) => {
+    try {
+      console.log('🔐 Supabase: Cambiando contraseña...');
+      
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Cambio de contraseña');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Cambio de contraseña');
+    }
+  },
+
+  // Restablecer contraseña
+  resetPassword: async (email) => {
+    try {
+      console.log('🔐 Supabase: Restableciendo contraseña...', email);
+      
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Restablecimiento de contraseña');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Restablecimiento de contraseña');
+    }
+  },
+
+  // Obtener perfil de usuario
+  getUserProfile: async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Obtener perfil de usuario');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Obtener perfil de usuario');
+    }
+  },
+
+  // Actualizar perfil de usuario
+  updateUserProfile: async (userId, profileData) => {
+    try {
+      console.log('🔐 Supabase: Actualizando perfil...', userId);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          ...profileData,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Actualizar perfil de usuario');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Actualizar perfil de usuario');
+    }
+  },
+
+  // Obtener estadísticas del usuario
+  getUserStats: async (userId) => {
+    try {
+      // Obtener conteo de productos
+      const { count: productCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      // Obtener conteo de favoritos
+      const { count: favoriteCount } = await supabase
+        .from('favorites')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+
+      const stats = {
+        products: productCount || 0,
+        favorites: favoriteCount || 0,
+        views: 0, // Se puede calcular sumando views de productos
+        messages: 0 // Se puede calcular contando mensajes en conversaciones
+      };
+
+      return supabaseUtils.handleSuccess(stats, 'Obtener estadísticas del usuario');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Obtener estadísticas del usuario');
+    }
+  }
+};
+
+export default supabaseAuthService;
