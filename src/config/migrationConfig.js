@@ -2,7 +2,7 @@
 export const migrationConfig = {
   // Configurar qué base de datos usar
   // Valores: 'sqlite' | 'supabase' | 'hybrid'
-  databaseType: import.meta.env.VITE_DATABASE_TYPE || 'sqlite',
+  databaseType: 'sqlite', // Forced to use SQLite temporarily
   
   // Configuración para migración híbrida
   hybrid: {

@@ -9,7 +9,8 @@ import {
   Medal,
   Crown,
   Zap,
-  Heart
+  Heart,
+  Eye
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseGamificationService } from '../services/supabaseGamificationService';
