@@ -46,6 +46,9 @@ const GamificationPanel = () => {
       ]);
     } catch (error) {
       console.error('Error cargando datos de gamificación:', error);
+      // Asegurar que siempre tengamos arrays válidos
+      setBadges([]);
+      setActions([]);
     } finally {
       setLoading(false);
     }

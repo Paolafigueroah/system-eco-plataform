@@ -14,6 +14,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { supabaseAuthService } from '../services/supabaseAuthService';
+import { supabaseProfileService } from '../services/supabaseProfileService';
 
 const UserProfile = ({ userId, onClose }) => {
   const [user, setUser] = useState(null);
@@ -36,12 +37,12 @@ const UserProfile = ({ userId, onClose }) => {
 
   const loadUserProfile = async () => {
     try {
-      const result = await supabaseAuthService.getUserProfile(userId);
+      const result = await supabaseProfileService.getUserProfile(userId);
       if (result.success) {
         setUser(result.data);
         setEditForm({
-          display_name: result.data.display_name,
-          email: result.data.email
+          display_name: result.data.display_name || result.data.displayName || 'Usuario',
+          email: result.data.email || 'usuario@ejemplo.com'
         });
       } else {
         setError(result.error);

@@ -122,13 +122,13 @@ const Dashboard = () => {
         ? await productService.getProductsByUserId(user.id)
         : await productService.getProductsByUser(user.id);
       
-      if (productsResult.success) {
-        setUserProducts(productsResult.data);
+      if (productsResult.success && productsResult.data) {
+        setUserProducts(productsResult.data || []);
         
         // Calcular estadísticas
-        const totalViews = productsResult.data.reduce((sum, product) => sum + (product.views || 0), 0);
-        const totalFavorites = productsResult.data.reduce((sum, product) => sum + (product.favorites || 0), 0);
-        const activeProducts = productsResult.data.filter(product => product.status === 'active').length;
+        const totalViews = (productsResult.data || []).reduce((sum, product) => sum + (product.views || 0), 0);
+        const totalFavorites = (productsResult.data || []).reduce((sum, product) => sum + (product.favorites || 0), 0);
+        const activeProducts = (productsResult.data || []).filter(product => product.status === 'active').length;
         
         setStats({
           totalProducts: productsResult.data.length,

@@ -7,6 +7,7 @@ export const supabaseProfileService = {
     try {
       console.log('👤 Supabase: Obteniendo perfil de usuario...', userId);
 
+      // Primero intentar obtener el perfil desde la tabla profiles
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -14,15 +15,32 @@ export const supabaseProfileService = {
         .single();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-        throw error;
+        console.warn('Error obteniendo perfil desde tabla profiles:', error);
+        
+        // Si no existe la tabla profiles, usar datos del usuario de auth
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) throw userError;
+        
+        const defaultProfile = {
+          id: userId,
+          display_name: userData.user?.user_metadata?.display_name || userData.user?.email || 'Usuario',
+          email: userData.user?.email || 'usuario@ejemplo.com',
+          bio: 'Usuario de System Eco',
+          location: 'Ubicación no especificada'
+        };
+
+        return supabaseUtils.handleSuccess(defaultProfile, 'Obtener perfil de usuario (desde auth)');
       }
 
       if (!data) {
         // Crear perfil por defecto si no existe
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        
         const defaultProfile = {
           id: userId,
-          display_name: 'Usuario',
-          email: 'usuario@ejemplo.com',
+          display_name: userData.user?.user_metadata?.display_name || userData.user?.email || 'Usuario',
+          email: userData.user?.email || 'usuario@ejemplo.com',
           bio: 'Usuario de System Eco',
           location: 'Ubicación no especificada',
           created_at: new Date().toISOString()
@@ -34,7 +52,10 @@ export const supabaseProfileService = {
           .select()
           .single();
 
-        if (createError) throw createError;
+        if (createError) {
+          console.warn('Error creando perfil:', createError);
+          return supabaseUtils.handleSuccess(defaultProfile, 'Obtener perfil de usuario (por defecto)');
+        }
 
         return supabaseUtils.handleSuccess(newProfile, 'Obtener perfil de usuario');
       }

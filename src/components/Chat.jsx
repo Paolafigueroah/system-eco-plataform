@@ -15,11 +15,15 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseChatService as chatService } from '../services/supabaseChatService';
+import { supabaseChatServiceFallback } from '../services/supabaseChatServiceFallback';
 import ChatConversation from './ChatConversation';
 import ChatConversationList from './ChatConversationList';
 
-const Chat = ({ onClose }) => {
+const Chat = ({ onClose, useFallback = false }) => {
   const { user } = useAuth();
+  
+  // Usar servicio fallback si es necesario
+  const currentChatService = useFallback ? supabaseChatServiceFallback : chatService;
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +43,7 @@ const Chat = ({ onClose }) => {
   const loadConversations = async () => {
     try {
       setLoading(true);
-      const result = await chatService.getUserConversations(user.id);
+      const result = await currentChatService.getUserConversations(user.id);
       
       if (result.success) {
         setConversations(result.data);
@@ -68,7 +72,7 @@ const Chat = ({ onClose }) => {
 
   const handleNewConversation = async () => {
     try {
-      const result = await chatService.getAllUsers(user.id);
+      const result = await currentChatService.getAvailableUsers(user.id);
       
       if (result.success) {
         setAvailableUsers(result.data);
@@ -85,7 +89,7 @@ const Chat = ({ onClose }) => {
 
   const handleStartConversation = async (otherUserId) => {
     try {
-      const result = await chatService.createConversation(user.id, otherUserId, null);
+      const result = await currentChatService.createConversation(user.id, otherUserId, null);
       if (result.success) {
         // Recargar conversaciones
         await loadConversations();

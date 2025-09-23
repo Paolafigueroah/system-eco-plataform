@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import Chat from '../components/Chat';
+import { migrationConfig } from '../config/migrationConfig';
 
 const ChatPage = () => {
   const { user } = useAuth();
@@ -115,7 +116,7 @@ const ChatPage = () => {
               </button>
             </div>
             <div className="flex-1 h-[calc(100vh-80px)]">
-              <Chat onClose={() => setShowChat(false)} />
+              <Chat onClose={() => setShowChat(false)} useFallback={migrationConfig.databaseType === 'supabase'} />
             </div>
           </div>
         </div>
