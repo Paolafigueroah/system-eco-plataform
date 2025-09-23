@@ -129,15 +129,15 @@ const Home = () => {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-5xl mx-auto">
+        <div className="container mx-auto px-4 xl:px-6 relative z-10">
+          <div className="text-center max-w-6xl xl:max-w-7xl mx-auto">
             <div className="animate-fade-in-up">
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 leading-tight">
                 <span className="gradient-text text-shadow">
                   Economía Circular
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-8 md:mb-12 max-w-4xl lg:max-w-5xl mx-auto leading-relaxed">
                 Plataforma de intercambio responsable que conecta usuarios y empresas para fomentar la sostenibilidad
               </p>
             </div>
@@ -159,7 +159,7 @@ const Home = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20 animate-fade-in-up" style={{animationDelay: '0.6s'}}>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-20 animate-fade-in-up" style={{animationDelay: '0.6s'}}>
               <div className="text-center">
                 <div className="text-4xl font-bold gradient-text mb-2">1000+</div>
                 <div className="text-gray-600 dark:text-gray-400">Productos Intercambiados</div>
@@ -180,7 +180,7 @@ const Home = () => {
       {/* Search and Add Product Section */}
       {isAuthenticated && (
         <section className="py-8">
-          <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-4 xl:px-6">
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
               <div className="flex-1 max-w-md">
                 <form onSubmit={handleSearch} className="relative">
@@ -217,7 +217,7 @@ const Home = () => {
 
       {/* Categories Section */}
       <section className="py-8">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 xl:px-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
             Explorar por Categorías
           </h2>
@@ -248,7 +248,7 @@ const Home = () => {
 
       {/* Products Section */}
       <section className="py-8">
-        <div className="max-w-6xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 xl:px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {selectedCategory ? `Productos en ${selectedCategory}` : 'Productos Recientes'}
@@ -269,7 +269,7 @@ const Home = () => {
               <p className="text-gray-600">Cargando productos...</p>
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 xl:gap-8">
               {products.map((product) => (
                 <ProductCard 
                   key={product.id || `product-${Math.random()}`} 
