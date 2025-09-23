@@ -11,6 +11,11 @@ export { default as supabaseFavoritesService } from './supabaseFavoritesService'
 export { default as supabaseChatService } from './supabaseChatService';
 export { default as supabaseNotificationService } from './supabaseNotificationService';
 
+// Exportar servicios simplificados
+export { supabaseChatServiceSimple } from './supabaseChatServiceSimple';
+export { supabaseFavoritesServiceSimple } from './supabaseFavoritesServiceSimple';
+export { supabaseProfileService } from './supabaseProfileService';
+
 // Exportar servicios individuales también
 export * from './sqliteAuthService';
 export * from './sqliteProductService';
@@ -23,3 +28,6 @@ export * from './supabaseProductService';
 export * from './supabaseFavoritesService';
 export * from './supabaseChatService';
 export * from './supabaseNotificationService';
+export * from './supabaseChatServiceSimple';
+export * from './supabaseFavoritesServiceSimple';
+export * from './supabaseProfileService';
