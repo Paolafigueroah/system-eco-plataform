@@ -6,7 +6,6 @@ import { supabaseProductService } from '../services/supabaseProductService';
 import AddProductForm from '../components/AddProductForm';
 import ProductCard from '../components/ProductCard';
 import SearchProducts from '../components/SearchProducts';
-import EmergencyFix from '../components/EmergencyFix';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -121,9 +120,6 @@ const Home = () => {
 
   return (
     <div className="space-y-16 bg-white dark:bg-gray-900 transition-colors duration-200">
-      {/* Emergency Fix Component */}
-      <EmergencyFix />
-      
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 lg:py-32">
         {/* Background Elements */}
