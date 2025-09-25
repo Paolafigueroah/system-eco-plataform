@@ -4,6 +4,7 @@ import LoginDebug from '../components/LoginDebug';
 import DatabaseMigrator from '../components/DatabaseMigrator';
 import ChatDiagnostic from '../components/ChatDiagnostic';
 import ProductDetailDebug from '../components/ProductDetailDebug';
+import ProductListDebug from '../components/ProductListDebug';
 import DarkModeTest from '../components/DarkModeTest';
 
 const DebugPage = () => {
@@ -32,6 +33,10 @@ const DebugPage = () => {
         
         <div className="mt-8">
           <ChatDiagnostic />
+        </div>
+        
+        <div className="mt-8">
+          <ProductListDebug />
         </div>
         
         <div className="mt-8">

@@ -5,175 +5,124 @@ import { migrationConfig } from '../config/migrationConfig';
 
 const ProductDetailDebug = () => {
   const { id } = useParams();
-  const [debugData, setDebugData] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const runDiagnostic = async () => {
+    setLoading(true);
+    try {
+      const info = {
+        productId: id,
+        migrationConfig: migrationConfig,
+        timestamp: new Date().toISOString()
+      };
+
+      // Verificar si el servicio está disponible
+      if (migrationConfig.databaseType === 'supabase') {
+        try {
+          console.log('🔍 Diagnosticando ProductDetail...');
+          console.log('ID del producto:', id);
+          console.log('Configuración de migración:', migrationConfig);
+          
+          const result = await supabaseProductService.getProductById(id);
+          console.log('Resultado del servicio:', result);
+          
+          info.serviceResult = result;
+          
+          if (result.success) {
+            info.productData = result.data;
+            info.status = 'success';
+          } else {
+            info.error = result.error;
+            info.status = 'error';
+          }
+        } catch (error) {
+          console.error('Error en el servicio:', error);
+          info.serviceError = error.message;
+          info.status = 'service_error';
+        }
+      } else {
+        info.status = 'no_service';
+        info.error = 'Servicio no configurado para este tipo de base de datos';
+      }
+
+      setDebugInfo(info);
+    } catch (error) {
+      console.error('Error en diagnóstico:', error);
+      setDebugInfo({
+        error: error.message,
+        status: 'diagnostic_error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const runDebug = async () => {
-      try {
-        setLoading(true);
-        const data = {};
-
-        // 1. Verificar parámetro ID
-        data.productId = id;
-        data.hasId = !!id;
-
-        // 2. Verificar configuración de migración
-        data.migrationConfig = migrationConfig;
-
-        // 3. Verificar servicio de productos
-        data.productService = {
-          available: !!supabaseProductService,
-          hasGetProductById: !!supabaseProductService?.getProductById
-        };
-
-        // 4. Intentar obtener el producto
-        if (id && supabaseProductService) {
-          try {
-            console.log('🔍 Debug: Intentando obtener producto con ID:', id);
-            const result = await supabaseProductService.getProductById(id);
-            
-            data.productResult = {
-              success: result.success,
-              data: result.data,
-              error: result.error,
-              message: result.message
-            };
-
-            if (result.success) {
-              data.productData = {
-                id: result.data?.id,
-                title: result.data?.title,
-                description: result.data?.description,
-                price: result.data?.price,
-                category: result.data?.category,
-                status: result.data?.status,
-                created_at: result.data?.created_at
-              };
-            }
-          } catch (error) {
-            data.productResult = {
-              success: false,
-              error: error.message,
-              stack: error.stack
-            };
-          }
-        }
-
-        // 5. Verificar conexión a Supabase
-        try {
-          const { data: testData, error: testError } = await supabase
-            .from('products')
-            .select('count')
-            .limit(1);
-          data.supabaseConnection = {
-            success: !testError,
-            error: testError?.message
-          };
-        } catch (error) {
-          data.supabaseConnection = {
-            success: false,
-            error: error.message
-          };
-        }
-
-        setDebugData(data);
-      } catch (error) {
-        console.error('Error en debug:', error);
-        setDebugData({ error: error.message });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    runDebug();
+    if (id) {
+      runDiagnostic();
+    }
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="p-4">
-        <div className="loading loading-spinner loading-lg"></div>
-        <p>Ejecutando diagnóstico...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="text-2xl font-bold mb-4">🔍 Diagnóstico de ProductDetail</h2>
+    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-8">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">🔍 Diagnóstico de ProductDetail</h2>
+      <p className="text-gray-600 dark:text-gray-400 mb-4">
+        Esta sección muestra información de diagnóstico para la carga de productos.
+      </p>
       
-      {/* ID del producto */}
-      <div className="card bg-base-200 p-4">
-        <h3 className="text-lg font-semibold mb-2">📋 Parámetro ID</h3>
-        <pre className="text-sm bg-base-100 p-2 rounded overflow-auto">
-          {JSON.stringify({
-            productId: debugData.productId,
-            hasId: debugData.hasId
-          }, null, 2)}
-        </pre>
-      </div>
+      <button 
+        onClick={runDiagnostic} 
+        className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg mb-4"
+        disabled={loading}
+      >
+        {loading ? 'Ejecutando...' : 'Ejecutar Diagnóstico'}
+      </button>
 
-      {/* Configuración de migración */}
-      <div className="card bg-base-200 p-4">
-        <h3 className="text-lg font-semibold mb-2">⚙️ Configuración de Migración</h3>
-        <pre className="text-sm bg-base-100 p-2 rounded overflow-auto">
-          {JSON.stringify(debugData.migrationConfig, null, 2)}
-        </pre>
-      </div>
-
-      {/* Servicio de productos */}
-      <div className="card bg-base-200 p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          🔧 Servicio de Productos
-          <span className={`badge ml-2 ${debugData.productService?.available ? 'badge-success' : 'badge-error'}`}>
-            {debugData.productService?.available ? 'OK' : 'ERROR'}
-          </span>
-        </h3>
-        <pre className="text-sm bg-base-100 p-2 rounded overflow-auto">
-          {JSON.stringify(debugData.productService, null, 2)}
-        </pre>
-      </div>
-
-      {/* Conexión a Supabase */}
-      <div className="card bg-base-200 p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          🔌 Conexión a Supabase
-          <span className={`badge ml-2 ${debugData.supabaseConnection?.success ? 'badge-success' : 'badge-error'}`}>
-            {debugData.supabaseConnection?.success ? 'OK' : 'ERROR'}
-          </span>
-        </h3>
-        <pre className="text-sm bg-base-100 p-2 rounded overflow-auto">
-          {JSON.stringify(debugData.supabaseConnection, null, 2)}
-        </pre>
-      </div>
-
-      {/* Resultado de obtener producto */}
-      <div className="card bg-base-200 p-4">
-        <h3 className="text-lg font-semibold mb-2">
-          📦 Resultado de Obtener Producto
-          <span className={`badge ml-2 ${debugData.productResult?.success ? 'badge-success' : 'badge-error'}`}>
-            {debugData.productResult?.success ? 'OK' : 'ERROR'}
-          </span>
-        </h3>
-        <pre className="text-sm bg-base-100 p-2 rounded overflow-auto max-h-60">
-          {JSON.stringify(debugData.productResult, null, 2)}
-        </pre>
-      </div>
-
-      {/* Datos del producto */}
-      {debugData.productData && (
-        <div className="card bg-base-200 p-4">
-          <h3 className="text-lg font-semibold mb-2">📋 Datos del Producto</h3>
-          <pre className="text-sm bg-base-100 p-2 rounded overflow-auto">
-            {JSON.stringify(debugData.productData, null, 2)}
-          </pre>
-        </div>
-      )}
-
-      {/* Error general */}
-      {debugData.error && (
-        <div className="alert alert-error">
-          <span>❌ Error general: {debugData.error}</span>
+      {debugInfo && (
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Información del Diagnóstico:</h3>
+            <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded-md text-sm overflow-x-auto">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </div>
+          
+          {debugInfo.status === 'success' && (
+            <div className="bg-green-100 dark:bg-green-900 p-4 rounded-lg">
+              <h4 className="font-semibold text-green-800 dark:text-green-200">✅ Producto cargado exitosamente</h4>
+              <p className="text-green-700 dark:text-green-300">
+                El producto se cargó correctamente desde la base de datos.
+              </p>
+            </div>
+          )}
+          
+          {debugInfo.status === 'error' && (
+            <div className="bg-red-100 dark:bg-red-900 p-4 rounded-lg">
+              <h4 className="font-semibold text-red-800 dark:text-red-200">❌ Error al cargar producto</h4>
+              <p className="text-red-700 dark:text-red-300">
+                Error: {debugInfo.error}
+              </p>
+            </div>
+          )}
+          
+          {debugInfo.status === 'service_error' && (
+            <div className="bg-yellow-100 dark:bg-yellow-900 p-4 rounded-lg">
+              <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">⚠️ Error en el servicio</h4>
+              <p className="text-yellow-700 dark:text-yellow-300">
+                Error del servicio: {debugInfo.serviceError}
+              </p>
+            </div>
+          )}
+          
+          {debugInfo.status === 'no_service' && (
+            <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-800 dark:text-blue-200">ℹ️ Servicio no disponible</h4>
+              <p className="text-blue-700 dark:text-blue-300">
+                {debugInfo.error}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
