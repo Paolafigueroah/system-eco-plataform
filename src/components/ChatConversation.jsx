@@ -189,7 +189,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
           <button
             onClick={onBack}
-            className="btn btn-ghost btn-sm p-2 flex-shrink-0"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 flex-shrink-0"
           >
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
@@ -211,25 +211,25 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
 
         {/* Acciones de la conversación */}
         <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-          <button className="btn btn-ghost btn-sm p-2 hidden sm:flex">
+          <button className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hidden sm:flex">
             <Phone className="h-4 w-4" />
           </button>
-          <button className="btn btn-ghost btn-sm p-2 hidden sm:flex">
+          <button className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hidden sm:flex">
             <Video className="h-4 w-4" />
           </button>
           <div className="dropdown dropdown-end">
-            <button className="btn btn-ghost btn-sm p-2">
+            <button className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
               <MoreVertical className="h-4 w-4" />
             </button>
-            <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
+            <ul className="dropdown-content menu p-2 shadow bg-white dark:bg-gray-800 rounded-lg w-32 border border-gray-200 dark:border-gray-700">
               <li>
-                <button className="flex items-center space-x-2 text-sm">
+                <button className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded">
                   <User className="h-4 w-4" />
                   <span>Ver perfil</span>
                 </button>
               </li>
               <li>
-                <button className="flex items-center space-x-2 text-sm text-error">
+                <button className="flex items-center space-x-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded">
                   <X className="h-4 w-4" />
                   <span>Eliminar chat</span>
                 </button>
@@ -275,21 +275,21 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           <div className="hidden sm:flex items-center space-x-1">
             <button
               type="button"
-              className="btn btn-ghost btn-sm p-2"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
               title="Adjuntar archivo"
             >
               <Paperclip className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="btn btn-ghost btn-sm p-2"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
               title="Enviar imagen"
             >
               <ImageIcon className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="btn btn-ghost btn-sm p-2"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
               title="Emojis"
             >
               <Smile className="h-4 w-4" />
@@ -303,7 +303,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Escribe un mensaje..."
-              className="textarea textarea-bordered w-full resize-none dark:placeholder-gray-400 text-sm sm:text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               rows={1}
               maxLength={1000}
             />
@@ -316,7 +316,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           <button
             type="submit"
             disabled={!newMessage.trim() || sending}
-            className={`btn bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500 hover:border-emerald-600 btn-sm p-2 sm:p-3 flex-shrink-0 ${
+            className={`bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 p-2 sm:p-3 flex-shrink-0 ${
               !newMessage.trim() || sending ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >

@@ -177,7 +177,7 @@ const Chat = ({ onClose, useFallback = false }) => {
   }
 
   return (
-    <div className="flex h-full bg-white dark:bg-gray-900" data-theme={theme}>
+    <div className="flex h-full bg-white dark:bg-gray-900">
       {/* Lista de Conversaciones */}
       {showConversationList && (
         <div className="w-full sm:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col">
@@ -188,14 +188,14 @@ const Chat = ({ onClose, useFallback = false }) => {
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={handleNewConversation}
-                  className="btn btn-sm btn-primary p-2"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 p-2"
                   title="Nueva conversación"
                 >
                   <MessageCircle className="h-4 w-4" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="btn btn-sm btn-ghost p-2"
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -210,7 +210,7 @@ const Chat = ({ onClose, useFallback = false }) => {
                 placeholder="Buscar..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input input-bordered w-full pl-10 text-sm sm:text-base dark:placeholder-gray-400"
+                className="w-full px-3 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -287,7 +287,7 @@ const Chat = ({ onClose, useFallback = false }) => {
               </h3>
               <button
                 onClick={() => setShowNewConversationModal(false)}
-                className="btn btn-ghost btn-sm p-2"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
               >
                 <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
