@@ -279,7 +279,7 @@ const ProductDetail = () => {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Producto no encontrado</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Producto no encontrado</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{error || 'El producto que buscas no existe o ha sido eliminado.'}</p>
           <button
             onClick={() => navigate('/')}
@@ -437,29 +437,29 @@ const ProductDetail = () => {
               {/* Detalles del producto */}
               <div className="space-y-3 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Categoría:</span>
-                  <span className="font-medium text-gray-700">{product.category}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Categoría:</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-300">{product.category}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Estado:</span>
+                  <span className="text-gray-500 dark:text-gray-400">Estado:</span>
                   <span className={`font-medium ${getConditionColor(product.condition_product)}`}>
                     {getConditionLabel(product.condition_product)}
                   </span>
                 </div>
                 {product.location && (
-                  <div className="flex items-center text-gray-500">
+                  <div className="flex items-center text-gray-500 dark:text-gray-400">
                     <MapPin size={16} className="mr-2" />
                     <span>{product.location}</span>
                   </div>
                 )}
-                <div className="flex items-center text-gray-500">
+                <div className="flex items-center text-gray-500 dark:text-gray-400">
                   <Calendar size={16} className="mr-2" />
                   <span>Publicado el {formatDate(product.created_at)}</span>
                 </div>
               </div>
 
               {/* Estadísticas */}
-              <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-6">
                 <div className="flex items-center">
                   <Eye size={16} className="mr-1" />
                   <span>{product.views || 0} vistas</span>

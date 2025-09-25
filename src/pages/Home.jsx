@@ -269,7 +269,7 @@ const Home = () => {
           {loading ? (
             <div className="text-center py-12">
               <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600">Cargando productos...</p>
+              <p className="text-gray-600 dark:text-gray-400">Cargando productos...</p>
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 xl:gap-8">
@@ -285,10 +285,10 @@ const Home = () => {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Gift className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {selectedCategory ? `No hay productos en ${selectedCategory}` : 'No hay productos disponibles'}
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {selectedCategory 
                   ? 'Sé el primero en publicar un producto en esta categoría'
                   : 'Sé el primero en publicar un producto'
@@ -440,10 +440,10 @@ const Home = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-2xl font-bold text-gray-800">Búsqueda Avanzada</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">Búsqueda Avanzada</h2>
               <button
                 onClick={() => setShowSearch(false)}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
               >
                 <X size={24} />
               </button>

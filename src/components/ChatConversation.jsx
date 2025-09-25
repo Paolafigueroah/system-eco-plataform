@@ -174,7 +174,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <MessageCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Conversación no encontrada</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Conversación no encontrada</h3>
         </div>
       </div>
     );
@@ -246,10 +246,10 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         ) : messages.length === 0 ? (
           <div className="text-center py-8">
             <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No hay mensajes aún
             </h3>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               Envía el primer mensaje para comenzar la conversación
             </p>
           </div>
@@ -305,7 +305,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
               rows={1}
               maxLength={1000}
             />
-            <div className="text-xs text-gray-500 mt-1 text-right">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
               {newMessage.length}/1000
             </div>
           </div>

@@ -184,19 +184,19 @@ default:
             <span className="font-medium text-gray-700 dark:text-gray-300">{getConditionLabel(product.condition_product)}</span>
           </div>
           {product.location && (
-            <div className="flex items-center text-sm text-gray-500">
+            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
               <MapPin size={14} className="mr-1" />
               <span>{product.location}</span>
             </div>
           )}
-          <div className="flex items-center text-sm text-gray-500">
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
             <Calendar size={14} className="mr-1" />
             <span>{formatDate(product.created_at)}</span>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
           <div className="flex items-center">
             <Eye size={14} className="mr-1" />
             <span>{product.views || 0} vistas</span>
@@ -262,7 +262,7 @@ default:
 
         {/* Seller Info */}
         <div className="mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center text-sm text-gray-600">
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
             <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-2">
               <span className="text-emerald-600 font-semibold text-xs">
                 {product.user_name ? product.user_name.charAt(0) : 'U'}
