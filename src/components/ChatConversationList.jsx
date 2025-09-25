@@ -48,17 +48,17 @@ const ChatConversationList = ({
           <div
             key={conversation.id}
             onClick={() => onSelectConversation(conversation)}
-            className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-base-200 ${
-              unread ? 'bg-primary/5 border-l-4 border-l-primary' : ''
+            className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 ${
+              unread ? 'bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-l-emerald-500' : ''
             }`}
           >
             {/* Avatar */}
             <div className="relative">
-              <div className="w-12 h-12 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold text-lg">
+              <div className="w-12 h-12 bg-emerald-500 text-white rounded-full flex items-center justify-center font-semibold text-lg">
                 {chatUtils.getInitials(participantName)}
               </div>
               {unread && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center ring-2 ring-white dark:ring-gray-800">
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-gray-800">
                   <Circle className="w-2 h-2 text-white fill-current" />
                 </div>
               )}
@@ -67,18 +67,18 @@ const ChatConversationList = ({
             {/* Información de la conversación */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
-                <h4 className="font-semibold text-base-content truncate">
+                <h4 className="font-semibold text-gray-900 dark:text-white truncate">
                   {participantName}
                 </h4>
                 {conversation.last_message_at && (
-                  <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap ml-2">
                     {chatUtils.formatMessageDate(conversation.last_message_at)}
                   </span>
                 )}
               </div>
               
               <p className={`text-sm truncate ${
-                unread ? 'text-base-content font-medium' : 'text-gray-500 dark:text-gray-400'
+                unread ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400'
               }`}>
                 {getLastMessagePreview(conversation)}
               </p>
@@ -87,7 +87,7 @@ const ChatConversationList = ({
             {/* Indicador de mensajes no leídos */}
             {unread && (
               <div className="flex-shrink-0">
-                <div className="w-3 h-3 bg-primary rounded-full"></div>
+                <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
               </div>
             )}
           </div>

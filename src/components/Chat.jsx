@@ -175,14 +175,14 @@ const Chat = ({ onClose, useFallback = false }) => {
   }
 
   return (
-    <div className="flex h-full bg-base-100">
+    <div className="flex h-full bg-white dark:bg-gray-900">
       {/* Lista de Conversaciones */}
       {showConversationList && (
-        <div className="w-full sm:w-80 lg:w-96 border-r border-base-300 flex flex-col">
+        <div className="w-full sm:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col">
           {/* Header */}
-          <div className="p-3 sm:p-4 border-b border-base-300 bg-base-200">
+          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-base-content">Chat</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Chat</h2>
               <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={handleNewConversation}
@@ -249,7 +249,7 @@ const Chat = ({ onClose, useFallback = false }) => {
 
       {/* Conversación Seleccionada */}
       {selectedConversation && (
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
           <ChatConversation
             conversation={selectedConversation}
             currentUser={user}
@@ -261,7 +261,7 @@ const Chat = ({ onClose, useFallback = false }) => {
 
       {/* Vista de Bienvenida (cuando no hay conversación seleccionada en desktop) */}
       {!showConversationList && !selectedConversation && (
-        <div className="flex-1 flex items-center justify-center bg-base-100">
+        <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900">
           <div className="text-center">
             <MessageCircle className="h-24 w-24 text-gray-300 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
@@ -277,11 +277,11 @@ const Chat = ({ onClose, useFallback = false }) => {
       {/* Modal para nueva conversación */}
       {showNewConversationModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4">
-          <div className="bg-base-100 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-base-300">
-              <h3 className="text-base sm:text-lg font-semibold">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                 Nueva Conversación 
-                <span className="text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2">({availableUsers.length})</span>
+                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 ml-1 sm:ml-2">({availableUsers.length})</span>
               </h3>
               <button
                 onClick={() => setShowNewConversationModal(false)}
@@ -297,14 +297,14 @@ const Chat = ({ onClose, useFallback = false }) => {
                   <button
                     key={user.id}
                     onClick={() => handleStartConversation(user.id)}
-                    className="w-full flex items-center space-x-3 p-2 sm:p-3 rounded-lg hover:bg-base-200 transition-colors"
+                    className="w-full flex items-center space-x-3 p-2 sm:p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold text-sm sm:text-base">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-semibold text-sm sm:text-base">
                       {chatUtils.getInitials(user.display_name || user.email)}
                     </div>
                     <div className="text-left flex-1 min-w-0">
-                      <p className="font-medium text-sm sm:text-base truncate">{user.display_name || 'Usuario'}</p>
-                      <p className="text-xs sm:text-sm text-gray-500 truncate">{user.email}</p>
+                      <p className="font-medium text-sm sm:text-base truncate text-gray-900 dark:text-white">{user.display_name || 'Usuario'}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                     </div>
                   </button>
                 ))}

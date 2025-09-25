@@ -31,7 +31,7 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
       <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
         {/* Nombre del remitente (solo para mensajes de otros) */}
         {!isOwnMessage && (
-          <div className="text-xs text-gray-500 mb-1 ml-2">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-2">
             {getSenderName()}
           </div>
         )}
@@ -40,8 +40,8 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
         <div
           className={`rounded-lg px-4 py-2 shadow-sm ${
             isOwnMessage
-              ? 'bg-primary text-primary-content rounded-br-md'
-              : 'bg-base-200 text-base-content rounded-bl-md'
+              ? 'bg-emerald-500 text-white rounded-br-md'
+              : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md'
           }`}
         >
           <p className="text-sm whitespace-pre-wrap break-words">
@@ -54,7 +54,7 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
           isOwnMessage ? 'justify-end' : 'justify-start'
         }`}>
           {/* Timestamp */}
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             {getMessageTime()}
           </span>
           
@@ -66,7 +66,7 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
       {/* Avatar (solo para mensajes de otros) */}
       {!isOwnMessage && (
         <div className="order-1 ml-2">
-          <div className="w-8 h-8 bg-secondary text-secondary-content rounded-full flex items-center justify-center text-xs font-semibold">
+          <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
             {chatUtils.getInitials(getSenderName())}
           </div>
         </div>

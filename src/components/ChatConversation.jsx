@@ -181,9 +181,9 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-base-100">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
       {/* Header de la conversación */}
-      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-base-300 bg-base-200">
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
         <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
           <button
             onClick={onBack}
@@ -193,15 +193,15 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           </button>
           
           {/* Avatar del participante */}
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold text-sm sm:text-base flex-shrink-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-semibold text-sm sm:text-base flex-shrink-0">
             {getParticipantName(getOtherParticipant()).charAt(0).toUpperCase()}
           </div>
           
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-base-content text-sm sm:text-base truncate">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">
               {getParticipantName(getOtherParticipant())}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-500 truncate">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
               {getOtherParticipant().email}
             </p>
           </div>
@@ -238,7 +238,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       </div>
 
       {/* Área de mensajes */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-white dark:bg-gray-900">
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="loading loading-spinner loading-lg"></div>
@@ -267,7 +267,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       </div>
 
       {/* Formulario de envío de mensajes */}
-      <div className="p-2 sm:p-3 lg:p-4 border-t border-base-300 bg-base-100">
+      <div className="p-2 sm:p-3 lg:p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         <form onSubmit={handleSendMessage} className="flex items-end space-x-2 sm:space-x-3">
           {/* Botones de acción - ocultos en móvil */}
           <div className="hidden sm:flex items-center space-x-1">
@@ -301,7 +301,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Escribe un mensaje..."
-              className="textarea textarea-bordered w-full resize-none dark:placeholder-gray-400 text-sm sm:text-base"
+              className="textarea textarea-bordered w-full resize-none dark:placeholder-gray-400 text-sm sm:text-base bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
               rows={1}
               maxLength={1000}
             />
@@ -314,8 +314,8 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           <button
             type="submit"
             disabled={!newMessage.trim() || sending}
-            className={`btn btn-primary btn-sm p-2 sm:p-3 flex-shrink-0 ${
-              !newMessage.trim() || sending ? 'btn-disabled' : ''
+            className={`btn bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500 hover:border-emerald-600 btn-sm p-2 sm:p-3 flex-shrink-0 ${
+              !newMessage.trim() || sending ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {sending ? (
