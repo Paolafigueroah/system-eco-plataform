@@ -307,6 +307,7 @@ const Chat = ({ onClose, useFallback = false }) => {
                 <div className="text-center py-8">
                   <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500">No hay otros usuarios disponibles</p>
+                  <p className="text-sm text-gray-400 mt-2">Los usuarios aparecerán aquí cuando se registren en la plataforma</p>
                 </div>
               )}
             </div>
