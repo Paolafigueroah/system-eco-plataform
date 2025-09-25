@@ -183,48 +183,48 @@ const About = () => {
       </section>
 
       {/* Technology Stack */}
-      <section className="py-16 bg-base-200 rounded-2xl">
+      <section className="py-16 bg-gray-100 dark:bg-gray-800 rounded-2xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-base-content mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Tecnologías Utilizadas
           </h2>
-          <p className="text-lg text-base-content/70">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Construida con tecnologías modernas para ofrecer la mejor experiencia.
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8">
-            <div className="card">
-              <h3 className="text-xl font-semibold text-base-content mb-4">Frontend</h3>
+            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Frontend</h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span>React 18</span>
+                  <span className="text-gray-700 dark:text-gray-300">React 18</span>
                   <span className="text-emerald-600">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Tailwind CSS</span>
+                  <span className="text-gray-700 dark:text-gray-300">Tailwind CSS</span>
                   <span className="text-emerald-600">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>DaisyUI</span>
+                  <span className="text-gray-700 dark:text-gray-300">DaisyUI</span>
                   <span className="text-emerald-600">✓</span>
                 </div>
               </div>
             </div>
-            <div className="card">
-              <h3 className="text-xl font-semibold text-base-content mb-4">Backend</h3>
+            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-md">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Backend</h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span>SQLite</span>
+                  <span className="text-gray-700 dark:text-gray-300">Supabase</span>
                   <span className="text-emerald-600">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Autenticación JWT</span>
+                  <span className="text-gray-700 dark:text-gray-300">Autenticación JWT</span>
                   <span className="text-emerald-600">✓</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span>Chat en tiempo real</span>
+                  <span className="text-gray-700 dark:text-gray-300">Chat en tiempo real</span>
                   <span className="text-emerald-600">✓</span>
                 </div>
               </div>
