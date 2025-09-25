@@ -5,6 +5,7 @@ import { supabaseProductService } from '../services/supabaseProductService';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import { useAuth } from '../hooks/useAuth';
 import { migrationConfig } from '../config/migrationConfig';
+import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -357,10 +358,11 @@ const ProductDetail = () => {
                 ) : (
                   <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                     <div className="text-gray-400 text-center">
-                      <div className="w-20 h-20 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-gray-600 dark:text-gray-400 font-semibold text-2xl">
-                          {product.category ? product.category.charAt(0).toUpperCase() : 'P'}
-                        </span>
+                      <div className={`w-20 h-20 ${getCategoryIconColor(product.category)} rounded-full flex items-center justify-center mx-auto mb-4`}>
+                        {React.createElement(getCategoryIcon(product.category), { 
+                          size: 32, 
+                          className: "text-white" 
+                        })}
                       </div>
                       <p className="text-lg">Sin imagen disponible</p>
                     </div>

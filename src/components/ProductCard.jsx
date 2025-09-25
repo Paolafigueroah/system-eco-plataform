@@ -3,6 +3,7 @@ import { Eye, Heart, MessageCircle, MapPin, Calendar, Edit, Trash2 } from 'lucid
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
+import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 
 const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const { user } = useAuth();
@@ -136,10 +137,11 @@ default:
         ) : null}
         <div className="absolute inset-0 bg-gray-200 flex items-center justify-center" style={{ display: (product.images && product.images.length > 0) ? 'none' : 'flex' }}>
           <div className="text-gray-400 text-center">
-            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-gray-600 font-semibold text-lg">
-                {product.category ? product.category.charAt(0) : 'P'}
-              </span>
+            <div className={`w-12 h-12 ${getCategoryIconColor(product.category)} rounded-full flex items-center justify-center mx-auto mb-2`}>
+              {React.createElement(getCategoryIcon(product.category), { 
+                size: 24, 
+                className: "text-white" 
+              })}
             </div>
             <p className="text-sm">Sin imagen</p>
           </div>

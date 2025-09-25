@@ -1,5 +1,6 @@
 import React from 'react';
 import { Code, Database, Palette, Zap, Leaf, Users, TrendingUp, Shield } from 'lucide-react';
+import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 
 const About = () => {
   const objectives = [
@@ -166,16 +167,18 @@ const About = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.map((category, index) => (
-            <div key={index} className="card text-center group hover:shadow-lg transition-all duration-300">
-              <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-sky-200 transition-colors duration-300">
-                <span className="text-sky-600 font-semibold text-lg">
-                  {category.charAt(0)}
-                </span>
+          {categories.map((category, index) => {
+            const Icon = getCategoryIcon(category);
+            const iconColor = getCategoryIconColor(category);
+            return (
+              <div key={index} className="card text-center group hover:shadow-lg transition-all duration-300">
+                <div className={`w-12 h-12 ${iconColor} rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300`}>
+                  <Icon size={24} className="text-white" />
+                </div>
+                <h3 className="font-medium text-base-content">{category}</h3>
               </div>
-              <h3 className="font-medium text-base-content">{category}</h3>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

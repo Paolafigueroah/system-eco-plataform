@@ -6,6 +6,7 @@ import { supabaseProductService } from '../services/supabaseProductService';
 import AddProductForm from '../components/AddProductForm';
 import ProductCard from '../components/ProductCard';
 import SearchProducts from '../components/SearchProducts';
+import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -222,26 +223,28 @@ const Home = () => {
             Explorar por Categorías
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {categories.map((category) => (
-              <button
-                key={`category-${category}`}
-                onClick={() => handleCategoryClick(category)}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                  selectedCategory === category
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <span className="text-emerald-600 font-semibold text-lg">
-                      {category.charAt(0)}
-                    </span>
+            {categories.map((category) => {
+              const Icon = getCategoryIcon(category);
+              const iconColor = getCategoryIconColor(category);
+              return (
+                <button
+                  key={`category-${category}`}
+                  onClick={() => handleCategoryClick(category)}
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                    selectedCategory === category
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className={`w-12 h-12 ${iconColor} rounded-full flex items-center justify-center mx-auto mb-2`}>
+                      <Icon size={24} className="text-white" />
+                    </div>
+                    <h3 className="font-medium text-sm">{category}</h3>
                   </div>
-                  <h3 className="font-medium text-sm">{category}</h3>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
