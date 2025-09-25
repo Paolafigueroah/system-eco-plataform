@@ -4,10 +4,12 @@ import LoginDebug from '../components/LoginDebug';
 import DatabaseMigrator from '../components/DatabaseMigrator';
 import ChatDiagnostic from '../components/ChatDiagnostic';
 import ProductDetailDebug from '../components/ProductDetailDebug';
+import DarkModeTest from '../components/DarkModeTest';
 
 const DebugPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <DarkModeTest />
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">

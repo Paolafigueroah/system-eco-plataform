@@ -36,12 +36,17 @@ export const ThemeProvider = ({ children }) => {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
     } else {
       root.classList.remove('dark');
+      root.setAttribute('data-theme', 'light');
     }
     
     // Guardar tema en localStorage
     localStorage.setItem('theme', theme);
+    
+    // Forzar re-render del componente
+    console.log('Tema aplicado:', theme, 'Clase dark:', root.classList.contains('dark'));
   }, [theme]);
 
   const toggleTheme = () => {
