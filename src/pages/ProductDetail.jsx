@@ -32,6 +32,7 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
+        setError(null);
         const productService = getProductService();
         
         if (!productService) {
@@ -39,18 +40,24 @@ const ProductDetail = () => {
           return;
         }
 
+        console.log('🔍 ProductDetail: Obteniendo producto con ID:', id);
         const result = await productService.getProductById(id);
+        console.log('🔍 ProductDetail: Resultado del servicio:', result);
         
-        if (result.success) {
+        if (result.success && result.data) {
+          console.log('🔍 ProductDetail: Producto cargado exitosamente:', result.data);
           setProduct(result.data);
           // Incrementar vistas del producto
           await productService.incrementViews(id);
         } else {
+          console.error('🔍 ProductDetail: Error al cargar producto:', result.error);
           setError(result.error || 'Producto no encontrado');
+          setProduct(null);
         }
       } catch (err) {
-        setError('Error al cargar el producto');
-        console.error('Error fetching product:', err);
+        console.error('🔍 ProductDetail: Error inesperado:', err);
+        setError('Error al cargar el producto: ' + err.message);
+        setProduct(null);
       } finally {
         setLoading(false);
       }
@@ -281,6 +288,38 @@ const ProductDetail = () => {
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Producto no encontrado</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">{error || 'El producto que buscas no existe o ha sido eliminado.'}</p>
+          <div className="bg-yellow-100 dark:bg-yellow-900 p-4 rounded-lg mb-6 max-w-md mx-auto">
+            <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+              <strong>ID del producto:</strong> {id}<br/>
+              <strong>Error:</strong> {error || 'Producto no encontrado'}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors duration-200"
+          >
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificación adicional de seguridad
+  if (!product || !product.id) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Error de datos</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">El producto no tiene datos válidos.</p>
+          <div className="bg-red-100 dark:bg-red-900 p-4 rounded-lg mb-6 max-w-md mx-auto">
+            <p className="text-red-800 dark:text-red-200 text-sm">
+              <strong>ID del producto:</strong> {id}<br/>
+              <strong>Producto cargado:</strong> {product ? 'Sí' : 'No'}<br/>
+              <strong>Datos del producto:</strong> {JSON.stringify(product, null, 2)}
+            </p>
+          </div>
           <button
             onClick={() => navigate('/')}
             className="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors duration-200"
