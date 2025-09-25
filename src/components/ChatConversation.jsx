@@ -183,36 +183,36 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   return (
     <div className="flex flex-col h-full bg-base-100">
       {/* Header de la conversación */}
-      <div className="flex items-center justify-between p-4 border-b border-base-300 bg-base-200">
-        <div className="flex items-center space-x-3">
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-base-300 bg-base-200">
+        <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
           <button
             onClick={onBack}
-            className="btn btn-ghost btn-sm p-2"
+            className="btn btn-ghost btn-sm p-2 flex-shrink-0"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
           
           {/* Avatar del participante */}
-          <div className="w-10 h-10 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold text-sm sm:text-base flex-shrink-0">
             {getParticipantName(getOtherParticipant()).charAt(0).toUpperCase()}
           </div>
           
-          <div>
-            <h3 className="font-semibold text-base-content">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-base-content text-sm sm:text-base truncate">
               {getParticipantName(getOtherParticipant())}
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-xs sm:text-sm text-gray-500 truncate">
               {getOtherParticipant().email}
             </p>
           </div>
         </div>
 
         {/* Acciones de la conversación */}
-        <div className="flex items-center space-x-2">
-          <button className="btn btn-ghost btn-sm p-2">
+        <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+          <button className="btn btn-ghost btn-sm p-2 hidden sm:flex">
             <Phone className="h-4 w-4" />
           </button>
-          <button className="btn btn-ghost btn-sm p-2">
+          <button className="btn btn-ghost btn-sm p-2 hidden sm:flex">
             <Video className="h-4 w-4" />
           </button>
           <div className="dropdown dropdown-end">
@@ -221,13 +221,13 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
             </button>
             <ul className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-32">
               <li>
-                <button className="flex items-center space-x-2">
+                <button className="flex items-center space-x-2 text-sm">
                   <User className="h-4 w-4" />
                   <span>Ver perfil</span>
                 </button>
               </li>
               <li>
-                <button className="flex items-center space-x-2 text-error">
+                <button className="flex items-center space-x-2 text-sm text-error">
                   <X className="h-4 w-4" />
                   <span>Eliminar chat</span>
                 </button>
@@ -267,10 +267,10 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       </div>
 
       {/* Formulario de envío de mensajes */}
-      <div className="p-3 sm:p-4 border-t border-base-300 bg-base-100">
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-3">
-          {/* Botones de acción */}
-          <div className="flex items-center space-x-1">
+      <div className="p-2 sm:p-3 lg:p-4 border-t border-base-300 bg-base-100">
+        <form onSubmit={handleSendMessage} className="flex items-end space-x-2 sm:space-x-3">
+          {/* Botones de acción - ocultos en móvil */}
+          <div className="hidden sm:flex items-center space-x-1">
             <button
               type="button"
               className="btn btn-ghost btn-sm p-2"
@@ -295,13 +295,13 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           </div>
 
           {/* Campo de texto */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <textarea
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Escribe un mensaje..."
-              className="textarea textarea-bordered w-full resize-none dark:placeholder-gray-400"
+              className="textarea textarea-bordered w-full resize-none dark:placeholder-gray-400 text-sm sm:text-base"
               rows={1}
               maxLength={1000}
             />
@@ -314,7 +314,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           <button
             type="submit"
             disabled={!newMessage.trim() || sending}
-            className={`btn btn-primary btn-sm p-3 ${
+            className={`btn btn-primary btn-sm p-2 sm:p-3 flex-shrink-0 ${
               !newMessage.trim() || sending ? 'btn-disabled' : ''
             }`}
           >

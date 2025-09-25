@@ -178,22 +178,22 @@ const Chat = ({ onClose, useFallback = false }) => {
     <div className="flex h-full bg-base-100">
       {/* Lista de Conversaciones */}
       {showConversationList && (
-        <div className="w-full md:w-80 xl:w-96 border-r border-base-300 flex flex-col">
+        <div className="w-full sm:w-80 lg:w-96 border-r border-base-300 flex flex-col">
           {/* Header */}
-          <div className="p-4 border-b border-base-300 bg-base-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-base-content">Chat</h2>
-              <div className="flex items-center space-x-2">
+          <div className="p-3 sm:p-4 border-b border-base-300 bg-base-200">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-base-content">Chat</h2>
+              <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={handleNewConversation}
-                  className="btn btn-sm btn-primary"
+                  className="btn btn-sm btn-primary p-2"
                   title="Nueva conversación"
                 >
                   <MessageCircle className="h-4 w-4" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="btn btn-sm btn-ghost"
+                  className="btn btn-sm btn-ghost p-2"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -205,10 +205,10 @@ const Chat = ({ onClose, useFallback = false }) => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
-                placeholder="Buscar conversaciones..."
+                placeholder="Buscar..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="input input-bordered w-full pl-10 dark:placeholder-gray-400"
+                className="input input-bordered w-full pl-10 text-sm sm:text-base dark:placeholder-gray-400"
               />
             </div>
           </div>
@@ -276,45 +276,45 @@ const Chat = ({ onClose, useFallback = false }) => {
 
       {/* Modal para nueva conversación */}
       {showNewConversationModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-base-100 rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-base-300">
-              <h3 className="text-lg font-semibold">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-base-100 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-3 sm:p-4 border-b border-base-300">
+              <h3 className="text-base sm:text-lg font-semibold">
                 Nueva Conversación 
-                <span className="text-sm text-gray-500 ml-2">({availableUsers.length} usuarios)</span>
+                <span className="text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2">({availableUsers.length})</span>
               </h3>
               <button
                 onClick={() => setShowNewConversationModal(false)}
-                className="btn btn-ghost btn-sm"
+                className="btn btn-ghost btn-sm p-2"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
             
-            <div className="p-4 overflow-y-auto max-h-[60vh]">
+            <div className="p-3 sm:p-4 overflow-y-auto max-h-[70vh] sm:max-h-[60vh]">
               <div className="space-y-2">
                 {availableUsers.map((user) => (
                   <button
                     key={user.id}
                     onClick={() => handleStartConversation(user.id)}
-                    className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-base-200 transition-colors"
+                    className="w-full flex items-center space-x-3 p-2 sm:p-3 rounded-lg hover:bg-base-200 transition-colors"
                   >
-                    <div className="w-10 h-10 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary text-primary-content rounded-full flex items-center justify-center font-semibold text-sm sm:text-base">
                       {chatUtils.getInitials(user.display_name || user.email)}
                     </div>
-                    <div className="text-left">
-                      <p className="font-medium">{user.display_name || 'Usuario'}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
+                    <div className="text-left flex-1 min-w-0">
+                      <p className="font-medium text-sm sm:text-base truncate">{user.display_name || 'Usuario'}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 truncate">{user.email}</p>
                     </div>
                   </button>
                 ))}
               </div>
               
               {availableUsers.length === 0 && (
-                <div className="text-center py-8">
-                  <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No hay otros usuarios disponibles</p>
-                  <p className="text-sm text-gray-400 mt-2">Los usuarios aparecerán aquí cuando se registren en la plataforma</p>
+                <div className="text-center py-6 sm:py-8">
+                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                  <p className="text-gray-500 text-sm sm:text-base">No hay otros usuarios disponibles</p>
+                  <p className="text-xs sm:text-sm text-gray-400 mt-2">Los usuarios aparecerán aquí cuando se registren en la plataforma</p>
                 </div>
               )}
             </div>
