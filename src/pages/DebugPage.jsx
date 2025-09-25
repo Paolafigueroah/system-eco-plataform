@@ -2,6 +2,7 @@ import React from 'react';
 import DebugInfo from '../components/DebugInfo';
 import LoginDebug from '../components/LoginDebug';
 import DatabaseMigrator from '../components/DatabaseMigrator';
+import ChatDiagnostic from '../components/ChatDiagnostic';
 
 const DebugPage = () => {
   return (
@@ -24,6 +25,10 @@ const DebugPage = () => {
         
         <div className="mt-8">
           <LoginDebug />
+        </div>
+        
+        <div className="mt-8">
+          <ChatDiagnostic />
         </div>
       </div>
     </div>
