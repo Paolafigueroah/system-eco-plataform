@@ -14,6 +14,7 @@ import {
   Circle
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 import { supabaseChatService as chatService, chatUtils } from '../services/supabaseChatService';
 import { supabaseChatServiceFallback } from '../services/supabaseChatServiceFallback';
 import { useRealtime } from '../hooks/useRealtime.jsx';
@@ -22,6 +23,7 @@ import ChatConversationList from './ChatConversationList';
 
 const Chat = ({ onClose, useFallback = false }) => {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const { subscribeToConversations, unsubscribe } = useRealtime();
   
   // Siempre usar el servicio principal de Supabase
@@ -175,7 +177,7 @@ const Chat = ({ onClose, useFallback = false }) => {
   }
 
   return (
-    <div className="flex h-full bg-white dark:bg-gray-900">
+    <div className="flex h-full bg-white dark:bg-gray-900" data-theme={theme}>
       {/* Lista de Conversaciones */}
       {showConversationList && (
         <div className="w-full sm:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col">

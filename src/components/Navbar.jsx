@@ -42,7 +42,7 @@ const Navbar = () => {
                 <span className="text-white font-bold text-xl">♻</span>
               </div>
               <span className="hidden sm:block text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors duration-300">
-                System Eco
+                BioConnect
               </span>
             </Link>
 

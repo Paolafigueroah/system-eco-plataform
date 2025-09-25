@@ -1,8 +1,10 @@
 import React from 'react';
 import { Check, CheckCheck } from 'lucide-react';
 import { chatUtils } from '../services/sqliteChatService';
+import { useTheme } from '../hooks/useTheme';
 
 const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
+  const { theme } = useTheme();
   const getMessageStatus = () => {
     if (isOwnMessage) {
       if (message.read) {

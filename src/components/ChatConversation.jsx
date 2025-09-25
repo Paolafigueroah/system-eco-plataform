@@ -15,8 +15,10 @@ import {
 import { supabaseChatService as chatService } from '../services/supabaseChatService';
 import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatMessage from './ChatMessage';
+import { useTheme } from '../hooks/useTheme';
 
 const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
+  const { theme } = useTheme();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);

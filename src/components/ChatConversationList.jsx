@@ -1,6 +1,7 @@
 import React from 'react';
 import { MessageCircle, Circle } from 'lucide-react';
 import { chatUtils } from '../services/sqliteChatService';
+import { useTheme } from '../hooks/useTheme';
 
 const ChatConversationList = ({ 
   conversations, 
@@ -8,6 +9,7 @@ const ChatConversationList = ({
   onSelectConversation,
   unreadCount 
 }) => {
+  const { theme } = useTheme();
   const getOtherParticipant = (conversation) => {
     // Usar la información del otro usuario que ya tenemos
     return conversation.other_user || { id: 'unknown', name: 'Usuario', email: 'usuario@example.com' };
