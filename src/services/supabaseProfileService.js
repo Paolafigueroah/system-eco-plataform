@@ -1,91 +1,90 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
-// Servicio de perfiles con Supabase
+// Servicio de perfiles de usuario con Supabase
 export const supabaseProfileService = {
-  // Obtener perfil del usuario
-  getUserProfile: async (userId) => {
+  // Obtener perfil de usuario
+  getProfile: async (userId) => {
     try {
-      console.log('👤 Supabase: Obteniendo perfil de usuario...', userId);
-
-      // Primero intentar obtener el perfil desde la tabla profiles
+      console.log('👤 Supabase: Obteniendo perfil...', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-        console.warn('Error obteniendo perfil desde tabla profiles:', error);
-        
-        // Si no existe la tabla profiles, usar datos del usuario de auth
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) throw userError;
-        
-        const defaultProfile = {
-          id: userId,
-          display_name: userData.user?.user_metadata?.display_name || userData.user?.email || 'Usuario',
-          email: userData.user?.email || 'usuario@ejemplo.com',
-          bio: 'Usuario de System Eco',
-          location: 'Ubicación no especificada'
-        };
-
-        return supabaseUtils.handleSuccess(defaultProfile, 'Obtener perfil de usuario (desde auth)');
-      }
-
-      if (!data) {
-        // Crear perfil por defecto si no existe
-        const { data: userData, error: userError } = await supabase.auth.getUser();
-        
-        const defaultProfile = {
-          id: userId,
-          display_name: userData.user?.user_metadata?.display_name || userData.user?.email || 'Usuario',
-          email: userData.user?.email || 'usuario@ejemplo.com',
-          bio: 'Usuario de System Eco',
-          location: 'Ubicación no especificada',
-          created_at: new Date().toISOString()
-        };
-
-        const { data: newProfile, error: createError } = await supabase
-          .from('profiles')
-          .insert(defaultProfile)
-          .select()
-          .single();
-
-        if (createError) {
-          console.warn('Error creando perfil:', createError);
-          return supabaseUtils.handleSuccess(defaultProfile, 'Obtener perfil de usuario (por defecto)');
+      if (error) {
+        // Si no existe el perfil, crear uno básico
+        if (error.code === 'PGRST116') {
+          return await supabaseProfileService.createProfile(userId, {
+            display_name: '',
+            bio: '',
+            location: '',
+            phone: '',
+            website: ''
+          });
         }
-
-        return supabaseUtils.handleSuccess(newProfile, 'Obtener perfil de usuario');
+        throw error;
       }
 
-      return supabaseUtils.handleSuccess(data, 'Obtener perfil de usuario');
+      return supabaseUtils.handleSuccess(data, 'Obtener perfil');
     } catch (error) {
-      console.warn('Error obteniendo perfil, usando datos por defecto:', error);
-      
-      // Retornar perfil por defecto en caso de error
-      const defaultProfile = {
-        id: userId,
-        display_name: 'Usuario',
-        email: 'usuario@ejemplo.com',
-        bio: 'Usuario de System Eco',
-        location: 'Ubicación no especificada'
-      };
-
-      return supabaseUtils.handleSuccess(defaultProfile, 'Obtener perfil de usuario (por defecto)');
+      return supabaseUtils.handleError(error, 'Obtener perfil');
     }
   },
 
-  // Actualizar perfil del usuario
-  updateUserProfile: async (userId, profileData) => {
+  // Crear perfil de usuario
+  createProfile: async (userId, profileData) => {
     try {
-      console.log('👤 Supabase: Actualizando perfil de usuario...', { userId, profileData });
+      console.log('👤 Supabase: Creando perfil...', userId);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
+
+      const profile = {
+        id: userId,
+        display_name: profileData.display_name || user.user_metadata?.display_name || user.email,
+        email: user.email,
+        bio: profileData.bio || '',
+        location: profileData.location || '',
+        phone: profileData.phone || '',
+        website: profileData.website || '',
+        avatar_url: profileData.avatar_url || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert(profile)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Crear perfil');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Crear perfil');
+    }
+  },
+
+  // Actualizar perfil de usuario
+  updateProfile: async (userId, updateData) => {
+    try {
+      console.log('👤 Supabase: Actualizando perfil...', userId);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
+
+      // Solo permitir actualizar el propio perfil
+      if (user.id !== userId) {
+        throw new Error('No tienes permisos para actualizar este perfil');
+      }
 
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          ...profileData,
+          ...updateData,
           updated_at: new Date().toISOString()
         })
         .eq('id', userId)
@@ -94,76 +93,114 @@ export const supabaseProfileService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Actualizar perfil de usuario');
+      return supabaseUtils.handleSuccess(data, 'Actualizar perfil');
     } catch (error) {
-      return supabaseUtils.handleError(error, 'Actualizar perfil de usuario');
+      return supabaseUtils.handleError(error, 'Actualizar perfil');
     }
   },
 
-  // Crear perfil inicial
-  createInitialProfile: async (userId, userData) => {
+  // Obtener todos los perfiles (para búsqueda)
+  getAllProfiles: async () => {
     try {
-      console.log('👤 Supabase: Creando perfil inicial...', { userId, userData });
+      console.log('👤 Supabase: Obteniendo todos los perfiles...');
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      const profileData = {
-        id: userId,
-        display_name: userData.display_name || userData.full_name || 'Usuario',
-        email: userData.email,
-        bio: 'Usuario de System Eco',
-        location: 'Ubicación no especificada',
-        created_at: new Date().toISOString()
-      };
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Obtener todos los perfiles');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Obtener todos los perfiles');
+    }
+  },
+
+  // Buscar perfiles
+  searchProfiles: async (searchTerm) => {
+    try {
+      console.log('👤 Supabase: Buscando perfiles...', searchTerm);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`display_name.ilike.%${searchTerm}%,bio.ilike.%${searchTerm}%,location.ilike.%${searchTerm}%`)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Buscar perfiles');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Buscar perfiles');
+    }
+  },
+
+  // Subir avatar
+  uploadAvatar: async (userId, file) => {
+    try {
+      console.log('👤 Supabase: Subiendo avatar...', userId);
+      
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('products')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      // Obtener URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('products')
+        .getPublicUrl(filePath);
+
+      // Actualizar perfil con nueva URL de avatar
+      const updateResult = await supabaseProfileService.updateProfile(userId, {
+        avatar_url: publicUrl
+      });
+
+      if (updateResult.success) {
+        return supabaseUtils.handleSuccess({ url: publicUrl }, 'Subir avatar');
+      } else {
+        throw new Error(updateResult.error);
+      }
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Subir avatar');
+    }
+  },
+
+  // Eliminar perfil
+  deleteProfile: async (userId) => {
+    try {
+      console.log('👤 Supabase: Eliminando perfil...', userId);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuario no autenticado');
+
+      // Solo permitir eliminar el propio perfil
+      if (user.id !== userId) {
+        throw new Error('No tienes permisos para eliminar este perfil');
+      }
 
       const { data, error } = await supabase
         .from('profiles')
-        .insert(profileData)
+        .delete()
+        .eq('id', userId)
         .select()
         .single();
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Crear perfil inicial');
+      return supabaseUtils.handleSuccess(data, 'Eliminar perfil');
     } catch (error) {
-      return supabaseUtils.handleError(error, 'Crear perfil inicial');
-    }
-  },
-
-  // Obtener estadísticas del usuario
-  getUserStats: async (userId) => {
-    try {
-      console.log('👤 Supabase: Obteniendo estadísticas del usuario...', userId);
-
-      // Obtener conteo de productos
-      const { count: productsCount, error: productsError } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-      if (productsError) throw productsError;
-
-      // Obtener conteo de favoritos
-      const { count: favoritesCount, error: favoritesError } = await supabase
-        .from('favorites')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
-
-      if (favoritesError) throw favoritesError;
-
-      // Obtener conteo de conversaciones
-      const { count: conversationsCount, error: conversationsError } = await supabase
-        .from('conversations')
-        .select('*', { count: 'exact', head: true })
-        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
-
-      if (conversationsError) throw conversationsError;
-
-      return supabaseUtils.handleSuccess({
-        total_products: productsCount || 0,
-        total_favorites: favoritesCount || 0,
-        total_conversations: conversationsCount || 0
-      }, 'Obtener estadísticas del usuario');
-    } catch (error) {
-      return supabaseUtils.handleError(error, 'Obtener estadísticas del usuario');
+      return supabaseUtils.handleError(error, 'Eliminar perfil');
     }
   }
 };
+
+export default supabaseProfileService;

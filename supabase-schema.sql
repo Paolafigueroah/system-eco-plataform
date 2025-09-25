@@ -171,7 +171,108 @@ CREATE POLICY "Users can create their own profile" ON profiles
 CREATE POLICY "Users can update their own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- 9. Configurar storage policies
+-- 10. Crear tabla de notificaciones
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  type VARCHAR(50) DEFAULT 'info',
+  is_read BOOLEAN DEFAULT FALSE,
+  data JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 11. Crear tabla de gamificación
+CREATE TABLE IF NOT EXISTS user_points (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  points INTEGER DEFAULT 0,
+  action VARCHAR(100) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 12. Crear tabla de badges
+CREATE TABLE IF NOT EXISTS user_badges (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  badge_id VARCHAR(100) NOT NULL,
+  earned_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, badge_id)
+);
+
+-- 13. Crear índices adicionales
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at);
+CREATE INDEX IF NOT EXISTS idx_user_points_user_id ON user_points(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON user_badges(user_id);
+
+-- 14. Habilitar RLS en nuevas tablas
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_points ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para notificaciones
+CREATE POLICY "Users can view their own notifications" ON notifications
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own notifications" ON notifications
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own notifications" ON notifications
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Políticas para puntos de usuario
+CREATE POLICY "Users can view their own points" ON user_points
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own points" ON user_points
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Políticas para badges
+CREATE POLICY "Users can view their own badges" ON user_badges
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own badges" ON user_badges
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- 15. Crear función para incrementar vistas
+CREATE OR REPLACE FUNCTION increment_views(product_id UUID)
+RETURNS void AS $$
+BEGIN
+  UPDATE products 
+  SET views = views + 1 
+  WHERE id = product_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 16. Crear función para actualizar contador de favoritos
+CREATE OR REPLACE FUNCTION update_favorites_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE products 
+    SET favorites = favorites + 1 
+    WHERE id = NEW.product_id;
+    RETURN NEW;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE products 
+    SET favorites = favorites - 1 
+    WHERE id = OLD.product_id;
+    RETURN OLD;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 17. Crear trigger para actualizar contador de favoritos
+CREATE TRIGGER update_favorites_count_trigger
+  AFTER INSERT OR DELETE ON favorites
+  FOR EACH ROW EXECUTE FUNCTION update_favorites_count();
+
+-- 18. Configurar storage policies
 CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'products');
 CREATE POLICY "Authenticated users can upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'products' AND auth.role() = 'authenticated');
 CREATE POLICY "Users can update their own files" ON storage.objects FOR UPDATE USING (bucket_id = 'products' AND auth.uid()::text = (storage.foldername(name))[1]);

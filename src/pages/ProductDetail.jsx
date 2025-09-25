@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Heart, MessageCircle, MapPin, Calendar, User, Phone, Mail } from 'lucide-react';
-import { sqliteProductService } from '../services/sqliteProductService';
-import { sqliteFavoritesService } from '../services/sqliteFavoritesService';
+import { ArrowLeft, Eye, Heart, MessageCircle, MapPin, Calendar, User, Phone, Mail, Share2, Flag, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabaseProductService } from '../services/supabaseProductService';
+import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import { useAuth } from '../hooks/useAuth';
+import { migrationConfig } from '../config/migrationConfig';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -14,17 +15,35 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
+
+  // Función para obtener el servicio correcto
+  const getProductService = () => {
+    return migrationConfig.databaseType === 'supabase' ? supabaseProductService : null;
+  };
+
+  const getFavoritesService = () => {
+    return migrationConfig.databaseType === 'supabase' ? supabaseFavoritesService : null;
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const result = await sqliteProductService.getProductById(id);
+        const productService = getProductService();
+        
+        if (!productService) {
+          setError('Servicio de productos no disponible');
+          return;
+        }
+
+        const result = await productService.getProductById(id);
         
         if (result.success) {
-          setProduct(result.product);
+          setProduct(result.data);
           // Incrementar vistas del producto
-          await sqliteProductService.incrementViews(id);
+          await productService.incrementViews(id);
         } else {
           setError(result.error || 'Producto no encontrado');
         }
@@ -46,9 +65,12 @@ const ProductDetail = () => {
     const checkFavorite = async () => {
       if (user && product) {
         try {
-          const result = await sqliteFavoritesService.isFavorite(user.id, product.id);
+          const favoritesService = getFavoritesService();
+          if (!favoritesService) return;
+
+          const result = await favoritesService.isFavorite(product.id);
           if (result.success) {
-            setIsFavorite(result.isFavorite);
+            setIsFavorite(result.data);
           }
         } catch (error) {
           console.error('Error verificando favorito:', error);
@@ -144,7 +166,13 @@ const ProductDetail = () => {
 
     setIsLoadingFavorite(true);
     try {
-      const result = await sqliteFavoritesService.toggleFavorite(user.id, product.id);
+      const favoritesService = getFavoritesService();
+      if (!favoritesService) {
+        alert('Servicio de favoritos no disponible');
+        return;
+      }
+
+      const result = await favoritesService.toggleFavorite(product.id);
       if (result.success) {
         setIsFavorite(!isFavorite);
       } else {
@@ -166,8 +194,8 @@ const ProductDetail = () => {
       return;
     }
     
-    // Aquí podrías implementar un modal de contacto o redirigir al chat
-    alert('Funcionalidad de contacto en desarrollo');
+    // Redirigir al chat con el vendedor
+    navigate('/chat');
   };
 
   // Manejar chat
@@ -180,6 +208,59 @@ const ProductDetail = () => {
     // Redirigir al chat con el vendedor
     navigate('/chat');
   };
+
+  // Manejar compartir producto
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.title,
+          text: product.description,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error compartiendo:', error);
+      }
+    } else {
+      // Fallback: copiar URL al portapapeles
+      navigator.clipboard.writeText(window.location.href);
+      alert('URL copiada al portapapeles');
+    }
+  };
+
+  // Manejar reportar producto
+  const handleReport = () => {
+    alert('Funcionalidad de reporte en desarrollo');
+  };
+
+  // Navegación de imágenes
+  const nextImage = () => {
+    if (product.images && product.images.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === product.images.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const prevImage = () => {
+    if (product.images && product.images.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === 0 ? product.images.length - 1 : prev - 1
+      );
+    }
+  };
+
+  // Obtener imágenes del producto
+  const getProductImages = () => {
+    if (!product.images) return [];
+    if (Array.isArray(product.images)) return product.images;
+    if (typeof product.images === 'string') {
+      return product.images.split(',').filter(img => img.trim());
+    }
+    return [];
+  };
+
+  const productImages = getProductImages();
 
   if (loading) {
     return (
@@ -227,55 +308,128 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Imagen del producto */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="relative h-96 bg-gray-200">
-                {product.images && product.images.length > 0 ? (
-                  <img
-                    src={Array.isArray(product.images) ? product.images[0] : product.images.split(',')[0]}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                ) : null}
-                <div 
-                  className="absolute inset-0 bg-gray-200 flex items-center justify-center" 
-                  style={{ display: (product.images && product.images.length > 0) ? 'none' : 'flex' }}
-                >
-                  <div className="text-gray-400 text-center">
-                    <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <span className="text-gray-600 dark:text-gray-400 font-semibold text-2xl">
-                        {product.category ? product.category.charAt(0).toUpperCase() : 'P'}
-                      </span>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              <div className="relative h-96 bg-gray-200 dark:bg-gray-700">
+                {productImages.length > 0 ? (
+                  <>
+                    <img
+                      src={productImages[currentImageIndex]}
+                      alt={product.title}
+                      className="w-full h-full object-cover cursor-pointer"
+                      onClick={() => setShowImageModal(true)}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    
+                    {/* Navegación de imágenes */}
+                    {productImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevImage}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+                        <button
+                          onClick={nextImage}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                        
+                        {/* Indicadores de imagen */}
+                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                          {productImages.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => setCurrentImageIndex(index)}
+                              className={`w-2 h-2 rounded-full transition-colors ${
+                                index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <div className="text-gray-400 text-center">
+                      <div className="w-20 h-20 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-gray-600 dark:text-gray-400 font-semibold text-2xl">
+                          {product.category ? product.category.charAt(0).toUpperCase() : 'P'}
+                        </span>
+                      </div>
+                      <p className="text-lg">Sin imagen disponible</p>
                     </div>
-                    <p className="text-lg">Sin imagen disponible</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Miniaturas de imágenes */}
+              {productImages.length > 1 && (
+                <div className="p-4 bg-gray-50 dark:bg-gray-700">
+                  <div className="flex space-x-2 overflow-x-auto">
+                    {productImages.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                          index === currentImageIndex 
+                            ? 'border-emerald-500' 
+                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`${product.title} ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
           {/* Información del producto */}
           <div className="space-y-6">
             {/* Información principal */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getTransactionTypeColor(product.transaction_type)}`}>
                     {getTransactionTypeLabel(product.transaction_type)}
                   </span>
-                  <span className="text-3xl font-bold text-emerald-600">
-                    {formatPrice(product.price)}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handleShare}
+                      className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Compartir"
+                    >
+                      <Share2 size={20} />
+                    </button>
+                    <button
+                      onClick={handleReport}
+                      className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Reportar"
+                    >
+                      <Flag size={20} />
+                    </button>
+                  </div>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {product.title}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
                   {product.description}
                 </p>
+                <div className="text-3xl font-bold text-emerald-600">
+                  {formatPrice(product.price)}
+                </div>
               </div>
 
               {/* Detalles del producto */}
@@ -318,8 +472,9 @@ const ProductDetail = () => {
               <div className="space-y-3">
                 <button 
                   onClick={handleContactSeller}
-                  className="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200 font-medium"
+                  className="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200 font-medium flex items-center justify-center"
                 >
+                  <MessageCircle size={20} className="mr-2" />
                   Contactar Vendedor
                 </button>
                 <div className="flex space-x-2">
@@ -336,7 +491,7 @@ const ProductDetail = () => {
                     className={`flex-1 py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 ${
                       isFavorite 
                         ? 'bg-red-600 text-white hover:bg-red-700' 
-                        : 'bg-gray-200 text-gray-600 dark:text-gray-400 hover:bg-gray-300'
+                        : 'bg-gray-200 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     {isLoadingFavorite ? (
@@ -353,34 +508,37 @@ const ProductDetail = () => {
             </div>
 
             {/* Información del vendedor */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
                 <User size={20} className="mr-2" />
                 Información del Vendedor
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center">
-                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
+                  <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mr-3">
                     <span className="text-emerald-600 font-semibold text-lg">
                       {product.user_name ? product.user_name.charAt(0).toUpperCase() : 'U'}
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{product.user_name || 'Usuario'}</p>
-                    <p className="text-sm text-gray-500">Miembro desde {formatDate(product.user_created_at || product.created_at)}</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{product.user_name || 'Usuario'}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Miembro desde {formatDate(product.user_created_at || product.created_at)}</p>
                   </div>
                 </div>
                 
                 {/* Estadísticas del vendedor */}
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <p className="text-lg font-semibold text-gray-900">{product.user_products_count || 0}</p>
-                      <p className="text-xs text-gray-500">Productos</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">{product.user_products_count || 0}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Productos</p>
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-gray-900">{product.user_rating || 'N/A'}</p>
-                      <p className="text-xs text-gray-500">Calificación</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white flex items-center justify-center">
+                        <Star size={16} className="mr-1 text-yellow-500" />
+                        {product.user_rating || '4.8'}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Calificación</p>
                     </div>
                   </div>
                 </div>
@@ -388,14 +546,14 @@ const ProductDetail = () => {
                 <div className="space-y-2">
                   <button 
                     onClick={handleContactSeller}
-                    className="w-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-900 py-2 px-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200"
+                    className="w-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 py-2 px-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-colors duration-200"
                   >
                     <Phone size={16} className="mr-2" />
                     Ver teléfono
                   </button>
                   <button 
                     onClick={handleContactSeller}
-                    className="w-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-900 py-2 px-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200"
+                    className="w-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 py-2 px-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-colors duration-200"
                   >
                     <Mail size={16} className="mr-2" />
                     Enviar email
@@ -405,6 +563,55 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Modal de imagen */}
+        {showImageModal && productImages.length > 0 && (
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+            <div className="relative max-w-4xl max-h-[90vh] w-full">
+              <button
+                onClick={() => setShowImageModal(false)}
+                className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+              >
+                <X size={24} />
+              </button>
+              
+              <img
+                src={productImages[currentImageIndex]}
+                alt={product.title}
+                className="w-full h-full object-contain rounded-lg"
+              />
+              
+              {productImages.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+                  
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                    {productImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-3 h-3 rounded-full transition-colors ${
+                          index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
