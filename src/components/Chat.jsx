@@ -62,18 +62,25 @@ const Chat = ({ onClose, useFallback = false }) => {
   const loadConversations = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Cargando conversaciones para usuario:', user.id);
+      
       const result = await currentChatService.getUserConversations(user.id);
       
+      console.log('🔄 Resultado de conversaciones:', result);
+      
       if (result.success) {
+        console.log('✅ Conversaciones cargadas:', result.data);
         setConversations(result.data);
         
-        // Calcular mensajes no leídos (por ahora no implementado completamente)
+        // Calcular mensajes no leídos
         setUnreadCount(0);
       } else {
-        console.error('Error al cargar conversaciones:', result.error);
+        console.error('❌ Error al cargar conversaciones:', result.error);
+        setConversations([]);
       }
     } catch (error) {
-      console.error('Error cargando conversaciones:', error);
+      console.error('❌ Error cargando conversaciones:', error);
+      setConversations([]);
     } finally {
       setLoading(false);
     }

@@ -65,15 +65,22 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const loadMessages = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Cargando mensajes para conversación:', conversation.id);
+      
       const result = await chatService.getConversationMessages(conversation.id);
       
+      console.log('🔄 Resultado de mensajes:', result);
+      
       if (result.success) {
+        console.log('✅ Mensajes cargados:', result.data);
         setMessages(result.data);
       } else {
-        console.error('Error al cargar mensajes:', result.error);
+        console.error('❌ Error al cargar mensajes:', result.error);
+        setMessages([]);
       }
     } catch (error) {
-      console.error('Error cargando mensajes:', error);
+      console.error('❌ Error cargando mensajes:', error);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -94,20 +101,33 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     }
 
     setSending(true);
+    const messageContent = newMessage.trim();
+    setNewMessage(''); // Limpiar inmediatamente para mejor UX
     
     try {
-      const result = await chatService.sendMessage(conversation.id, currentUser.id, newMessage.trim());
+      console.log('📤 Enviando mensaje:', {
+        conversationId: conversation.id,
+        senderId: currentUser.id,
+        content: messageContent
+      });
+      
+      const result = await chatService.sendMessage(conversation.id, currentUser.id, messageContent);
+      
+      console.log('📤 Resultado de envío:', result);
       
       if (result.success) {
-        setNewMessage('');
+        console.log('✅ Mensaje enviado exitosamente');
         // Marcar mensajes como leídos
-        chatService.markMessagesAsRead(conversation.id, currentUser.id);
+        await chatService.markMessagesAsRead(conversation.id, currentUser.id);
       } else {
+        console.error('❌ Error al enviar mensaje:', result.error);
         alert('Error al enviar mensaje: ' + result.error);
+        setNewMessage(messageContent); // Restaurar mensaje si falló
       }
     } catch (error) {
-      console.error('Error al enviar mensaje:', error);
+      console.error('❌ Error al enviar mensaje:', error);
       alert('Error al enviar mensaje');
+      setNewMessage(messageContent); // Restaurar mensaje si falló
     } finally {
       setSending(false);
     }
