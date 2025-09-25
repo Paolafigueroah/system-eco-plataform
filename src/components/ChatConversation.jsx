@@ -114,7 +114,28 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   };
 
   const getOtherParticipant = () => {
-    return conversation.other_user || { id: 'unknown', name: 'Usuario', email: 'usuario@example.com' };
+    if (conversation.other_user) {
+      return conversation.other_user;
+    }
+    
+    // Si no hay other_user, intentar obtenerlo de buyer/seller
+    const isBuyer = conversation.buyer_id === currentUser.id;
+    if (isBuyer && conversation.seller) {
+      return {
+        id: conversation.seller.id,
+        name: conversation.seller.display_name,
+        email: conversation.seller.email
+      };
+    } else if (!isBuyer && conversation.buyer) {
+      return {
+        id: conversation.buyer.id,
+        name: conversation.buyer.display_name,
+        email: conversation.buyer.email
+      };
+    }
+    
+    // Fallback si no hay datos
+    return { id: 'unknown', name: 'Usuario', email: 'usuario@example.com' };
   };
 
   const getParticipantName = (participant) => {

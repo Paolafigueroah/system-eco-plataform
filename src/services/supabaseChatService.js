@@ -60,10 +60,20 @@ export const supabaseChatService = {
 
       if (error) throw error;
 
+      console.log('💬 Datos obtenidos de Supabase:', data);
+
       // Transformar datos para compatibilidad con el frontend
       const transformedData = data.map(conversation => {
         const isBuyer = conversation.buyer_id === userId;
         const otherUser = isBuyer ? conversation.seller : conversation.buyer;
+        
+        console.log('💬 Transformando conversación:', {
+          conversationId: conversation.id,
+          isBuyer,
+          otherUser,
+          buyer: conversation.buyer,
+          seller: conversation.seller
+        });
         
         return {
           ...conversation,
@@ -75,8 +85,11 @@ export const supabaseChatService = {
         };
       });
 
+      console.log('💬 Conversaciones transformadas:', transformedData);
+
       return supabaseUtils.handleSuccess(transformedData, 'Obtener conversaciones del usuario');
     } catch (error) {
+      console.error('💬 Error obteniendo conversaciones:', error);
       return supabaseUtils.handleError(error, 'Obtener conversaciones del usuario');
     }
   },
