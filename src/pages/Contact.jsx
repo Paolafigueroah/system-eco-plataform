@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle, Leaf, Users, MessageCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, Leaf, Users, MessageCircle, AlertCircle } from 'lucide-react';
+import { supabaseContactService } from '../services/supabaseContactService';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,23 +24,37 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-    }, 3000);
+    try {
+      console.log('📧 Enviando mensaje de contacto...', formData);
+      
+      const result = await supabaseContactService.sendContactMessage(formData);
+      
+      if (result.success) {
+        console.log('✅ Mensaje de contacto enviado exitosamente');
+        setIsSubmitted(true);
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({
+            name: '',
+            email: '',
+            subject: '',
+            message: ''
+          });
+        }, 3000);
+      } else {
+        console.error('❌ Error enviando mensaje de contacto:', result.error);
+        setError(result.error || 'Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
+      }
+    } catch (error) {
+      console.error('❌ Error enviando mensaje de contacto:', error);
+      setError('Error al enviar el mensaje. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -226,6 +242,13 @@ const Contact = () => {
                 />
               </div>
               
+              {error && (
+                <div className="alert alert-error">
+                  <AlertCircle className="h-5 w-5" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isSubmitting}
