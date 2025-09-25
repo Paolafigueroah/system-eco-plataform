@@ -211,6 +211,10 @@ default:
         <div className="flex space-x-2">
           <Link
             to={`/product/${product.id}`}
+            onClick={() => {
+              console.log('🔍 ProductCard: Navegando a producto con ID:', product.id);
+              console.log('🔍 ProductCard: Datos del producto:', product);
+            }}
             className="flex-1 bg-emerald-600 text-white text-center py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200 text-sm font-medium"
           >
             Ver Detalles

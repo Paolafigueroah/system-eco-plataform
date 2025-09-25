@@ -48,13 +48,23 @@ export const supabaseProductService = {
         .eq('id', productId)
         .single();
 
-      if (error) throw error;
+      console.log('📦 Supabase: Respuesta de la consulta:', { data, error });
+
+      if (error) {
+        console.error('📦 Supabase: Error en consulta:', error);
+        throw error;
+      }
+
+      console.log('📦 Supabase: Producto encontrado:', data);
 
       // Incrementar vistas
       await supabaseProductService.incrementViews(productId);
 
-      return supabaseUtils.handleSuccess(data, 'Obtener producto por ID');
+      const result = supabaseUtils.handleSuccess(data, 'Obtener producto por ID');
+      console.log('📦 Supabase: Resultado final:', result);
+      return result;
     } catch (error) {
+      console.error('📦 Supabase: Error en getProductById:', error);
       return supabaseUtils.handleError(error, 'Obtener producto por ID');
     }
   },
