@@ -24,8 +24,8 @@ const Chat = ({ onClose, useFallback = false }) => {
   const { user } = useAuth();
   const { subscribeToConversations, unsubscribe } = useRealtime();
   
-  // Usar servicio fallback si es necesario
-  const currentChatService = useFallback ? supabaseChatServiceFallback : chatService;
+  // Siempre usar el servicio principal de Supabase
+  const currentChatService = chatService;
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -96,18 +96,23 @@ const Chat = ({ onClose, useFallback = false }) => {
 
   const handleNewConversation = async () => {
     try {
+      console.log('🔍 Iniciando nueva conversación...', { userId: user.id });
+      
       // Usar API expuesta por los servicios: getAllUsers
       const result = await currentChatService.getAllUsers(user.id);
       
+      console.log('🔍 Resultado de getAllUsers:', result);
+      
       if (result.success) {
+        console.log('✅ Usuarios cargados exitosamente:', result.data);
         setAvailableUsers(result.data);
         setShowNewConversationModal(true);
       } else {
-        console.error('Error al cargar usuarios:', result.error);
+        console.error('❌ Error al cargar usuarios:', result.error);
         alert('Error al cargar usuarios: ' + result.error);
       }
     } catch (error) {
-      console.error('Error cargando usuarios:', error);
+      console.error('❌ Error cargando usuarios:', error);
       alert('Error cargando usuarios: ' + error.message);
     }
   };
