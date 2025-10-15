@@ -12,6 +12,7 @@ import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
 import ChatPage from './pages/ChatPage'
 import ProductDetail from './pages/ProductDetail'
+import ResetPassword from './pages/ResetPassword'
 import Profile from './pages/Profile'
 import Favorites from './pages/Favorites'
 import Auth from './pages/Auth'
@@ -47,6 +48,7 @@ function AppContent() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route 
                 path="/dashboard" 
                 element={

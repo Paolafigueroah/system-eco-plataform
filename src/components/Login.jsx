@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { isValidEmail } from '../utils/validation';
 
 const Login = ({ onSwitchToSignup }) => {
-  const { signIn, loading: authLoading } = useAuth();
+  const { signIn, resetPassword, signInWithGoogle, signInWithTwitter, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -14,6 +14,9 @@ const Login = ({ onSwitchToSignup }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginStatus, setLoginStatus] = useState(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordStatus, setForgotPasswordStatus] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,6 +53,53 @@ const Login = ({ onSwitchToSignup }) => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    
+    if (!forgotPasswordEmail.trim()) {
+      setForgotPasswordStatus({
+        type: 'error',
+        message: 'Por favor ingresa tu correo electrónico'
+      });
+      return;
+    }
+
+    if (!isValidEmail(forgotPasswordEmail)) {
+      setForgotPasswordStatus({
+        type: 'error',
+        message: 'El formato del correo electrónico no es válido'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setForgotPasswordStatus(null);
+
+    try {
+      const result = await resetPassword(forgotPasswordEmail);
+      
+      if (result.success) {
+        setForgotPasswordStatus({
+          type: 'success',
+          message: 'Se ha enviado un enlace de restablecimiento a tu correo electrónico'
+        });
+        setForgotPasswordEmail('');
+      } else {
+        setForgotPasswordStatus({
+          type: 'error',
+          message: result.error || 'Error al enviar el correo de restablecimiento'
+        });
+      }
+    } catch (error) {
+      setForgotPasswordStatus({
+        type: 'error',
+        message: 'Error interno del servidor'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -218,6 +268,7 @@ const Login = ({ onSwitchToSignup }) => {
               </div>
               <button
                 type="button"
+                onClick={() => setShowForgotPassword(true)}
                 className="text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors font-medium"
               >
                 ¿Olvidaste tu contraseña?
@@ -257,7 +308,9 @@ const Login = ({ onSwitchToSignup }) => {
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
-                className="btn-outline flex items-center justify-center space-x-3 py-3 hover:scale-105 transition-transform"
+                onClick={signInWithGoogle}
+                disabled={isLoading || authLoading}
+                className="btn-outline flex items-center justify-center space-x-3 py-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -281,7 +334,9 @@ const Login = ({ onSwitchToSignup }) => {
               </button>
               <button
                 type="button"
-                className="btn-outline flex items-center justify-center space-x-3 py-3 hover:scale-105 transition-transform"
+                onClick={signInWithTwitter}
+                disabled={isLoading || authLoading}
+                className="btn-outline flex items-center justify-center space-x-3 py-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
@@ -311,6 +366,89 @@ const Login = ({ onSwitchToSignup }) => {
           <p>Al continuar, aceptas nuestros términos de servicio y política de privacidad</p>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Restablecer Contraseña
+              </h2>
+              <button
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setForgotPasswordEmail('');
+                  setForgotPasswordStatus(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <ArrowLeft className="h-6 w-6" />
+              </button>
+            </div>
+
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+            </p>
+
+            <form onSubmit={handleForgotPassword}>
+              <div className="mb-4">
+                <label htmlFor="forgot-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Correo Electrónico
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="tu@email.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              {forgotPasswordStatus && (
+                <div className={`mb-4 p-3 rounded-lg flex items-center space-x-2 ${
+                  forgotPasswordStatus.type === 'success' 
+                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' 
+                    : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                }`}>
+                  {forgotPasswordStatus.type === 'success' ? (
+                    <CheckCircle className="h-5 w-5" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5" />
+                  )}
+                  <span className="text-sm">{forgotPasswordStatus.message}</span>
+                </div>
+              )}
+
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotPasswordEmail('');
+                    setForgotPasswordStatus(null);
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Enviando...' : 'Enviar Enlace'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

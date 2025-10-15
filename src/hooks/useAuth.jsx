@@ -122,6 +122,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const result = await supabaseAuthService.signInWithGoogle();
+      return result;
+    } catch (error) {
+      console.error('Error en signInWithGoogle:', error);
+      return { success: false, error: 'Error interno del servidor' };
+    }
+  };
+
+  const signInWithTwitter = async () => {
+    try {
+      const result = await supabaseAuthService.signInWithTwitter();
+      return result;
+    } catch (error) {
+      console.error('Error en signInWithTwitter:', error);
+      return { success: false, error: 'Error interno del servidor' };
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -130,7 +150,9 @@ export const AuthProvider = ({ children }) => {
     signUp,
     signOut,
     changePassword,
-    resetPassword
+    resetPassword,
+    signInWithGoogle,
+    signInWithTwitter
   };
 
   return (

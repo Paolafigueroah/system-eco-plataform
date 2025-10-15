@@ -183,6 +183,46 @@ export const supabaseAuthService = {
     }
   },
 
+  // Autenticación con Google
+  signInWithGoogle: async () => {
+    try {
+      console.log('🔐 Supabase: Iniciando sesión con Google...');
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Inicio de sesión con Google');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Inicio de sesión con Google');
+    }
+  },
+
+  // Autenticación con Twitter
+  signInWithTwitter: async () => {
+    try {
+      console.log('🔐 Supabase: Iniciando sesión con Twitter...');
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Inicio de sesión con Twitter');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Inicio de sesión con Twitter');
+    }
+  },
+
   // Obtener estadísticas del usuario
   getUserStats: async (userId) => {
     try {
