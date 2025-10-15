@@ -1,5 +1,4 @@
-import { supabase } from '../supabaseConfig';
-import { supabaseUtils } from './mainServices';
+import { supabase, supabaseUtils } from '../supabaseConfig';
 
 export const supabaseReviewService = {
   // Crear nueva reseña

@@ -4,7 +4,8 @@ import { AuthProvider } from './hooks/useAuth.jsx'
 import { ThemeProvider, useTheme } from './hooks/useTheme.jsx'
 import Navbar from './components/Navbar'
 import ErrorBoundary from './components/ErrorBoundary'
-import RealtimeStatus from './components/RealtimeStatus'
+import OfflineIndicator from './components/OfflineIndicator'
+import PWAInstaller from './components/PWAInstaller'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -14,7 +15,6 @@ import ProductDetail from './pages/ProductDetail'
 import Profile from './pages/Profile'
 import Favorites from './pages/Favorites'
 import Auth from './pages/Auth'
-import DebugPage from './pages/DebugPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 import { initializeDatabase } from './utils/databaseInitializer'
@@ -46,7 +46,6 @@ function AppContent() {
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/debug" element={<DebugPage />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route 
                 path="/dashboard" 
@@ -82,7 +81,8 @@ function AppContent() {
               />
               </Routes>
             </main>
-            <RealtimeStatus />
+            <OfflineIndicator />
+            <PWAInstaller />
           </ErrorBoundary>
         </div>
       </Router>
