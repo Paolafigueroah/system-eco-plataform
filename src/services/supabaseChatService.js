@@ -221,6 +221,131 @@ export const supabaseChatService = {
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener usuarios');
     }
+  },
+
+  // Crear conversación grupal
+  createGroupConversation: async (groupName, groupDescription, adminId, participantIds) => {
+    try {
+      console.log('💬 Supabase: Creando conversación grupal...', { groupName, adminId });
+      
+      const { data, error } = await supabase.rpc('create_group_conversation', {
+        group_name_param: groupName,
+        group_description_param: groupDescription,
+        admin_id_param: adminId,
+        participant_ids: participantIds
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Crear conversación grupal');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Crear conversación grupal');
+    }
+  },
+
+  // Obtener participantes de un grupo
+  getGroupParticipants: async (conversationId) => {
+    try {
+      console.log('💬 Supabase: Obteniendo participantes del grupo...', conversationId);
+      
+      const { data, error } = await supabase
+        .from('group_participants')
+        .select(`
+          *,
+          user:profiles!user_id(id, display_name, email, avatar_url)
+        `)
+        .eq('conversation_id', conversationId)
+        .order('joined_at', { ascending: true });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Obtener participantes del grupo');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Obtener participantes del grupo');
+    }
+  },
+
+  // Agregar participante a grupo
+  addGroupParticipant: async (conversationId, userId, inviterId) => {
+    try {
+      console.log('💬 Supabase: Agregando participante al grupo...', { conversationId, userId });
+      
+      const { data, error } = await supabase.rpc('add_group_participant', {
+        conversation_id_param: conversationId,
+        user_id_param: userId,
+        inviter_id_param: inviterId
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Agregar participante al grupo');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Agregar participante al grupo');
+    }
+  },
+
+  // Remover participante de grupo
+  removeGroupParticipant: async (conversationId, userId, removerId) => {
+    try {
+      console.log('💬 Supabase: Removiendo participante del grupo...', { conversationId, userId });
+      
+      const { data, error } = await supabase.rpc('remove_group_participant', {
+        conversation_id_param: conversationId,
+        user_id_param: userId,
+        remover_id_param: removerId
+      });
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Remover participante del grupo');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Remover participante del grupo');
+    }
+  },
+
+  // Cambiar rol de participante
+  changeParticipantRole: async (conversationId, userId, newRole, changerId) => {
+    try {
+      console.log('💬 Supabase: Cambiando rol de participante...', { conversationId, userId, newRole });
+      
+      const { data, error } = await supabase
+        .from('group_participants')
+        .update({ role: newRole })
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Cambiar rol de participante');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Cambiar rol de participante');
+    }
+  },
+
+  // Actualizar información del grupo
+  updateGroupInfo: async (conversationId, groupName, groupDescription, updaterId) => {
+    try {
+      console.log('💬 Supabase: Actualizando información del grupo...', { conversationId, groupName });
+      
+      const { data, error } = await supabase
+        .from('conversations')
+        .update({
+          group_name: groupName,
+          group_description: groupDescription,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', conversationId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Actualizar información del grupo');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Actualizar información del grupo');
+    }
   }
 };
 

@@ -11,6 +11,7 @@ import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatConversation from './ChatConversation';
 import ChatConversationList from './ChatConversationList';
 import EnhancedChatNotifications from './EnhancedChatNotifications';
+import CreateGroupModal from './CreateGroupModal';
 
 const Chat = ({ onClose }) => {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ const Chat = ({ onClose }) => {
   const [showConversationList, setShowConversationList] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNewConversationModal, setShowNewConversationModal] = useState(false);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
   const conversationsUnsubscribe = useRef(null);
 
@@ -113,6 +115,16 @@ const Chat = ({ onClose }) => {
       console.error('❌ Error cargando usuarios:', error);
       alert('Error cargando usuarios: ' + error.message);
     }
+  };
+
+  const handleCreateGroup = () => {
+    setShowCreateGroupModal(true);
+  };
+
+  const handleGroupCreated = (groupData) => {
+    console.log('✅ Grupo creado:', groupData);
+    // Recargar conversaciones para mostrar el nuevo grupo
+    loadConversations();
   };
 
   const handleStartConversation = async (otherUserId) => {
@@ -219,12 +231,20 @@ const Chat = ({ onClose }) => {
                 <p className="text-gray-500 dark:text-gray-400 mb-4">
                   Inicia una conversación para comenzar a chatear
                 </p>
-                <button
-                  onClick={handleNewConversation}
-                  className="btn btn-primary"
-                >
-                  Nueva Conversación
-                </button>
+                <div className="space-y-3">
+                  <button
+                    onClick={handleNewConversation}
+                    className="btn btn-primary w-full"
+                  >
+                    Nueva Conversación
+                  </button>
+                  <button
+                    onClick={handleCreateGroup}
+                    className="btn btn-outline btn-primary w-full"
+                  >
+                    Crear Grupo
+                  </button>
+                </div>
               </div>
             ) : (
               <ChatConversationList
@@ -234,6 +254,26 @@ const Chat = ({ onClose }) => {
                 unreadCount={unreadCount}
               />
             )}
+          </div>
+
+          {/* Botones de acción */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex space-x-2">
+              <button
+                onClick={handleNewConversation}
+                className="flex-1 btn btn-primary btn-sm"
+              >
+                <User className="h-4 w-4 mr-2" />
+                Nueva Conversación
+              </button>
+              <button
+                onClick={handleCreateGroup}
+                className="flex-1 btn btn-outline btn-primary btn-sm"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Crear Grupo
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -312,6 +352,13 @@ const Chat = ({ onClose }) => {
           </div>
         </div>
       )}
+
+      {/* Modal para crear grupo */}
+      <CreateGroupModal
+        isOpen={showCreateGroupModal}
+        onClose={() => setShowCreateGroupModal(false)}
+        onGroupCreated={handleGroupCreated}
+      />
     </div>
   );
 };
