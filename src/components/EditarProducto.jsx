@@ -13,8 +13,6 @@ import {
   Edit
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { migrationConfig } from '../config/migrationConfig';
-import { sqliteProductService } from '../services/sqliteProductService';
 import { supabaseProductService } from '../services/supabaseProductService';
 
 const EditarProducto = ({ product, onProductUpdated, onClose }) => {
@@ -157,40 +155,22 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
     setErrors({});
 
     try {
-      // Seleccionar servicio según configuración
-      const service = migrationConfig.databaseType === 'supabase' 
-        ? supabaseProductService 
-        : sqliteProductService;
+      // Usar servicio de Supabase
+      const service = supabaseProductService;
 
-      // Datos compatibles con cada backend
-      const productData = migrationConfig.databaseType === 'supabase'
-        ? {
-            title: formData.titulo,
-            description: formData.descripcion,
-            category: formData.categoria,
-            condition_product: formData.estado,
-            transaction_type: formData.tipoTransaccion,
-            price: formData.precio ? parseFloat(formData.precio) : 0,
-            location: formData.ubicacion,
-            images: imageFiles.length > 0 
-              ? imageFiles.map(file => file.name) 
-              : (Array.isArray(product.images) ? product.images : (product.images || '').split(',').filter(Boolean))
-          }
-        : {
-            title: formData.titulo,
-            description: formData.descripcion,
-            category: formData.categoria,
-            condition: formData.estado,
-            transactionType: formData.tipoTransaccion,
-            price: formData.precio ? parseFloat(formData.precio) : 0,
-            location: formData.ubicacion,
-            userId: user.id,
-            userEmail: user.email,
-            userName: user.display_name || user.email,
-            images: imageFiles.length > 0 
-              ? imageFiles.map(file => file.name).join(',') 
-              : (Array.isArray(product.images) ? product.images.join(',') : product.images)
-          };
+      // Datos para Supabase
+      const productData = {
+        title: formData.titulo,
+        description: formData.descripcion,
+        category: formData.categoria,
+        condition_product: formData.estado,
+        transaction_type: formData.tipoTransaccion,
+        price: formData.precio ? parseFloat(formData.precio) : 0,
+        location: formData.ubicacion,
+        images: imageFiles.length > 0 
+          ? imageFiles.map(file => file.name) 
+          : (Array.isArray(product.images) ? product.images : (product.images || '').split(',').filter(Boolean))
+      };
 
       const result = await service.updateProduct(product.id, productData);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageCircle, Circle } from 'lucide-react';
-import { chatUtils } from '../services/sqliteChatService';
+import { chatUtils } from '../services/supabaseChatService';
 import { useTheme } from '../hooks/useTheme';
 
 const ChatConversationList = ({ 

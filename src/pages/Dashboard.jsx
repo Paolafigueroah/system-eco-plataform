@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { migrationConfig } from '../config/migrationConfig';
-import sqliteProductService from '../services/sqliteProductService';
-import supabaseProductService from '../services/supabaseProductService';
+import { supabaseProductService } from '../services/supabaseProductService';
 import { useRealtime } from '../hooks/useRealtime';
 import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
 import { 
@@ -40,34 +38,10 @@ const Dashboard = () => {
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [userProducts, setUserProducts] = useState([]);
 
-  // Función para obtener el servicio correcto
-  const getProductService = () => {
-    return migrationConfig.databaseType === 'supabase' ? supabaseProductService : sqliteProductService;
-  };
 
-  // Función para agregar más productos
+  // Función para agregar más productos (deshabilitada para Supabase)
   const handleAddMoreProducts = async () => {
-    if (migrationConfig.databaseType !== 'sqlite') {
-      alert('Esta función solo está disponible en modo SQLite');
-      return;
-    }
-
-    try {
-      const { addMoreProducts } = await import('../utils/addMoreProducts.js');
-      const sqliteConfig = await import('../sqliteConfig.js');
-      const result = await addMoreProducts(sqliteConfig.default);
-      
-      if (result.success) {
-        alert('¡Productos adicionales agregados exitosamente!');
-        // Recargar datos
-        loadUserData();
-      } else {
-        alert('Error al agregar productos: ' + result.error);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al agregar productos');
-    }
+    alert('Esta función no está disponible en modo Supabase');
   };
   const [stats, setStats] = useState({
     totalProducts: 0,

@@ -5,7 +5,6 @@ import { supabaseProductService } from '../services/supabaseProductService';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import { supabaseReviewService } from '../services/supabaseReviewService';
 import { useAuth } from '../hooks/useAuth';
-import { migrationConfig } from '../config/migrationConfig';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 import ProductReviews from '../components/ProductReviews';
 

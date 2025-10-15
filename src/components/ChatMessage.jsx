@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check, CheckCheck } from 'lucide-react';
-import { chatUtils } from '../services/sqliteChatService';
+import { chatUtils } from '../services/supabaseChatService';
 import { useTheme } from '../hooks/useTheme';
 
 const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
