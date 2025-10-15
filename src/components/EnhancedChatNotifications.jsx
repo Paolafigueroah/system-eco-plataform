@@ -66,7 +66,7 @@ const EnhancedChatNotifications = ({ onOpenChat }) => {
               message: conv.last_message || 'Nuevo mensaje',
               timestamp: new Date(conv.last_message_at || conv.updated_at),
               conversationId: conv.id,
-              read: false
+              is_read: false
             });
           }
         });
@@ -270,7 +270,7 @@ const EnhancedChatNotifications = ({ onOpenChat }) => {
                   <div
                     key={notification.id}
                     className={`flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 cursor-pointer ${
-                      !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      !notification.is_read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                     }`}
                     onClick={() => {
                       markAsRead(notification.id);

@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     type TEXT NOT NULL CHECK (type IN ('message', 'favorite', 'product', 'system')),
     title TEXT NOT NULL,
     message TEXT NOT NULL,
-    read BOOLEAN DEFAULT false,
+    is_read BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -135,7 +135,7 @@ CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_product_id ON favorites(product_id);
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON reviews(product_id);

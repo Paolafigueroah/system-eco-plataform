@@ -7,7 +7,7 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
   const { theme } = useTheme();
   const getMessageStatus = () => {
     if (isOwnMessage) {
-      if (message.read) {
+      if (message.is_read) {
         return <CheckCheck className="h-3 w-3 text-blue-500" />;
       } else {
         return <Check className="h-3 w-3 text-gray-400" />;
