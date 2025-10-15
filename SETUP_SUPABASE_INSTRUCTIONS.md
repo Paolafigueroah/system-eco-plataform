@@ -7,8 +7,8 @@ Ve a **Supabase Dashboard → SQL Editor** y ejecuta el contenido de:
 - `supabase-complete-schema.sql` (esquema principal)
 - `supabase-reviews-schema.sql` (sistema de reviews)
 
-### 2. **Ejecutar el Esquema de Chat Grupal**
-Ejecuta el contenido de `supabase-group-chat-schema-fixed.sql` que corrige los errores.
+### 2. **Verificar el Esquema de Chat**
+El chat privado está incluido en el esquema principal. No se requiere configuración adicional.
 
 ### 3. **Configurar Variables de Entorno**
 
@@ -31,7 +31,6 @@ Después de ejecutar los esquemas, verifica que tengas estas tablas:
 - ✅ `products`
 - ✅ `conversations`
 - ✅ `messages`
-- ✅ `group_participants`
 - ✅ `reviews`
 - ✅ `review_helpful`
 - ✅ `favorites`
@@ -61,8 +60,7 @@ Después de ejecutar los esquemas, verifica que tengas estas tablas:
 ### ✅ **Completamente Funcional:**
 - 🔐 Autenticación (registro/login)
 - 📦 Gestión de productos (CRUD)
-- 💬 Chat privado (1:1)
-- 👥 Chat grupal (múltiples usuarios)
+- 💬 Chat privado (1:1 entre comprador y vendedor)
 - ⭐ Sistema de reviews y ratings
 - ❤️ Sistema de favoritos
 - 🔔 Notificaciones
@@ -70,14 +68,14 @@ Después de ejecutar los esquemas, verifica que tengas estas tablas:
 - 🌙 Modo oscuro
 - 🔍 Búsqueda avanzada
 
-### 🎯 **Características del Chat:**
-- Indicadores de escritura
-- Estados de conexión
-- Selector de emojis
-- Búsqueda de mensajes
-- Notificaciones push
-- Gestión de participantes (grupos)
-- Roles y permisos (grupos)
+### 💬 **Características del Chat Privado:**
+- Conversaciones directas entre comprador y vendedor
+- Indicadores de escritura en tiempo real
+- Estados de conexión visuales
+- Selector de emojis integrado
+- Búsqueda de mensajes avanzada
+- Notificaciones push con sonidos
+- Feedback visual mejorado
 
 ## 🚀 **Estado del Proyecto:**
 - ✅ **Build**: Sin errores

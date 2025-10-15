@@ -22,7 +22,6 @@ import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatMessage from './ChatMessage';
 import EmojiPicker from './EmojiPicker';
 import MessageSearch from './MessageSearch';
-import GroupParticipants from './GroupParticipants';
 import { useTheme } from '../hooks/useTheme';
 
 const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
@@ -35,7 +34,6 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const [connectionStatus, setConnectionStatus] = useState('connected');
   const [lastMessageStatus, setLastMessageStatus] = useState('sent');
   const [showSearch, setShowSearch] = useState(false);
-  const [showGroupParticipants, setShowGroupParticipants] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesUnsubscribe = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -192,16 +190,6 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   };
 
   const getOtherParticipant = () => {
-    // Si es un grupo, retornar información del grupo
-    if (conversation.conversation_type === 'group') {
-      return {
-        id: conversation.id,
-        name: conversation.group_name || 'Grupo',
-        email: `${conversation.participant_count || 0} participantes`,
-        isGroup: true
-      };
-    }
-
     if (conversation.other_user) {
       return conversation.other_user;
     }
@@ -300,15 +288,6 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           >
             <Search className="h-4 w-4" />
           </button>
-          {conversation.conversation_type === 'group' && (
-            <button 
-              onClick={() => setShowGroupParticipants(true)}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-              title="Ver participantes"
-            >
-              <Users className="h-4 w-4" />
-            </button>
-          )}
           <button className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hidden sm:flex">
             <Phone className="h-4 w-4" />
           </button>
@@ -435,18 +414,6 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         onClose={() => setShowSearch(false)}
       />
 
-      {/* Componente de participantes del grupo */}
-      {conversation.conversation_type === 'group' && (
-        <GroupParticipants
-          conversation={conversation}
-          isOpen={showGroupParticipants}
-          onClose={() => setShowGroupParticipants(false)}
-          onParticipantChange={() => {
-            // Recargar conversación si es necesario
-            console.log('Participantes del grupo actualizados');
-          }}
-        />
-      )}
     </div>
   );
 };

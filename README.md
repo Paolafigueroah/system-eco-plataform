@@ -21,7 +21,8 @@ Una aplicación React moderna construida con Tailwind CSS y soporte para múltip
 - **Migración automática** entre bases de datos
 - **Modo híbrido** para desarrollo y producción
 
-### 🎯 Chat Mejorado
+### 💬 Chat Privado Mejorado
+- **Conversaciones 1:1** entre comprador y vendedor
 - **Indicadores de escritura** en tiempo real
 - **Estados de conexión** visuales
 - **Selector de emojis** integrado
