@@ -1,33 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageCircle, 
-  Send, 
-  Search, 
-  MoreVertical, 
-  Phone, 
-  Video, 
-  Image as ImageIcon,
-  Paperclip,
-  Smile,
   X,
-  User,
-  Circle
+  User
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { supabaseChatService as chatService, chatUtils } from '../services/supabaseChatService';
-import { supabaseChatServiceFallback } from '../services/supabaseChatServiceFallback';
 import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatConversation from './ChatConversation';
 import ChatConversationList from './ChatConversationList';
+import EnhancedChatNotifications from './EnhancedChatNotifications';
 
-const Chat = ({ onClose, useFallback = false }) => {
+const Chat = ({ onClose }) => {
   const { user } = useAuth();
   const { theme } = useTheme();
   const { subscribeToConversations, unsubscribe } = useRealtime();
   
-  // Siempre usar el servicio principal de Supabase
-  const currentChatService = chatService;
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +55,7 @@ const Chat = ({ onClose, useFallback = false }) => {
       setLoading(true);
       console.log('🔄 Cargando conversaciones para usuario:', user.id);
       
-      const result = await currentChatService.getUserConversations(user.id);
+      const result = await chatService.getUserConversations(user.id);
       
       console.log('🔄 Resultado de conversaciones:', result);
       
@@ -108,7 +97,7 @@ const Chat = ({ onClose, useFallback = false }) => {
       console.log('🔍 Iniciando nueva conversación...', { userId: user.id });
       
       // Usar API expuesta por los servicios: getAllUsers
-      const result = await currentChatService.getAllUsers(user.id);
+      const result = await chatService.getAllUsers(user.id);
       
       console.log('🔍 Resultado de getAllUsers:', result);
       
@@ -128,7 +117,7 @@ const Chat = ({ onClose, useFallback = false }) => {
 
   const handleStartConversation = async (otherUserId) => {
     try {
-      const result = await currentChatService.createConversation(user.id, otherUserId, null);
+      const result = await chatService.createConversation(user.id, otherUserId, null);
       if (result.success) {
         // Recargar conversaciones
         await loadConversations();

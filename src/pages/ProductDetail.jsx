@@ -3,9 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, Heart, MessageCircle, MapPin, Calendar, User, Phone, Mail, Share2, Flag, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabaseProductService } from '../services/supabaseProductService';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
+import { supabaseReviewService } from '../services/supabaseReviewService';
 import { useAuth } from '../hooks/useAuth';
 import { migrationConfig } from '../config/migrationConfig';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
+import ProductReviews from '../components/ProductReviews';
 
 const ProductDetail = () => {
   const { id } = useParams();

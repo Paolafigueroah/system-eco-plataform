@@ -29,7 +29,7 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
   };
 
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`} data-message-id={message.id}>
       <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
         {/* Nombre del remitente (solo para mensajes de otros) */}
         {!isOwnMessage && (

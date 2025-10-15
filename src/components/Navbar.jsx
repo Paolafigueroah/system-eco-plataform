@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Heart, Bell, Search } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import ChatNotifications from './ChatNotifications';
+import EnhancedChatNotifications from './EnhancedChatNotifications';
 import ToggleTheme from './ToggleTheme';
 import NotificationCenter from './NotificationCenter';
 
@@ -94,13 +94,7 @@ const Navbar = () => {
                     >
                       <Package size={20} />
                     </Link>
-                    <Link
-                      to="/chat"
-                      className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200"
-                      title="Chat"
-                    >
-                      <MessageCircle size={20} />
-                    </Link>
+                    <EnhancedChatNotifications onOpenChat={() => navigate('/chat')} />
                     <Link
                       to="/favorites"
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"

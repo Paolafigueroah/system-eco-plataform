@@ -10,11 +10,18 @@ import {
   Smile,
   X,
   User,
-  MessageCircle
+  MessageCircle,
+  Wifi,
+  WifiOff,
+  Loader2,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import { supabaseChatService as chatService } from '../services/supabaseChatService';
 import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatMessage from './ChatMessage';
+import EmojiPicker from './EmojiPicker';
+import MessageSearch from './MessageSearch';
 import { useTheme } from '../hooks/useTheme';
 
 const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
@@ -23,8 +30,13 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('connected');
+  const [lastMessageStatus, setLastMessageStatus] = useState('sent');
+  const [showSearch, setShowSearch] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesUnsubscribe = useRef(null);
+  const typingTimeoutRef = useRef(null);
   const { subscribeToMessages, unsubscribe } = useRealtime();
 
   useEffect(() => {
@@ -92,6 +104,43 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Manejar estado de escritura
+  const handleTyping = useCallback(() => {
+    setIsTyping(true);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 1000);
+  }, []);
+
+  // Manejar cambios en el input
+  const handleMessageChange = (e) => {
+    setNewMessage(e.target.value);
+    handleTyping();
+  };
+
+  // Manejar selección de emoji
+  const handleEmojiSelect = (emoji) => {
+    setNewMessage(prev => prev + emoji);
+    handleTyping();
+  };
+
+  // Manejar selección de mensaje desde búsqueda
+  const handleMessageSelect = (message) => {
+    // Scroll al mensaje seleccionado
+    const messageElement = document.querySelector(`[data-message-id="${message.id}"]`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Destacar el mensaje temporalmente
+      messageElement.classList.add('bg-yellow-100', 'dark:bg-yellow-900');
+      setTimeout(() => {
+        messageElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900');
+      }, 2000);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     
@@ -103,8 +152,10 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     }
 
     setSending(true);
+    setLastMessageStatus('sending');
     const messageContent = newMessage.trim();
     setNewMessage(''); // Limpiar inmediatamente para mejor UX
+    setIsTyping(false);
     
     try {
       console.log('📤 Enviando mensaje:', {
@@ -119,15 +170,18 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       
       if (result.success) {
         console.log('✅ Mensaje enviado exitosamente');
+        setLastMessageStatus('sent');
         // Marcar mensajes como leídos
         await chatService.markMessagesAsRead(conversation.id, currentUser.id);
       } else {
         console.error('❌ Error al enviar mensaje:', result.error);
+        setLastMessageStatus('error');
         alert('Error al enviar mensaje: ' + result.error);
         setNewMessage(messageContent); // Restaurar mensaje si falló
       }
     } catch (error) {
       console.error('❌ Error al enviar mensaje:', error);
+      setLastMessageStatus('error');
       alert('Error al enviar mensaje');
       setNewMessage(messageContent); // Restaurar mensaje si falló
     } finally {
@@ -200,9 +254,25 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           </div>
           
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">
-              {getParticipantName(getOtherParticipant())}
-            </h3>
+            <div className="flex items-center space-x-2">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base truncate">
+                {getParticipantName(getOtherParticipant())}
+              </h3>
+              {/* Indicador de estado de conexión */}
+              <div className="flex items-center space-x-1">
+                {connectionStatus === 'connected' ? (
+                  <Wifi className="h-3 w-3 text-green-500" title="Conectado" />
+                ) : (
+                  <WifiOff className="h-3 w-3 text-red-500" title="Desconectado" />
+                )}
+                {isTyping && (
+                  <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>escribiendo...</span>
+                  </div>
+                )}
+              </div>
+            </div>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
               {getOtherParticipant().email}
             </p>
@@ -211,6 +281,13 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
 
         {/* Acciones de la conversación */}
         <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+          <button 
+            onClick={() => setShowSearch(true)}
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            title="Buscar mensajes"
+          >
+            <Search className="h-4 w-4" />
+          </button>
           <button className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 hidden sm:flex">
             <Phone className="h-4 w-4" />
           </button>
@@ -287,25 +364,20 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
             >
               <ImageIcon className="h-4 w-4" />
             </button>
-            <button
-              type="button"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-              title="Emojis"
-            >
-              <Smile className="h-4 w-4" />
-            </button>
+            <EmojiPicker onEmojiSelect={handleEmojiSelect} />
           </div>
 
           {/* Campo de texto */}
           <div className="flex-1 min-w-0">
             <textarea
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleMessageChange}
               onKeyPress={handleKeyPress}
               placeholder="Escribe un mensaje..."
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
               rows={1}
               maxLength={1000}
+              disabled={sending}
             />
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
               {newMessage.length}/1000
@@ -316,18 +388,31 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           <button
             type="submit"
             disabled={!newMessage.trim() || sending}
-            className={`bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 p-2 sm:p-3 flex-shrink-0 ${
-              !newMessage.trim() || sending ? 'opacity-50 cursor-not-allowed' : ''
+            className={`bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 p-2 sm:p-3 flex-shrink-0 flex items-center justify-center ${
+              !newMessage.trim() || sending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
             }`}
+            title={sending ? 'Enviando...' : 'Enviar mensaje'}
           >
             {sending ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+            ) : lastMessageStatus === 'error' ? (
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+            ) : lastMessageStatus === 'sent' ? (
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4 sm:h-5 sm:w-5" />
             )}
           </button>
         </form>
       </div>
+
+      {/* Componente de búsqueda de mensajes */}
+      <MessageSearch
+        messages={messages}
+        onMessageSelect={handleMessageSelect}
+        isOpen={showSearch}
+        onClose={() => setShowSearch(false)}
+      />
     </div>
   );
 };

@@ -4,20 +4,37 @@ Una aplicación React moderna construida con Tailwind CSS y soporte para múltip
 
 ## 🚀 Características
 
+### ✨ Funcionalidades Principales
 - **React 18** con hooks modernos y patrones actuales
 - **Vite** para desarrollo y construcción rápida
 - **Tailwind CSS** para estilos utility-first
 - **Múltiples bases de datos**: SQLite local y Supabase en la nube
 - **Autenticación completa** con registro e inicio de sesión
 - **Sistema de productos** con CRUD completo
-- **Chat en tiempo real** entre usuarios
+- **Chat en tiempo real** con funcionalidades avanzadas
 - **Sistema de favoritos** para productos
+- **Sistema de reviews y ratings** para productos
 - **Categorización** de productos por tipo
 - **Filtros avanzados** y búsqueda
 - **Diseño responsivo** que funciona en todos los dispositivos
 - **UI/UX moderna** con animaciones suaves
 - **Migración automática** entre bases de datos
 - **Modo híbrido** para desarrollo y producción
+
+### 🎯 Chat Mejorado
+- **Indicadores de escritura** en tiempo real
+- **Estados de conexión** visuales
+- **Selector de emojis** integrado
+- **Búsqueda de mensajes** avanzada
+- **Notificaciones push** con sonidos
+- **Feedback visual** mejorado
+
+### 📱 PWA y Optimización
+- **Aplicación Web Progresiva** (PWA)
+- **Modo offline** con indicadores
+- **Lazy loading** de imágenes
+- **Optimización de rendimiento**
+- **Instalación en dispositivos**
 
 ## 🛠️ Stack Tecnológico
 
