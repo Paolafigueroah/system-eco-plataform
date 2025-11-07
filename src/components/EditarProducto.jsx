@@ -395,9 +395,9 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
                 htmlFor="image-upload"
                 className="cursor-pointer flex flex-col items-center"
               >
-                <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-gray-600">Haz clic para subir imágenes o arrastra y suelta</span>
-                <span className="text-sm text-gray-500 mt-1">PNG, JPG, GIF hasta 5MB cada una</span>
+                <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-2" />
+                <span className="text-gray-600 dark:text-gray-300">Haz clic para subir imágenes o arrastra y suelta</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400 mt-1">PNG, JPG, GIF hasta 5MB cada una</span>
               </label>
             </div>
             {errors.images && <p className="text-red-500 text-sm mt-1">{errors.images}</p>}
