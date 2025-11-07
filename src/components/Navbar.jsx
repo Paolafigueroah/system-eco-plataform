@@ -38,10 +38,14 @@ const Navbar = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group flex-shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                <span className="text-white font-bold text-xl">♻</span>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 p-1">
+                <img 
+                  src="/logo.svg" 
+                  alt="BioConnect Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <span className="hidden sm:block text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 transition-colors duration-300">
+              <span className="hidden sm:block text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
                 BioConnect
               </span>
             </Link>
