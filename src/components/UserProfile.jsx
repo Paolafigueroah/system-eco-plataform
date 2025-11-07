@@ -100,9 +100,36 @@ const UserProfile = ({ userId, onClose }) => {
       const normalizedData = { ...editData };
       if (normalizedData.website && normalizedData.website.trim()) {
         const website = normalizedData.website.trim();
-        // Si no empieza con http:// o https://, agregar https://
-        if (!website.match(/^https?:\/\//i)) {
-          normalizedData.website = `https://${website}`;
+        
+        // Validar y normalizar URL
+        try {
+          let normalizedUrl = website;
+          
+          // Agregar protocolo si falta
+          if (!website.match(/^https?:\/\//i)) {
+            normalizedUrl = `https://${website}`;
+          }
+          
+          // Validar formato de URL
+          const urlObj = new URL(normalizedUrl);
+          
+          // Validar que sea http o https
+          if (!['http:', 'https:'].includes(urlObj.protocol)) {
+            throw new Error('El protocolo debe ser http:// o https://');
+          }
+          
+          // Validar que el dominio no sea localhost o IP privada (opcional, para producción)
+          if (import.meta.env.PROD) {
+            const hostname = urlObj.hostname.toLowerCase();
+            if (hostname === 'localhost' || hostname.startsWith('127.') || hostname.startsWith('192.168.')) {
+              throw new Error('Las URLs locales no están permitidas en producción');
+            }
+          }
+          
+          normalizedData.website = normalizedUrl;
+        } catch (error) {
+          alert('URL inválida. Por favor ingresa una URL válida (ej: https://ejemplo.com)');
+          return;
         }
       }
       

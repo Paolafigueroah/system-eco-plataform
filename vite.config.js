@@ -12,7 +12,7 @@ export default defineConfig({
     global: 'globalThis',
   },
   optimizeDeps: {
-    include: ['sql.js', 'bcryptjs']
+    include: []
   },
   build: {
     rollupOptions: {
@@ -20,12 +20,6 @@ export default defineConfig({
       output: {
         globals: {}
       }
-    }
-  },
-  resolve: {
-    alias: {
-      crypto: 'crypto-browserify',
-      buffer: 'buffer'
     }
   }
 })

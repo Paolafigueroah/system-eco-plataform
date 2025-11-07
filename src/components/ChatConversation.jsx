@@ -41,22 +41,36 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const { subscribeToMessages, unsubscribe } = useRealtime();
 
   useEffect(() => {
-    if (conversation) {
-      loadMessages();
-      // Marcar mensajes como leídos
-      chatService.markMessagesAsRead(conversation.id, currentUser.id);
+    if (!conversation || !currentUser?.id) return;
+    
+    let isMounted = true;
+    let subscription = null;
+    
+    const setupSubscription = async () => {
+      // Cargar mensajes iniciales
+      if (isMounted) {
+        await loadMessages();
+        // Marcar mensajes como leídos
+        chatService.markMessagesAsRead(conversation.id, currentUser.id);
+      }
 
-      // Suscripción en tiempo real a nuevos mensajes
+      // Limpiar suscripción anterior si existe
       if (messagesUnsubscribe.current) {
         unsubscribe(messagesUnsubscribe.current);
         messagesUnsubscribe.current = null;
       }
-      const sub = subscribeToMessages(conversation.id, (payload) => {
+
+      // Crear nueva suscripción
+      subscription = subscribeToMessages(conversation.id, (payload) => {
+        if (!isMounted) return;
+        
         console.log('💬 Payload recibido en tiempo real:', payload);
         const newMsg = payload?.new;
         if (!newMsg) {
           // Si no hay newMsg, recargar todos los mensajes
-          loadMessages();
+          if (isMounted) {
+            loadMessages();
+          }
           return;
         }
         // Evitar duplicados cuando llegan eventos simultáneos
@@ -71,19 +85,28 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           return [...prev, newMsg];
         });
         // Marcar como leído automáticamente si es un mensaje recibido
-        if (newMsg.sender_id !== currentUser.id) {
+        if (newMsg.sender_id !== currentUser.id && isMounted) {
           chatService.markMessagesAsRead(conversation.id, currentUser.id);
         }
       });
-      messagesUnsubscribe.current = sub;
-    }
+      
+      messagesUnsubscribe.current = subscription;
+    };
+    
+    setupSubscription();
+
+    // Cleanup function
     return () => {
+      isMounted = false;
       if (messagesUnsubscribe.current) {
         unsubscribe(messagesUnsubscribe.current);
         messagesUnsubscribe.current = null;
       }
+      if (subscription) {
+        unsubscribe(subscription);
+      }
     };
-  }, [conversation, currentUser.id, subscribeToMessages, unsubscribe]);
+  }, [conversation?.id, currentUser?.id, subscribeToMessages, unsubscribe]);
 
   useEffect(() => {
     scrollToBottom();

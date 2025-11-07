@@ -18,6 +18,10 @@ const Login = ({ onSwitchToSignup }) => {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [forgotPasswordStatus, setForgotPasswordStatus] = useState(null);
   const [rememberMe, setRememberMe] = useState(false);
+  const [submitAttempts, setSubmitAttempts] = useState(0);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [blockUntil, setBlockUntil] = useState(null);
   
   const emailInputRef = useRef(null);
   const forgotPasswordInputRef = useRef(null);
@@ -232,8 +236,55 @@ const Login = ({ onSwitchToSignup }) => {
     return error || 'Error al iniciar sesión. Inténtalo de nuevo';
   };
 
+  // Verificar si el usuario está bloqueado
+  useEffect(() => {
+    if (blockUntil) {
+      const now = Date.now();
+      if (now >= blockUntil) {
+        setIsBlocked(false);
+        setBlockUntil(null);
+        setSubmitAttempts(0);
+      } else {
+        const remaining = Math.ceil((blockUntil - now) / 1000);
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+        setLoginStatus({
+          type: 'error',
+          message: `Demasiados intentos. Por favor espera ${minutes}:${seconds.toString().padStart(2, '0')} antes de intentar de nuevo.`
+        });
+      }
+    }
+  }, [blockUntil]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Rate limiting: verificar bloqueo
+    if (isBlocked) {
+      return;
+    }
+    
+    // Rate limiting: verificar tiempo entre intentos
+    const now = Date.now();
+    if (now - lastSubmitTime < 2000) {
+      setLoginStatus({
+        type: 'error',
+        message: 'Por favor espera un momento antes de intentar de nuevo.'
+      });
+      return;
+    }
+    
+    // Rate limiting: verificar número de intentos
+    if (submitAttempts >= 5) {
+      const blockTime = 5 * 60 * 1000; // 5 minutos
+      setBlockUntil(now + blockTime);
+      setIsBlocked(true);
+      setLoginStatus({
+        type: 'error',
+        message: 'Demasiados intentos fallidos. Por favor espera 5 minutos antes de intentar de nuevo.'
+      });
+      return;
+    }
     
     if (!validateForm()) {
       return;
@@ -241,6 +292,7 @@ const Login = ({ onSwitchToSignup }) => {
 
     setIsLoading(true);
     setLoginStatus(null);
+    setLastSubmitTime(now);
 
     try {
       const result = await signIn(formData.email, formData.password);

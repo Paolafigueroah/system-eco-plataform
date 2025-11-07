@@ -29,31 +29,61 @@ const Chat = ({ onClose }) => {
   const conversationsUnsubscribe = useRef(null);
 
   useEffect(() => {
-    if (user) {
-      loadConversations();
+    if (!user?.id) return;
+    
+    let isMounted = true;
+    let subscription = null;
+    let timeoutId = null;
+    
+    const setupSubscription = async () => {
+      // Cargar conversaciones iniciales
+      if (isMounted) {
+        await loadConversations();
+      }
 
-      // Suscripción a cambios en conversaciones (nuevo mensaje, creación, etc.)
+      // Limpiar suscripción anterior si existe
       if (conversationsUnsubscribe.current) {
         unsubscribe(conversationsUnsubscribe.current);
         conversationsUnsubscribe.current = null;
       }
-      const sub = subscribeToConversations(user.id, (payload) => {
+
+      // Crear nueva suscripción
+      subscription = subscribeToConversations(user.id, (payload) => {
+        if (!isMounted) return;
+        
         console.log('🔄 Cambio detectado en conversaciones:', payload);
         // Refrescar lista cuando haya cambios relevantes (nuevo mensaje, nueva conversación, etc.)
         // Usar un pequeño delay para evitar múltiples recargas
-        setTimeout(() => {
-          loadConversations();
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            loadConversations();
+          }
         }, 100);
       });
-      conversationsUnsubscribe.current = sub;
-    }
+      
+      conversationsUnsubscribe.current = subscription;
+    };
+    
+    setupSubscription();
+
+    // Cleanup function
     return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       if (conversationsUnsubscribe.current) {
         unsubscribe(conversationsUnsubscribe.current);
         conversationsUnsubscribe.current = null;
       }
+      if (subscription) {
+        unsubscribe(subscription);
+      }
     };
-  }, [user, subscribeToConversations, unsubscribe]);
+  }, [user?.id, subscribeToConversations, unsubscribe]);
 
   const loadConversations = async () => {
     try {
