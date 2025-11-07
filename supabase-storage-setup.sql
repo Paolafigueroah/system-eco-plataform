@@ -12,6 +12,12 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
+-- Eliminar políticas existentes si existen (para evitar errores)
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can upload" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update own images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete own images" ON storage.objects;
+
 -- Política para permitir lectura pública
 CREATE POLICY "Public Access"
 ON storage.objects FOR SELECT
