@@ -139,7 +139,11 @@ export const supabaseChatService = {
     try {
       console.log('💬 Supabase: Obteniendo mensajes...', conversationId);
       
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      const currentUserId = user?.id;
+
+      // Obtener mensajes con información del remitente
+      const { data: messages, error: messagesError } = await supabase
         .from('messages')
         .select(`
           *,
@@ -148,9 +152,27 @@ export const supabaseChatService = {
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (messagesError) throw messagesError;
 
-      return supabaseUtils.handleSuccess(data, 'Obtener mensajes de conversación');
+      // Si hay un usuario autenticado, verificar qué mensajes ha leído
+      if (currentUserId && messages && messages.length > 0) {
+        const messageIds = messages.map(m => m.id);
+        
+        const { data: reads, error: readsError } = await supabase
+          .from('message_reads')
+          .select('message_id')
+          .in('message_id', messageIds)
+          .eq('user_id', currentUserId);
+
+        if (!readsError && reads) {
+          const readMessageIds = new Set(reads.map(r => r.message_id));
+          messages.forEach(msg => {
+            msg.is_read = readMessageIds.has(msg.id) || msg.sender_id === currentUserId;
+          });
+        }
+      }
+
+      return supabaseUtils.handleSuccess(messages || [], 'Obtener mensajes de conversación');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener mensajes de conversación');
     }
@@ -161,13 +183,35 @@ export const supabaseChatService = {
     try {
       console.log('💬 Supabase: Marcando mensajes como leídos...', { conversationId, userId });
       
-      const { error } = await supabase
+      // Obtener todos los mensajes no leídos de la conversación que no son del usuario
+      const { data: unreadMessages, error: fetchError } = await supabase
         .from('messages')
-        .update({ is_read: true })
+        .select('id')
         .eq('conversation_id', conversationId)
-        .neq('sender_id', userId); // No marcar como leídos los propios mensajes
+        .neq('sender_id', userId);
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
+
+      if (!unreadMessages || unreadMessages.length === 0) {
+        return supabaseUtils.handleSuccess(null, 'Marcar mensajes como leídos');
+      }
+
+      // Insertar registros en message_reads para cada mensaje no leído
+      const readsToInsert = unreadMessages.map(msg => ({
+        message_id: msg.id,
+        user_id: userId,
+        read_at: new Date().toISOString()
+      }));
+
+      // Usar upsert para evitar duplicados
+      const { error: insertError } = await supabase
+        .from('message_reads')
+        .upsert(readsToInsert, {
+          onConflict: 'message_id,user_id',
+          ignoreDuplicates: false
+        });
+
+      if (insertError) throw insertError;
 
       return supabaseUtils.handleSuccess(null, 'Marcar mensajes como leídos');
     } catch (error) {
@@ -181,17 +225,41 @@ export const supabaseChatService = {
       console.log('💬 Supabase: Obteniendo estadísticas de chat...', userId);
       
       // Obtener conteo de conversaciones
-      const { count: conversationCount } = await supabase
+      const { count: conversationCount, error: convError } = await supabase
         .from('conversations')
         .select('*', { count: 'exact', head: true })
         .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
 
-      // Obtener conteo de mensajes no leídos
-      const { count: unreadCount } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_read', false)
-        .neq('sender_id', userId);
+      if (convError) throw convError;
+
+      // Obtener conteo de mensajes no leídos usando message_reads
+      // Primero obtener todos los mensajes de las conversaciones del usuario
+      const { data: conversations, error: convsError } = await supabase
+        .from('conversations')
+        .select('id')
+        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+
+      if (convsError) throw convsError;
+
+      let unreadCount = 0;
+      if (conversations && conversations.length > 0) {
+        const conversationIds = conversations.map(c => c.id);
+        
+        // Obtener mensajes no leídos (mensajes que no son del usuario y no están en message_reads)
+        const { data: unreadMessages, error: unreadError } = await supabase
+          .from('messages')
+          .select(`
+            id,
+            message_reads!left(message_id)
+          `)
+          .in('conversation_id', conversationIds)
+          .neq('sender_id', userId)
+          .is('message_reads.message_id', null);
+
+        if (!unreadError && unreadMessages) {
+          unreadCount = unreadMessages.length;
+        }
+      }
 
       const stats = {
         conversations: conversationCount || 0,

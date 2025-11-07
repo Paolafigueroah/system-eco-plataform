@@ -81,20 +81,34 @@ export const supabaseRealtimeService = {
     try {
       console.log('⚡ Supabase: Suscribiéndose a conversaciones...', userId);
       
-      const subscription = supabase
-        .channel(`conversations_${userId}`)
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'conversations',
-          filter: `buyer_id=eq.${userId},seller_id=eq.${userId}`
-        }, (payload) => {
-          console.log('💬 Conversación actualizada en tiempo real:', payload);
-          callback(payload);
-        })
-        .subscribe();
+      // Crear dos canales separados para buyer_id y seller_id
+      const channel = supabase.channel(`conversations_${userId}`);
+      
+      // Suscribirse a conversaciones donde el usuario es buyer
+      channel.on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'conversations',
+        filter: `buyer_id=eq.${userId}`
+      }, (payload) => {
+        console.log('💬 Conversación actualizada en tiempo real (buyer):', payload);
+        callback(payload);
+      });
 
-      return subscription;
+      // Suscribirse a conversaciones donde el usuario es seller
+      channel.on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'conversations',
+        filter: `seller_id=eq.${userId}`
+      }, (payload) => {
+        console.log('💬 Conversación actualizada en tiempo real (seller):', payload);
+        callback(payload);
+      });
+
+      channel.subscribe();
+
+      return channel;
     } catch (error) {
       console.error('Error suscribiéndose a conversaciones:', error);
       return null;
