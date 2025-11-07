@@ -16,7 +16,15 @@ const Favorites = () => {
       loadFavorites();
       loadStats();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?.id]);
+
+  // Recargar favoritos cuando se elimina uno
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadFavorites();
+      loadStats();
+    }
+  }, [favorites.length]);
 
   const loadFavorites = async () => {
     try {
@@ -59,42 +67,43 @@ const Favorites = () => {
     }
   };
 
-  const handleProductRemoved = (productId) => {
+  const handleProductRemoved = async (productId) => {
     // Remover producto de la lista cuando se elimina de favoritos
     setFavorites(prev => prev.filter(fav => fav.id !== productId));
-    // Recargar estadísticas
-    loadStats();
+    // Recargar favoritos y estadísticas para asegurar sincronización
+    await loadFavorites();
+    await loadStats();
   };
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Acceso Denegado</h1>
-          <p className="text-gray-600">Debes iniciar sesión para ver tus favoritos.</p>
+          <Heart className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Acceso Denegado</h1>
+          <p className="text-gray-600 dark:text-gray-400">Debes iniciar sesión para ver tus favoritos.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 flex items-center justify-center">
             <Heart className="w-8 h-8 mr-3 text-red-500" />
             Mis Favoritos
           </h1>
-          <p className="text-gray-600">Productos que has guardado como favoritos</p>
+          <p className="text-gray-600 dark:text-gray-400">Productos que has guardado como favoritos</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Estadísticas */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
                 <BarChart3 className="w-5 h-5 mr-2" />
                 Estadísticas
               </h2>
@@ -114,16 +123,16 @@ const Favorites = () => {
 
                   {/* Categorías */}
                   {stats.categories.length > 0 && (
-                    <div className="bg-purple-50 rounded-lg p-4">
-                      <h3 className="text-sm font-medium text-purple-600 mb-3 flex items-center">
+                    <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-3 flex items-center">
                         <Tag className="w-4 h-4 mr-1" />
                         Por Categoría
                       </h3>
                       <div className="space-y-2">
                         {stats.categories.map((category, index) => (
                           <div key={index} className="flex justify-between text-sm">
-                            <span className="text-purple-700">{category.category}</span>
-                            <span className="font-medium text-purple-800">{category.count}</span>
+                            <span className="text-purple-700 dark:text-purple-300">{category.category}</span>
+                            <span className="font-medium text-purple-800 dark:text-purple-200">{category.count}</span>
                           </div>
                         ))}
                       </div>
@@ -132,16 +141,16 @@ const Favorites = () => {
 
                   {/* Tipos de transacción */}
                   {stats.transaction_types.length > 0 && (
-                    <div className="bg-orange-50 rounded-lg p-4">
-                      <h3 className="text-sm font-medium text-orange-600 mb-3 flex items-center">
+                    <div className="bg-orange-50 dark:bg-orange-900/30 rounded-lg p-4">
+                      <h3 className="text-sm font-medium text-orange-600 dark:text-orange-400 mb-3 flex items-center">
                         <DollarSign className="w-4 h-4 mr-1" />
                         Por Tipo
                       </h3>
                       <div className="space-y-2">
                         {stats.transaction_types.map((type, index) => (
                           <div key={index} className="flex justify-between text-sm">
-                            <span className="text-orange-700 capitalize">{type.transaction_type}</span>
-                            <span className="font-medium text-orange-800">{type.count}</span>
+                            <span className="text-orange-700 dark:text-orange-300 capitalize">{type.transaction_type}</span>
+                            <span className="font-medium text-orange-800 dark:text-orange-200">{type.count}</span>
                           </div>
                         ))}
                       </div>
@@ -151,7 +160,7 @@ const Favorites = () => {
               ) : (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Cargando estadísticas...</p>
+                  <p className="text-gray-600 dark:text-gray-400">Cargando estadísticas...</p>
                 </div>
               )}
             </div>
@@ -159,12 +168,12 @@ const Favorites = () => {
 
           {/* Lista de favoritos */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-800">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                   Productos Favoritos
                 </h2>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {isLoading ? (
                     <span className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-2"></div>
@@ -177,8 +186,8 @@ const Favorites = () => {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                  <p className="text-red-800">{error}</p>
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+                  <p className="text-red-800 dark:text-red-200">{error}</p>
                 </div>
               )}
 
@@ -194,9 +203,9 @@ const Favorites = () => {
                 </div>
               ) : !isLoading ? (
                 <div className="text-center py-12">
-                  <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes favoritos aún</h3>
-                  <p className="text-gray-600 mb-6">
+                  <Heart className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No tienes favoritos aún</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
                     Explora productos y agrega los que te interesen a tus favoritos.
                   </p>
                   <a

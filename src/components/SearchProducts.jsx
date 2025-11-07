@@ -176,10 +176,11 @@ const SearchProducts = () => {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
-                <option value="">Todas las categorías</option>
+                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Todas las categorías</option>
                 {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category} value={category} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{category}</option>
                 ))}
               </select>
             </div>
@@ -193,10 +194,11 @@ const SearchProducts = () => {
                 value={selectedTransactionType}
                 onChange={(e) => setSelectedTransactionType(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
-                <option value="">Todos los tipos</option>
+                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Todos los tipos</option>
                 {transactionTypes.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
+                  <option key={type.value} value={type.value} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{type.label}</option>
                 ))}
               </select>
             </div>
@@ -262,9 +264,10 @@ const SearchProducts = () => {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
                 {sortOptions.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">{option.label}</option>
                 ))}
               </select>
             </div>

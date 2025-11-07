@@ -61,20 +61,20 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Email',
-      value: 'contacto@economiacircular.com',
+      value: 'contacto@systemeco.com',
       description: 'Envíanos un email en cualquier momento'
     },
     {
       icon: Phone,
       title: 'Teléfono',
-      value: '+1 (555) 123-4567',
-      description: 'Lun-Vie de 8am a 6pm'
+      value: 'No disponible',
+      description: 'Contacto por email o formulario'
     },
     {
       icon: MapPin,
-      title: 'Oficina',
-      value: '123 Calle Sostenible, Ciudad Verde',
-      description: 'Visítanos en persona'
+      title: 'Ubicación',
+      value: 'Plataforma en línea',
+      description: 'Sistema de economía circular digital'
     }
   ];
 
