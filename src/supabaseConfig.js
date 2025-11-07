@@ -6,18 +6,21 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validar que las variables de entorno estén configuradas
+// En producción, mostrar error en consola pero no lanzar excepción para evitar que la app se rompa
 if (!supabaseUrl) {
-  throw new Error(
-    '❌ VITE_SUPABASE_URL no está configurada. ' +
-    'Por favor, crea un archivo .env con VITE_SUPABASE_URL=tu-url'
-  );
+  const errorMsg = '❌ VITE_SUPABASE_URL no está configurada. Por favor, configura las variables de entorno.';
+  console.error(errorMsg);
+  if (import.meta.env.DEV) {
+    throw new Error(errorMsg);
+  }
 }
 
 if (!supabaseKey) {
-  throw new Error(
-    '❌ VITE_SUPABASE_ANON_KEY no está configurada. ' +
-    'Por favor, crea un archivo .env con VITE_SUPABASE_ANON_KEY=tu-clave'
-  );
+  const errorMsg = '❌ VITE_SUPABASE_ANON_KEY no está configurada. Por favor, configura las variables de entorno.';
+  console.error(errorMsg);
+  if (import.meta.env.DEV) {
+    throw new Error(errorMsg);
+  }
 }
 
 // Debug solo en desarrollo
@@ -27,8 +30,11 @@ if (import.meta.env.DEV) {
   console.log('VITE_SUPABASE_ANON_KEY:', supabaseKey ? '✅ Configurada' : '❌ Faltante');
 }
 
-// Crear cliente de Supabase
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Crear cliente de Supabase (usar valores por defecto si no están configurados para evitar errores)
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseKey || 'placeholder-key'
+);
 
 // Funciones de utilidad para Supabase
 export const supabaseUtils = {
