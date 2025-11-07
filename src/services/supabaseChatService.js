@@ -5,6 +5,44 @@ export const supabaseChatService = {
   // Crear nueva conversación
   createConversation: async (buyerId, sellerId, productId = null) => {
     try {
+      // Validación de parámetros
+      if (!buyerId || typeof buyerId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('buyerId es requerido y debe ser un string'),
+          'Crear conversación'
+        );
+      }
+      
+      if (!sellerId || typeof sellerId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('sellerId es requerido y debe ser un string'),
+          'Crear conversación'
+        );
+      }
+      
+      if (buyerId === sellerId) {
+        return supabaseUtils.handleError(
+          new Error('No puedes crear una conversación contigo mismo'),
+          'Crear conversación'
+        );
+      }
+      
+      // Validar formato UUID básico (Supabase usa UUIDs)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(buyerId) || !uuidRegex.test(sellerId)) {
+        return supabaseUtils.handleError(
+          new Error('buyerId y sellerId deben ser UUIDs válidos'),
+          'Crear conversación'
+        );
+      }
+      
+      if (productId && !uuidRegex.test(productId)) {
+        return supabaseUtils.handleError(
+          new Error('productId debe ser un UUID válido'),
+          'Crear conversación'
+        );
+      }
+      
       console.log('💬 Supabase: Creando conversación...', { buyerId, sellerId, productId });
       
       // Verificar si ya existe una conversación entre estos usuarios
@@ -97,6 +135,43 @@ export const supabaseChatService = {
   // Enviar mensaje
   sendMessage: async (conversationId, senderId, content, messageType = 'text') => {
     try {
+      // Validación de parámetros
+      if (!conversationId || typeof conversationId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('conversationId es requerido y debe ser un string'),
+          'Enviar mensaje'
+        );
+      }
+      
+      if (!senderId || typeof senderId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('senderId es requerido y debe ser un string'),
+          'Enviar mensaje'
+        );
+      }
+      
+      if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        return supabaseUtils.handleError(
+          new Error('El contenido del mensaje es requerido y no puede estar vacío'),
+          'Enviar mensaje'
+        );
+      }
+      
+      if (content.length > 5000) {
+        return supabaseUtils.handleError(
+          new Error('El mensaje no puede exceder 5000 caracteres'),
+          'Enviar mensaje'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(conversationId) || !uuidRegex.test(senderId)) {
+        return supabaseUtils.handleError(
+          new Error('conversationId y senderId deben ser UUIDs válidos'),
+          'Enviar mensaje'
+        );
+      }
+      
       console.log('💬 Supabase: Enviando mensaje...', { conversationId, senderId });
       
       // Crear el mensaje

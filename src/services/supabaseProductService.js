@@ -40,6 +40,22 @@ export const supabaseProductService = {
   // Obtener producto por ID
   getProductById: async (productId) => {
     try {
+      // Validación de parámetros
+      if (!productId || typeof productId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('productId es requerido y debe ser un string'),
+          'Obtener producto por ID'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(productId)) {
+        return supabaseUtils.handleError(
+          new Error('productId debe ser un UUID válido'),
+          'Obtener producto por ID'
+        );
+      }
+      
       console.log('📦 Supabase: Obteniendo producto...', productId);
       
       const { data, error } = await supabase
@@ -72,6 +88,22 @@ export const supabaseProductService = {
   // Obtener productos por usuario
   getProductsByUserId: async (userId) => {
     try {
+      // Validación de parámetros
+      if (!userId || typeof userId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('userId es requerido y debe ser un string'),
+          'Obtener productos por usuario'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(userId)) {
+        return supabaseUtils.handleError(
+          new Error('userId debe ser un UUID válido'),
+          'Obtener productos por usuario'
+        );
+      }
+      
       console.log('📦 Supabase: Obteniendo productos del usuario...', userId);
       
       const { data, error } = await supabase
@@ -156,6 +188,22 @@ export const supabaseProductService = {
   // Eliminar producto
   deleteProduct: async (productId) => {
     try {
+      // Validación de parámetros
+      if (!productId || typeof productId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('productId es requerido y debe ser un string'),
+          'Eliminar producto'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(productId)) {
+        return supabaseUtils.handleError(
+          new Error('productId debe ser un UUID válido'),
+          'Eliminar producto'
+        );
+      }
+      
       console.log('📦 Supabase: Eliminando producto...', productId);
       
       const { data: { user } } = await supabase.auth.getUser();
