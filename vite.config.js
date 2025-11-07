@@ -11,6 +11,7 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
+  base: '/',
   optimizeDeps: {
     include: []
   },
@@ -20,6 +21,8 @@ export default defineConfig({
       output: {
         globals: {}
       }
-    }
+    },
+    assetsDir: 'assets',
+    outDir: 'dist'
   }
 })
