@@ -162,6 +162,30 @@
   color: #e5e7eb !important;
 }
 
+/* Fix select elements in dark mode - Force dark background */
+.dark select {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark select option {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Fix select dropdown when opened in dark mode */
+.dark select:focus {
+  background-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Ensure select maintains dark background when dropdown is open */
+.dark select option:checked,
+.dark select option:hover {
+  background-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
 /* Fix cards */
 .dark .card h1, .dark .card h2, .dark .card h3, 
 .dark .card h4, .dark .card h5, .dark .card h6 {
