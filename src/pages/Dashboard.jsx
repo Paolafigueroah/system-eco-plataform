@@ -224,13 +224,13 @@ const Dashboard = () => {
   const getTransactionTypeColor = (type) => {
     switch (type) {
       case 'venta':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
       case 'intercambio':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300';
       case 'donacion':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
@@ -310,7 +310,7 @@ const Dashboard = () => {
               </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Productos Activos</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.activeProducts}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeProducts}</p>
             </div>
           </div>
             </div>
@@ -322,7 +322,7 @@ const Dashboard = () => {
               </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Vistas</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalViews}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalViews}</p>
             </div>
               </div>
             </div>
@@ -334,7 +334,7 @@ const Dashboard = () => {
               </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Favoritos</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalFavorites}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalFavorites}</p>
             </div>
           </div>
               </div>
@@ -346,7 +346,7 @@ const Dashboard = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Puntos Ganados</p>
-              <p className="text-2xl font-bold text-gray-900">150</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">150</p>
             </div>
           </div>
         </div>
@@ -382,7 +382,7 @@ const Dashboard = () => {
       {/* User Products */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Mis Productos</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Mis Productos</h2>
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {userProducts.length} producto{userProducts.length !== 1 ? 's' : ''}
           </div>
@@ -391,34 +391,34 @@ const Dashboard = () => {
         {userProducts.length > 0 ? (
           <div className="products-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {userProducts.map((product) => (
-              <div key={product.id} className="bg-gray-50 rounded-lg p-4">
+              <div key={product.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900 line-clamp-2">{product.title}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2">{product.title}</h3>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTransactionTypeColor(product.transaction_type)}`}>
                     {getTransactionTypeLabel(product.transaction_type)}
                   </span>
                 </div>
                 
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{product.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{product.description}</p>
                 
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Categoría:</span>
-                    <span className="font-medium">{product.category}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Categoría:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{product.category}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Precio:</span>
-                    <span className="font-medium">
+                    <span className="text-gray-500 dark:text-gray-400">Precio:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {product.price === 0 ? 'Gratis' : `$${product.price}`}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Vistas:</span>
-                    <span className="font-medium">{product.views || 0}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Vistas:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{product.views || 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Publicado:</span>
-                    <span className="font-medium">{formatDate(product.created_at)}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Publicado:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">{formatDate(product.created_at)}</span>
                   </div>
                 </div>
 
@@ -469,22 +469,22 @@ const Dashboard = () => {
 
       {/* Recent Activity */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Actividad Reciente</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Actividad Reciente</h2>
         <div className="space-y-4">
           {userProducts.slice(0, 5).map((product) => (
-            <div key={product.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <Package className="text-emerald-600" size={20} />
+            <div key={product.id} className="flex items-center space-x-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+                <Package className="text-emerald-600 dark:text-emerald-400" size={20} />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">{product.title}</p>
+                <p className="font-medium text-gray-900 dark:text-white">{product.title}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {getTransactionTypeLabel(product.transaction_type)} • {formatDate(product.created_at)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{product.views || 0} vistas</p>
-                <p className="text-xs text-gray-500">{product.favorites || 0} favoritos</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">{product.views || 0} vistas</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{product.favorites || 0} favoritos</p>
               </div>
             </div>
           ))}
