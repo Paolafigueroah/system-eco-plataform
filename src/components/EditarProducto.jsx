@@ -199,27 +199,27 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
 
   if (success) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-8 text-center">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">¡Producto Actualizado!</h3>
-          <p className="text-gray-600">El producto ha sido actualizado exitosamente.</p>
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-8 text-center border border-gray-200 dark:border-gray-700">
+          <CheckCircle className="w-16 h-16 text-green-500 dark:text-green-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">¡Producto Actualizado!</h3>
+          <p className="text-gray-600 dark:text-gray-400">El producto ha sido actualizado exitosamente.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-            <Edit className="w-6 h-6 mr-2 text-blue-600" />
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
+            <Edit className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
             Editar Producto
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
           >
             <X size={24} />
           </button>
@@ -227,15 +227,15 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
-              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
-              <span className="text-red-700">{errors.submit}</span>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 mr-2" />
+              <span className="text-red-700 dark:text-red-300">{errors.submit}</span>
             </div>
           )}
 
           {/* Título */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <FileText className="w-4 h-4 inline mr-1" />
               Título del producto *
             </label>
@@ -244,8 +244,8 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
               name="titulo"
               value={formData.titulo}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.titulo ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                errors.titulo ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Ej: Refrigerador LG en excelente estado"
             />
@@ -254,7 +254,7 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
 
           {/* Descripción */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <FileText className="w-4 h-4 inline mr-1" />
               Descripción *
             </label>
@@ -263,8 +263,8 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
               value={formData.descripcion}
               onChange={handleInputChange}
               rows={4}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.descripcion ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                errors.descripcion ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Describe tu producto en detalle..."
             />
@@ -274,7 +274,7 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
           {/* Categoría y Estado */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Tag className="w-4 h-4 inline mr-1" />
                 Categoría *
               </label>
@@ -282,9 +282,10 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
                 name="categoria"
                 value={formData.categoria}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.categoria ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.categoria ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
+                style={{ colorScheme: 'light dark' }}
               >
                 <option value="">Selecciona una categoría</option>
                 <option value="Electrónica">Electrónica</option>
@@ -299,7 +300,7 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Package className="w-4 h-4 inline mr-1" />
                 Estado del producto
               </label>
@@ -307,7 +308,8 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
                 name="estado"
                 value={formData.estado}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
                 <option value="excelente">Excelente</option>
                 <option value="muy_bueno">Muy bueno</option>
@@ -321,14 +323,15 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
           {/* Tipo de transacción y Precio */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Tipo de transacción
               </label>
               <select
                 name="tipoTransaccion"
                 value={formData.tipoTransaccion}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
                 <option value="venta">Venta</option>
                 <option value="intercambio">Intercambio</option>
@@ -337,7 +340,7 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <DollarSign className="w-4 h-4 inline mr-1" />
                 Precio {formData.tipoTransaccion === 'venta' && '*'}
               </label>
@@ -348,8 +351,8 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
                 onChange={handleInputChange}
                 min="0"
                 step="0.01"
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.precio ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                  errors.precio ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
                 placeholder="0.00"
                 disabled={formData.tipoTransaccion === 'donacion'}
@@ -360,7 +363,7 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
 
           {/* Ubicación */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Ubicación
             </label>
             <input
@@ -368,18 +371,18 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
               name="ubicacion"
               value={formData.ubicacion}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Ej: Guaymas, Sonora"
             />
           </div>
 
           {/* Imágenes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <ImageIcon className="w-4 h-4 inline mr-1" />
               Imágenes (máximo 5)
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center bg-gray-50 dark:bg-gray-700/50">
               <input
                 type="file"
                 multiple

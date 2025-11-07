@@ -123,13 +123,13 @@ const ProductDetail = () => {
   const getTransactionTypeColor = (type) => {
     switch (type) {
       case 'venta':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800';
       case 'intercambio':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800';
       case 'donacion':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-600';
     }
   };
 
@@ -354,7 +354,7 @@ const ProductDetail = () => {
           {/* Imagen del producto */}
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-              <div className="relative h-96 bg-gray-200 dark:bg-gray-700">
+              <div className="relative h-96 bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700">
                 {productImages.length > 0 ? (
                   <>
                     <img
@@ -401,7 +401,7 @@ const ProductDetail = () => {
                   </>
                 ) : (
                   <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    <div className="text-gray-400 text-center">
+                    <div className="text-gray-400 dark:text-gray-500 text-center">
                       <div className={`w-20 h-20 ${getCategoryIconColor(product.category)} rounded-full flex items-center justify-center mx-auto mb-4`}>
                         {React.createElement(getCategoryIcon(product.category), { 
                           size: 32, 
@@ -416,7 +416,7 @@ const ProductDetail = () => {
               
               {/* Miniaturas de imágenes */}
               {productImages.length > 1 && (
-                <div className="p-4 bg-gray-50 dark:bg-gray-700">
+                <div className="p-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex space-x-2 overflow-x-auto">
                     {productImages.map((image, index) => (
                       <button

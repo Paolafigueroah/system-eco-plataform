@@ -163,9 +163,9 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-2">
-              <AlertCircle className="text-red-500" size={20} />
-              <span className="text-red-700">{error}</span>
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center space-x-2">
+              <AlertCircle className="text-red-500 dark:text-red-400" size={20} />
+              <span className="text-red-700 dark:text-red-300">{error}</span>
             </div>
           )}
 
@@ -180,7 +180,7 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
               value={formData.title}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Ej: iPhone 12 en excelente estado"
             />
           </div>
@@ -195,7 +195,7 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Describe tu producto, incluye detalles importantes..."
             />
           </div>
@@ -211,9 +211,10 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
                 value={formData.category}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
-                <option value="">Selecciona una categoría</option>
+                <option value="" className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">Selecciona una categoría</option>
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
@@ -228,10 +229,11 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
                 name="condition"
                 value={formData.condition}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
                 {conditions.map(condition => (
-                  <option key={condition.value} value={condition.value}>
+                  <option key={condition.value} value={condition.value} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     {condition.label}
                   </option>
                 ))}
@@ -249,10 +251,11 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
                 name="transactionType"
                 value={formData.transactionType}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                style={{ colorScheme: 'light dark' }}
               >
                 {transactionTypes.map(type => (
-                  <option key={type.value} value={type.value}>
+                  <option key={type.value} value={type.value} className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     {type.label}
                   </option>
                 ))}
@@ -272,7 +275,7 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
                 required={formData.transactionType !== 'donacion'}
                 min="0"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800"
                 placeholder="0.00"
               />
             </div>
@@ -288,7 +291,7 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
               name="location"
               value={formData.location}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="Ciudad, Estado"
             />
           </div>
@@ -298,7 +301,7 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Imágenes (máximo 5)
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center bg-gray-50 dark:bg-gray-700/50">
               <input
                 type="file"
                 multiple
@@ -308,11 +311,11 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
                 id="image-upload"
               />
               <label htmlFor="image-upload" className="cursor-pointer">
-                <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-gray-600">
+                <Upload className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" />
+                <p className="text-gray-600 dark:text-gray-300">
                   Haz clic para subir imágenes o arrastra y suelta
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   PNG, JPG, GIF hasta 5MB cada una
                 </p>
               </label>
@@ -342,11 +345,11 @@ const AddProductForm = ({ onClose, onProductAdded }) => {
           </div>
 
           {/* Botones */}
-          <div className="flex justify-end space-x-4 pt-6 border-t">
+          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Cancelar
             </button>

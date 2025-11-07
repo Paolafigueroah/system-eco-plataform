@@ -204,15 +204,15 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
 
   if (success) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
-          <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="h-12 w-12 text-success" />
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4 text-center border border-gray-200 dark:border-gray-700">
+          <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             ¡Producto Publicado!
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             Tu producto ha sido publicado exitosamente y ya está visible para otros usuarios.
           </p>
           <button
@@ -236,7 +236,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-500 dark:text-gray-400"
           >
             <X className="h-6 w-6" />
           </button>
@@ -457,7 +457,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
           </div>
 
           {/* Botones de acción */}
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <button
               type="button"
               onClick={onClose}

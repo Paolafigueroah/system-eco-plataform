@@ -190,7 +190,7 @@ const Home = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Buscar productos..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                   <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 </form>
@@ -232,8 +232,8 @@ const Home = () => {
                   onClick={() => handleCategoryClick(category)}
                   className={`p-4 rounded-lg border-2 transition-all duration-200 ${
                     selectedCategory === category
-                      ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                      : 'border-gray-200 dark:border-gray-600 hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-gray-50 dark:hover:bg-gray-800 bg-white dark:bg-gray-800'
                   }`}
                 >
                   <div className="text-center">
@@ -282,8 +282,8 @@ const Home = () => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Gift className="h-8 w-8 text-gray-400" />
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Gift className="h-8 w-8 text-gray-400 dark:text-gray-500" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {selectedCategory ? `No hay productos en ${selectedCategory}` : 'No hay productos disponibles'}

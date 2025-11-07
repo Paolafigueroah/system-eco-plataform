@@ -90,13 +90,13 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const getTransactionTypeColor = (type) => {
     switch (type) {
       case 'venta':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
       case 'intercambio':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300';
       case 'donacion':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
   };
 
@@ -123,7 +123,7 @@ default:
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Product Image */}
-      <div className="relative h-48 sm:h-56 bg-gray-200">
+      <div className="relative h-48 sm:h-56 bg-gray-200 dark:bg-gray-700">
         {product.images && product.images.length > 0 ? (
           <img
             src={Array.isArray(product.images) ? product.images[0] : product.images.split(',')[0]} // URL real de la imagen
@@ -135,8 +135,8 @@ default:
             }}
           />
         ) : null}
-        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center" style={{ display: (product.images && product.images.length > 0) ? 'none' : 'flex' }}>
-          <div className="text-gray-400 text-center">
+        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center" style={{ display: (product.images && product.images.length > 0) ? 'none' : 'flex' }}>
+          <div className="text-gray-400 dark:text-gray-500 text-center">
             <div className={`w-12 h-12 ${getCategoryIconColor(product.category)} rounded-full flex items-center justify-center mx-auto mb-2`}>
               {React.createElement(getCategoryIcon(product.category), { 
                 size: 24, 
@@ -226,7 +226,7 @@ default:
               className={`p-2 rounded-lg transition-colors duration-200 ${
                 isFavorite 
                   ? 'bg-red-500 text-white hover:bg-red-600' 
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               } disabled:opacity-50`}
               title={isFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}
             >
@@ -265,10 +265,10 @@ default:
         </div>
 
         {/* Seller Info */}
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-            <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center mr-2">
-              <span className="text-emerald-600 font-semibold text-xs">
+            <div className="w-6 h-6 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mr-2">
+              <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
                 {product.user_name ? product.user_name.charAt(0) : 'U'}
               </span>
             </div>
