@@ -1,134 +1,82 @@
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Gradiente para la hoja (verde) -->
-    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    <!-- Gradiente principal (emerald) -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
     </linearGradient>
     
-    <!-- Gradiente para el engranaje (azul) -->
-    <linearGradient id="gearGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    <!-- Gradiente secundario (más claro) -->
+    <linearGradient id="secondaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
     </linearGradient>
-    
-    <!-- Gradiente para la flecha circular (verde a azul) -->
-    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#22c55e;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
-    </linearGradient>
-    
-    <!-- Patrón de hexágonos de fondo (muy sutil) -->
-    <pattern id="hexPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M20,0 L35,10 L35,30 L20,40 L5,30 L5,10 Z" fill="none" stroke="#e5e7eb" stroke-width="0.3" opacity="0.15"/>
-    </pattern>
   </defs>
   
-  <!-- Fondo blanco con patrón de hexágonos muy sutil -->
-  <rect width="200" height="200" fill="white"/>
-  <rect width="200" height="200" fill="url(#hexPattern)"/>
+  <!-- Fondo blanco limpio -->
+  <rect width="200" height="200" fill="white" rx="45"/>
   
-  <!-- Círculo contenedor -->
-  <circle cx="100" cy="100" r="90" fill="white" stroke="#f3f4f6" stroke-width="1.5"/>
+  <!-- Círculo contenedor sutil -->
+  <circle cx="100" cy="100" r="88" fill="white" stroke="#f1f5f9" stroke-width="1"/>
   
-  <!-- Hoja verde (lado izquierdo, superpuesta) -->
+  <!-- Red de conexiones (representando la plataforma) -->
+  <!-- Nodo central -->
+  <circle cx="100" cy="100" r="18" fill="url(#mainGradient)"/>
+  
+  <!-- Nodos periféricos conectados -->
+  <!-- Nodo superior -->
+  <circle cx="100" cy="50" r="12" fill="url(#secondaryGradient)"/>
+  <line x1="100" y1="68" x2="100" y2="62" stroke="url(#mainGradient)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Nodo inferior -->
+  <circle cx="100" cy="150" r="12" fill="url(#secondaryGradient)"/>
+  <line x1="100" y1="132" x2="100" y2="138" stroke="url(#mainGradient)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Nodo izquierdo -->
+  <circle cx="50" cy="100" r="12" fill="url(#secondaryGradient)"/>
+  <line x1="68" y1="100" x2="62" y2="100" stroke="url(#mainGradient)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Nodo derecho -->
+  <circle cx="150" cy="100" r="12" fill="url(#secondaryGradient)"/>
+  <line x1="132" y1="100" x2="138" y2="100" stroke="url(#mainGradient)" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Nodos diagonales (red más completa) -->
+  <!-- Superior izquierdo -->
+  <circle cx="65" cy="65" r="10" fill="url(#secondaryGradient)" opacity="0.8"/>
+  <line x1="82" y1="82" x2="75" y2="75" stroke="url(#mainGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Superior derecho -->
+  <circle cx="135" cy="65" r="10" fill="url(#secondaryGradient)" opacity="0.8"/>
+  <line x1="118" y1="82" x2="125" y2="75" stroke="url(#mainGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Inferior izquierdo -->
+  <circle cx="65" cy="135" r="10" fill="url(#secondaryGradient)" opacity="0.8"/>
+  <line x1="82" y1="118" x2="75" y2="125" stroke="url(#mainGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Inferior derecho -->
+  <circle cx="135" cy="135" r="10" fill="url(#secondaryGradient)" opacity="0.8"/>
+  <line x1="118" y1="118" x2="125" y2="125" stroke="url(#mainGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  
+  <!-- Icono de intercambio en el centro (flechas circulares) -->
   <g transform="translate(100, 100)">
-    <!-- Hoja con forma más realista -->
-    <path d="M-45,-25 
-             Q-55,-35 -50,-45 
-             Q-45,-55 -35,-50 
-             Q-25,-45 -20,-35 
-             Q-15,-25 -25,-20 
-             Q-35,-15 -45,-25 Z" 
-          fill="url(#leafGradient)"/>
-    <!-- Nervadura central de la hoja -->
-    <path d="M-35,-30 L-35,-50" 
-          stroke="#16a34a" 
+    <!-- Flecha circular pequeña -->
+    <path d="M -8, -8 
+             A 8 8 0 1 1 8, -8" 
+          fill="none" 
+          stroke="white" 
           stroke-width="2.5" 
           stroke-linecap="round"/>
-    <!-- Nervaduras laterales -->
-    <path d="M-40,-35 L-30,-40" 
-          stroke="#16a34a" 
-          stroke-width="1.5" 
-          stroke-linecap="round" opacity="0.7"/>
-    <path d="M-40,-40 L-30,-45" 
-          stroke="#16a34e" 
-          stroke-width="1.5" 
-          stroke-linecap="round" opacity="0.7"/>
+    <!-- Punta de flecha -->
+    <polygon points="6,-8 10,-4 6,0" fill="white"/>
+    
+    <!-- Flecha circular opuesta -->
+    <path d="M 8, 8 
+             A 8 8 0 1 1 -8, 8" 
+          fill="none" 
+          stroke="white" 
+          stroke-width="2.5" 
+          stroke-linecap="round"/>
+    <!-- Punta de flecha -->
+    <polygon points="-6,8 -10,4 -6,0" fill="white"/>
   </g>
-  
-  <!-- Engranaje azul (lado derecho, parcialmente superpuesto con la hoja) -->
-  <g transform="translate(100, 100)">
-    <!-- Círculo base del engranaje -->
-    <circle cx="50" cy="20" r="28" fill="url(#gearGradient)"/>
-    
-    <!-- Dientes del engranaje (8 dientes principales) -->
-    <!-- Superior -->
-    <rect x="45" y="-5" width="10" height="10" fill="url(#gearGradient)" rx="2"/>
-    <!-- Inferior -->
-    <rect x="45" y="35" width="10" height="10" fill="url(#gearGradient)" rx="2"/>
-    <!-- Derecha -->
-    <rect x="70" y="12" width="10" height="10" fill="url(#gearGradient)" rx="2"/>
-    <!-- Izquierda -->
-    <rect x="20" y="12" width="10" height="10" fill="url(#gearGradient)" rx="2"/>
-    <!-- Diagonal superior derecha -->
-    <rect x="60" y="0" width="10" height="10" fill="url(#gearGradient)" rx="2" transform="rotate(45 65 5)"/>
-    <!-- Diagonal inferior derecha -->
-    <rect x="60" y="30" width="10" height="10" fill="url(#gearGradient)" rx="2" transform="rotate(-45 65 35)"/>
-    <!-- Diagonal superior izquierda -->
-    <rect x="30" y="0" width="10" height="10" fill="url(#gearGradient)" rx="2" transform="rotate(-45 35 5)"/>
-    <!-- Diagonal inferior izquierda -->
-    <rect x="30" y="30" width="10" height="10" fill="url(#gearGradient)" rx="2" transform="rotate(45 35 35)"/>
-    
-    <!-- Centro del engranaje -->
-    <circle cx="50" cy="20" r="12" fill="white" opacity="0.3"/>
-  </g>
-  
-  <!-- Flecha circular con gradiente (verde a azul) -->
-  <!-- Parte superior (verde) -->
-  <path d="M 50,30 
-           Q 100,10 150,30" 
-        fill="none" 
-        stroke="url(#arrowGradient)" 
-        stroke-width="10" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"/>
-  
-  <!-- Parte inferior (azul) -->
-  <path d="M 150,170 
-           Q 100,190 50,170" 
-        fill="none" 
-        stroke="url(#arrowGradient)" 
-        stroke-width="10" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"/>
-  
-  <!-- Flecha superior (apuntando hacia la derecha/abajo) -->
-  <defs>
-    <marker id="arrowheadTop" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0,0 L 12,6 L 0,12 Z" fill="#3b82f6" />
-    </marker>
-    
-    <!-- Flecha inferior (apuntando hacia la izquierda/arriba) -->
-    <marker id="arrowheadBottom" markerWidth="12" markerHeight="12" refX="2" refY="6" orient="auto" markerUnits="strokeWidth">
-      <path d="M 12,0 L 0,6 L 12,12 Z" fill="#22c55e" />
-    </marker>
-  </defs>
-  
-  <!-- Aplicar flechas -->
-  <path d="M 50,30 Q 100,10 150,30" 
-        fill="none" 
-        stroke="url(#arrowGradient)" 
-        stroke-width="10" 
-        stroke-linecap="round" 
-        marker-end="url(#arrowheadTop)"/>
-  
-  <path d="M 150,170 Q 100,190 50,170" 
-        fill="none" 
-        stroke="url(#arrowGradient)" 
-        stroke-width="10" 
-        stroke-linecap="round" 
-        marker-end="url(#arrowheadBottom)"/>
 </svg>
