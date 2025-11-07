@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { isValidEmail } from '../utils/validation';
 
@@ -17,6 +17,94 @@ const Login = ({ onSwitchToSignup }) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [forgotPasswordStatus, setForgotPasswordStatus] = useState(null);
+  const [rememberMe, setRememberMe] = useState(false);
+  
+  const emailInputRef = useRef(null);
+  const forgotPasswordInputRef = useRef(null);
+  const modalRef = useRef(null);
+  const firstFocusableRef = useRef(null);
+  const lastFocusableRef = useRef(null);
+
+  // Cargar email guardado al montar el componente
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      setFormData(prev => ({ ...prev, email: savedEmail }));
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Auto-focus en el campo de email al montar
+  useEffect(() => {
+    if (emailInputRef.current && !formData.email) {
+      emailInputRef.current.focus();
+    }
+  }, []);
+
+  // Función para cerrar el modal de forgot password
+  const closeForgotPasswordModal = useCallback(() => {
+    setShowForgotPassword(false);
+    setForgotPasswordEmail('');
+    setForgotPasswordStatus(null);
+  }, []);
+
+  // Manejar cierre del modal con ESC
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showForgotPassword) {
+        closeForgotPasswordModal();
+      }
+    };
+
+    if (showForgotPassword) {
+      document.addEventListener('keydown', handleEscape);
+      // Focus trap: enfocar el primer elemento cuando se abre el modal
+      setTimeout(() => {
+        if (forgotPasswordInputRef.current) {
+          forgotPasswordInputRef.current.focus();
+        }
+      }, 100);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showForgotPassword, closeForgotPasswordModal]);
+
+  // Focus trap para el modal
+  useEffect(() => {
+    if (showForgotPassword && modalRef.current) {
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      if (focusableElements.length > 0) {
+        firstFocusableRef.current = focusableElements[0];
+        lastFocusableRef.current = focusableElements[focusableElements.length - 1];
+
+        const handleTabKey = (e) => {
+          if (e.key !== 'Tab') return;
+
+          if (e.shiftKey) {
+            if (document.activeElement === firstFocusableRef.current) {
+              e.preventDefault();
+              lastFocusableRef.current?.focus();
+            }
+          } else {
+            if (document.activeElement === lastFocusableRef.current) {
+              e.preventDefault();
+              firstFocusableRef.current?.focus();
+            }
+          }
+        };
+
+        modalRef.current.addEventListener('keydown', handleTabKey);
+        return () => {
+          modalRef.current?.removeEventListener('keydown', handleTabKey);
+        };
+      }
+    }
+  }, [showForgotPassword]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,11 +113,28 @@ const Login = ({ onSwitchToSignup }) => {
       [name]: value
     }));
     
-    // Clear error when user starts typing
+    // Validación en tiempo real
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
         [name]: ''
+      }));
+    }
+
+    // Validación en tiempo real mientras el usuario escribe
+    if (name === 'email' && value.trim()) {
+      if (!isValidEmail(value)) {
+        setErrors(prev => ({
+          ...prev,
+          email: 'El formato del correo electrónico no es válido'
+        }));
+      }
+    }
+
+    if (name === 'password' && value.trim() && value.length < 6) {
+      setErrors(prev => ({
+        ...prev,
+        password: 'La contraseña debe tener al menos 6 caracteres'
       }));
     }
   };
@@ -102,6 +207,31 @@ const Login = ({ onSwitchToSignup }) => {
     }
   };
 
+  // Función para obtener mensaje de error más específico
+  const getErrorMessage = (error) => {
+    if (!error) return 'Error al iniciar sesión';
+    
+    const errorLower = error.toLowerCase();
+    
+    if (errorLower.includes('invalid login credentials') || errorLower.includes('invalid credentials')) {
+      return 'Correo electrónico o contraseña incorrectos';
+    }
+    if (errorLower.includes('email not confirmed')) {
+      return 'Por favor verifica tu correo electrónico antes de iniciar sesión';
+    }
+    if (errorLower.includes('too many requests')) {
+      return 'Demasiados intentos. Por favor espera unos minutos antes de intentar nuevamente';
+    }
+    if (errorLower.includes('network') || errorLower.includes('fetch')) {
+      return 'Error de conexión. Verifica tu conexión a internet';
+    }
+    if (errorLower.includes('user not found')) {
+      return 'No existe una cuenta con este correo electrónico';
+    }
+    
+    return error || 'Error al iniciar sesión. Inténtalo de nuevo';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -116,6 +246,13 @@ const Login = ({ onSwitchToSignup }) => {
       const result = await signIn(formData.email, formData.password);
       
       if (result && result.success) {
+        // Guardar email si "Recordarme" está activado
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', formData.email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+
         setLoginStatus({
           type: 'success',
           message: '¡Inicio de sesión exitoso!'
@@ -125,7 +262,7 @@ const Login = ({ onSwitchToSignup }) => {
       } else {
         setLoginStatus({
           type: 'error',
-          message: (result && result.error) || 'Error al iniciar sesión'
+          message: getErrorMessage(result?.error)
         });
         setIsLoading(false); // Solo ocultar loading en caso de error
       }
@@ -194,6 +331,7 @@ const Login = ({ onSwitchToSignup }) => {
                   <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
+                  ref={emailInputRef}
                   id="email"
                   name="email"
                   type="email"
@@ -203,11 +341,14 @@ const Login = ({ onSwitchToSignup }) => {
                   onChange={handleChange}
                   className={`input-field pl-12 ${errors.email ? 'border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-200 dark:border-gray-600 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
                   placeholder="tu@email.com"
+                  aria-label="Correo electrónico"
+                  aria-invalid={errors.email ? 'true' : 'false'}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                 />
               </div>
               {errors.email && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
+                <p id="email-error" className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center" role="alert">
+                  <AlertCircle className="h-4 w-4 mr-1" aria-hidden="true" />
                   {errors.email}
                 </p>
               )}
@@ -232,22 +373,26 @@ const Login = ({ onSwitchToSignup }) => {
                   onChange={handleChange}
                   className={`input-field pl-12 pr-12 ${errors.password ? 'border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-gray-200 dark:border-gray-600 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
                   placeholder="••••••••"
+                  aria-label="Contraseña"
+                  aria-invalid={errors.password ? 'true' : 'false'}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                 />
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
                   className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5" aria-hidden="true" />
                   ) : (
-                    <Eye className="h-5 w-5" />
+                    <Eye className="h-5 w-5" aria-hidden="true" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1" />
+                <p id="password-error" className="mt-2 text-sm text-red-600 dark:text-red-400 flex items-center" role="alert">
+                  <AlertCircle className="h-4 w-4 mr-1" aria-hidden="true" />
                   {errors.password}
                 </p>
               )}
@@ -260,9 +405,12 @@ const Login = ({ onSwitchToSignup }) => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  aria-label="Recordar mi correo electrónico"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600 dark:text-gray-400">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                   Recordarme
                 </label>
               </div>
@@ -311,6 +459,7 @@ const Login = ({ onSwitchToSignup }) => {
                 onClick={signInWithGoogle}
                 disabled={isLoading || authLoading}
                 className="btn-outline flex items-center justify-center space-x-3 py-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Iniciar sesión con Google"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path
@@ -337,6 +486,7 @@ const Login = ({ onSwitchToSignup }) => {
                 onClick={signInWithTwitter}
                 disabled={isLoading || authLoading}
                 className="btn-outline flex items-center justify-center space-x-3 py-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Iniciar sesión con Twitter"
               >
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
@@ -369,21 +519,33 @@ const Login = ({ onSwitchToSignup }) => {
 
       {/* Forgot Password Modal */}
       {showForgotPassword && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            // Cerrar modal al hacer clic fuera
+            if (e.target === e.currentTarget) {
+              closeForgotPasswordModal();
+            }
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="forgot-password-title"
+        >
+          <div 
+            ref={modalRef}
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 id="forgot-password-title" className="text-xl font-bold text-gray-900 dark:text-white">
                 Restablecer Contraseña
               </h2>
               <button
-                onClick={() => {
-                  setShowForgotPassword(false);
-                  setForgotPasswordEmail('');
-                  setForgotPasswordStatus(null);
-                }}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                onClick={closeForgotPasswordModal}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                aria-label="Cerrar modal de restablecer contraseña"
               >
-                <ArrowLeft className="h-6 w-6" />
+                <X className="h-6 w-6" aria-hidden="true" />
               </button>
             </div>
 
@@ -399,6 +561,7 @@ const Login = ({ onSwitchToSignup }) => {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
+                    ref={forgotPasswordInputRef}
                     id="forgot-email"
                     type="email"
                     value={forgotPasswordEmail}
@@ -406,6 +569,8 @@ const Login = ({ onSwitchToSignup }) => {
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="tu@email.com"
                     required
+                    autoComplete="email"
+                    aria-label="Correo electrónico para restablecer contraseña"
                   />
                 </div>
               </div>
@@ -428,11 +593,7 @@ const Login = ({ onSwitchToSignup }) => {
               <div className="flex space-x-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowForgotPassword(false);
-                    setForgotPasswordEmail('');
-                    setForgotPasswordStatus(null);
-                  }}
+                  onClick={closeForgotPasswordModal}
                   className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancelar
