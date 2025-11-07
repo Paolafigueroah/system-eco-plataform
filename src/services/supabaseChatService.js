@@ -228,6 +228,22 @@ export const supabaseChatService = {
   // Obtener mensajes de una conversación
   getConversationMessages: async (conversationId) => {
     try {
+      // Validación de parámetros
+      if (!conversationId || typeof conversationId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('conversationId es requerido y debe ser un string'),
+          'Obtener mensajes de conversación'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(conversationId)) {
+        return supabaseUtils.handleError(
+          new Error('conversationId debe ser un UUID válido'),
+          'Obtener mensajes de conversación'
+        );
+      }
+      
       console.log('💬 Supabase: Obteniendo mensajes...', conversationId);
       
       const { data: { user } } = await supabase.auth.getUser();
