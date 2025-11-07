@@ -19,7 +19,6 @@ import Auth from './pages/Auth'
 import ProtectedRoute from './components/ProtectedRoute'
 
 import { initializeDatabase } from './utils/databaseInitializer'
-import './App.css'
 
 function AppContent() {
   const { theme } = useTheme();

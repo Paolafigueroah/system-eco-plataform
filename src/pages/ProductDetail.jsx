@@ -7,6 +7,7 @@ import { supabaseReviewService } from '../services/supabaseReviewService';
 import { useAuth } from '../hooks/useAuth';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 import ProductReviews from '../components/ProductReviews';
+import { migrationConfig } from '../config/migrationConfig';
 
 const ProductDetail = () => {
   const { id } = useParams();

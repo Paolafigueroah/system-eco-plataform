@@ -227,11 +227,11 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 my-8 max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 overflow-y-auto animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 my-8 max-h-[90vh] overflow-y-auto animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Publicar Nuevo Producto
           </h2>
           <button
@@ -254,7 +254,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
 
           {/* Título */}
           <div>
-            <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               <FileText className="h-4 w-4 inline mr-2" />
               Título del Producto *
             </label>
@@ -264,7 +264,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
               name="titulo"
               value={formData.titulo}
               onChange={handleChange}
-              className={`input-field ${errors.titulo ? 'border-error focus:ring-error' : ''}`}
+              className={`input-field dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:placeholder-gray-400 ${errors.titulo ? 'border-error focus:ring-error' : ''}`}
               placeholder="Ej: iPhone 13 Pro Max en excelente estado"
             />
             {errors.titulo && (
@@ -275,7 +275,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
           {/* Categoría y Estado */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Tag className="h-4 w-4 inline mr-2" />
                 Categoría *
               </label>
@@ -284,7 +284,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
                 name="categoria"
                 value={formData.categoria}
                 onChange={handleChange}
-                className={`input-field ${errors.categoria ? 'border-error focus:ring-error' : ''}`}
+                className={`input-field dark:bg-gray-700 dark:text-white dark:border-gray-600 ${errors.categoria ? 'border-error focus:ring-error' : ''}`}
               >
                 <option value="">Selecciona una categoría</option>
                 {categorias.map(cat => (

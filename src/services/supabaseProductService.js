@@ -77,7 +77,7 @@ export const supabaseProductService = {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('user_id', userId)
+        .eq('seller_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -97,13 +97,17 @@ export const supabaseProductService = {
       if (!user) throw new Error('Usuario no autenticado');
 
       const product = {
-        ...productData,
-        user_id: user.id,
-        user_email: user.email,
-        user_name: user.user_metadata?.display_name || user.email,
+        title: productData.title || productData.titulo,
+        description: productData.description || productData.descripcion,
+        category: productData.category || productData.categoria,
+        condition_product: productData.condition_product || productData.estado,
+        transaction_type: productData.transaction_type || productData.tipoTransaccion,
+        price: productData.price || productData.precio || 0,
+        location: productData.location || productData.ubicacion,
+        images: productData.images || [],
+        seller_id: user.id,
         status: 'active',
         views: 0,
-        favorites: 0,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -137,7 +141,7 @@ export const supabaseProductService = {
           updated_at: new Date().toISOString()
         })
         .eq('id', productId)
-        .eq('user_id', user.id) // Solo el propietario puede actualizar
+        .eq('seller_id', user.id) // Solo el propietario puede actualizar
         .select()
         .single();
 
@@ -161,7 +165,7 @@ export const supabaseProductService = {
         .from('products')
         .delete()
         .eq('id', productId)
-        .eq('user_id', user.id) // Solo el propietario puede eliminar
+        .eq('seller_id', user.id) // Solo el propietario puede eliminar
         .select()
         .single();
 
@@ -181,7 +185,7 @@ export const supabaseProductService = {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('user_id', userId)
+        .eq('seller_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

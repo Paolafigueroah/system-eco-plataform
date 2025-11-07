@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { supabaseProductService } from '../services/supabaseProductService';
 import { useRealtime } from '../hooks/useRealtime';
 import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
+import { migrationConfig } from '../config/migrationConfig';
 import { 
   Package, 
   TrendingUp, 

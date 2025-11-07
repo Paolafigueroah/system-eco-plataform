@@ -94,6 +94,13 @@ const Navbar = () => {
                     >
                       <Package size={20} />
                     </Link>
+                    <Link
+                      to="/chat"
+                      className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors duration-200 relative"
+                      title="Chat"
+                    >
+                      <MessageCircle size={20} />
+                    </Link>
                     <EnhancedChatNotifications onOpenChat={() => navigate('/chat')} />
                     <Link
                       to="/favorites"

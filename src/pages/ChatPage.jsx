@@ -3,6 +3,7 @@ import { MessageCircle, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import Chat from '../components/Chat';
+import { migrationConfig } from '../config/migrationConfig';
 
 const ChatPage = () => {
   const { user } = useAuth();
