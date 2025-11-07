@@ -96,9 +96,20 @@ const UserProfile = ({ userId, onClose }) => {
 
   const handleSave = async () => {
     try {
-      const result = await supabaseProfileService.updateProfile(userId, editData);
+      // Normalizar la URL del sitio web: agregar https:// si no tiene protocolo
+      const normalizedData = { ...editData };
+      if (normalizedData.website && normalizedData.website.trim()) {
+        const website = normalizedData.website.trim();
+        // Si no empieza con http:// o https://, agregar https://
+        if (!website.match(/^https?:\/\//i)) {
+          normalizedData.website = `https://${website}`;
+        }
+      }
+      
+      const result = await supabaseProfileService.updateProfile(userId, normalizedData);
       if (result.success) {
-        setProfile({ ...profile, ...editData });
+        setProfile({ ...profile, ...normalizedData });
+        setEditData(normalizedData); // Actualizar también el estado local
         setEditing(false);
       } else {
         alert('Error actualizando perfil: ' + result.error);
@@ -242,13 +253,16 @@ const UserProfile = ({ userId, onClose }) => {
                       Sitio web
                     </label>
                     <input
-                      type="url"
+                      type="text"
                       name="website"
                       value={editData.website}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="https://tu-sitio.com"
+                      placeholder="https://tu-sitio.com o tu-sitio.com"
                     />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Puedes ingresar con o sin https://
+                    </p>
                   </div>
                   <div className="flex space-x-3">
                     <button
