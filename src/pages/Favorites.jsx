@@ -18,14 +18,6 @@ const Favorites = () => {
     }
   }, [isAuthenticated, user?.id]);
 
-  // Recargar favoritos cuando se elimina uno
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      loadFavorites();
-      loadStats();
-    }
-  }, [favorites.length]);
-
   const loadFavorites = async () => {
     try {
       setIsLoading(true);
