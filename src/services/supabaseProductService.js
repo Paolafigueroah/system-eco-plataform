@@ -123,6 +123,57 @@ export const supabaseProductService = {
   // Crear nuevo producto
   createProduct: async (productData) => {
     try {
+      // Validación de parámetros
+      if (!productData || typeof productData !== 'object') {
+        return supabaseUtils.handleError(
+          new Error('productData es requerido y debe ser un objeto'),
+          'Crear producto'
+        );
+      }
+      
+      // Validar campos requeridos
+      const title = productData.title || productData.titulo;
+      if (!title || typeof title !== 'string' || title.trim().length === 0) {
+        return supabaseUtils.handleError(
+          new Error('El título es requerido y no puede estar vacío'),
+          'Crear producto'
+        );
+      }
+      
+      if (title.length > 200) {
+        return supabaseUtils.handleError(
+          new Error('El título no puede exceder 200 caracteres'),
+          'Crear producto'
+        );
+      }
+      
+      const description = productData.description || productData.descripcion;
+      if (!description || typeof description !== 'string' || description.trim().length === 0) {
+        return supabaseUtils.handleError(
+          new Error('La descripción es requerida y no puede estar vacía'),
+          'Crear producto'
+        );
+      }
+      
+      if (description.length > 2000) {
+        return supabaseUtils.handleError(
+          new Error('La descripción no puede exceder 2000 caracteres'),
+          'Crear producto'
+        );
+      }
+      
+      // Validar precio si está presente
+      const price = productData.price || productData.precio || 0;
+      if (price !== undefined && price !== null) {
+        const priceNum = Number(price);
+        if (isNaN(priceNum) || priceNum < 0) {
+          return supabaseUtils.handleError(
+            new Error('El precio debe ser un número válido mayor o igual a 0'),
+            'Crear producto'
+          );
+        }
+      }
+      
       console.log('📦 Supabase: Creando producto...', productData);
       
       const { data: { user } } = await supabase.auth.getUser();
@@ -161,6 +212,70 @@ export const supabaseProductService = {
   // Actualizar producto
   updateProduct: async (productId, updateData) => {
     try {
+      // Validación de parámetros
+      if (!productId || typeof productId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('productId es requerido y debe ser un string'),
+          'Actualizar producto'
+        );
+      }
+      
+      if (!updateData || typeof updateData !== 'object') {
+        return supabaseUtils.handleError(
+          new Error('updateData es requerido y debe ser un objeto'),
+          'Actualizar producto'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(productId)) {
+        return supabaseUtils.handleError(
+          new Error('productId debe ser un UUID válido'),
+          'Actualizar producto'
+        );
+      }
+      
+      // Validar campos si están presentes
+      if (updateData.title !== undefined) {
+        if (typeof updateData.title !== 'string' || updateData.title.trim().length === 0) {
+          return supabaseUtils.handleError(
+            new Error('El título no puede estar vacío'),
+            'Actualizar producto'
+          );
+        }
+        if (updateData.title.length > 200) {
+          return supabaseUtils.handleError(
+            new Error('El título no puede exceder 200 caracteres'),
+            'Actualizar producto'
+          );
+        }
+      }
+      
+      if (updateData.description !== undefined) {
+        if (typeof updateData.description !== 'string' || updateData.description.trim().length === 0) {
+          return supabaseUtils.handleError(
+            new Error('La descripción no puede estar vacía'),
+            'Actualizar producto'
+          );
+        }
+        if (updateData.description.length > 2000) {
+          return supabaseUtils.handleError(
+            new Error('La descripción no puede exceder 2000 caracteres'),
+            'Actualizar producto'
+          );
+        }
+      }
+      
+      if (updateData.price !== undefined && updateData.price !== null) {
+        const price = Number(updateData.price);
+        if (isNaN(price) || price < 0) {
+          return supabaseUtils.handleError(
+            new Error('El precio debe ser un número válido mayor o igual a 0'),
+            'Actualizar producto'
+          );
+        }
+      }
+      
       console.log('📦 Supabase: Actualizando producto...', productId);
       
       const { data: { user } } = await supabase.auth.getUser();

@@ -84,6 +84,22 @@ export const supabaseChatService = {
   // Obtener conversaciones del usuario
   getUserConversations: async (userId) => {
     try {
+      // Validación de parámetros
+      if (!userId || typeof userId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('userId es requerido y debe ser un string'),
+          'Obtener conversaciones del usuario'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(userId)) {
+        return supabaseUtils.handleError(
+          new Error('userId debe ser un UUID válido'),
+          'Obtener conversaciones del usuario'
+        );
+      }
+      
       console.log('💬 Supabase: Obteniendo conversaciones del usuario...', userId);
       
       const { data, error } = await supabase
@@ -256,6 +272,29 @@ export const supabaseChatService = {
   // Marcar mensajes como leídos
   markMessagesAsRead: async (conversationId, userId) => {
     try {
+      // Validación de parámetros
+      if (!conversationId || typeof conversationId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('conversationId es requerido y debe ser un string'),
+          'Marcar mensajes como leídos'
+        );
+      }
+      
+      if (!userId || typeof userId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('userId es requerido y debe ser un string'),
+          'Marcar mensajes como leídos'
+        );
+      }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(conversationId) || !uuidRegex.test(userId)) {
+        return supabaseUtils.handleError(
+          new Error('conversationId y userId deben ser UUIDs válidos'),
+          'Marcar mensajes como leídos'
+        );
+      }
+      
       console.log('💬 Supabase: Marcando mensajes como leídos...', { conversationId, userId });
       
       // Obtener todos los mensajes no leídos de la conversación que no son del usuario
