@@ -15,7 +15,8 @@ import {
   WifiOff,
   Loader2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Search
 } from 'lucide-react';
 import { supabaseChatService as chatService } from '../services/supabaseChatService';
 import { useRealtime } from '../hooks/useRealtime.jsx';

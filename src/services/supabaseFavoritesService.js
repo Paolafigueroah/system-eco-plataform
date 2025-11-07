@@ -77,9 +77,9 @@ export const supabaseFavoritesService = {
         .select('id')
         .eq('user_id', user.id)
         .eq('product_id', productId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      if (error) {
         throw error;
       }
 

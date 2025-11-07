@@ -39,6 +39,10 @@ const Dashboard = () => {
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [userProducts, setUserProducts] = useState([]);
 
+  // Función para obtener el servicio correcto
+  const getProductService = () => {
+    return migrationConfig.databaseType === 'supabase' ? supabaseProductService : null;
+  };
 
   // Función para agregar más productos (deshabilitada para Supabase)
   const handleAddMoreProducts = async () => {

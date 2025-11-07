@@ -11,8 +11,8 @@ export const supabaseChatService = {
       const { data: existingConversation, error: checkError } = await supabase
         .from('conversations')
         .select('*')
-        .or(`and(buyer_id.eq.${buyerId},seller_id.eq.${sellerId}),and(buyer_id.eq.${sellerId},seller_id.eq.${buyerId})`)
-        .single();
+        .or(`buyer_id.eq.${buyerId}.seller_id.eq.${sellerId},buyer_id.eq.${sellerId}.seller_id.eq.${buyerId}`)
+        .maybeSingle();
 
       if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
         throw checkError;
@@ -56,7 +56,7 @@ export const supabaseChatService = {
           seller:profiles!seller_id(id, display_name, email)
         `)
         .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
-        .order('last_message_at', { ascending: false, nullsFirst: false });
+        .order('last_message_at', { ascending: false, nullsLast: true });
 
       if (error) throw error;
 
