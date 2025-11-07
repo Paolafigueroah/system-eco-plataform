@@ -37,9 +37,13 @@ const Chat = ({ onClose }) => {
         unsubscribe(conversationsUnsubscribe.current);
         conversationsUnsubscribe.current = null;
       }
-      const sub = subscribeToConversations(user.id, () => {
-        // Refrescar lista cuando haya cambios relevantes
-        loadConversations();
+      const sub = subscribeToConversations(user.id, (payload) => {
+        console.log('🔄 Cambio detectado en conversaciones:', payload);
+        // Refrescar lista cuando haya cambios relevantes (nuevo mensaje, nueva conversación, etc.)
+        // Usar un pequeño delay para evitar múltiples recargas
+        setTimeout(() => {
+          loadConversations();
+        }, 100);
       });
       conversationsUnsubscribe.current = sub;
     }

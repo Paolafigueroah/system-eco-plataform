@@ -67,6 +67,15 @@ export const supabaseRealtimeService = {
           console.log('💬 Nuevo mensaje en tiempo real:', payload);
           callback(payload);
         })
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`
+        }, (payload) => {
+          console.log('💬 Mensaje actualizado en tiempo real:', payload);
+          callback(payload);
+        })
         .subscribe();
 
       return subscription;
@@ -81,7 +90,7 @@ export const supabaseRealtimeService = {
     try {
       console.log('⚡ Supabase: Suscribiéndose a conversaciones...', userId);
       
-      // Crear dos canales separados para buyer_id y seller_id
+      // Crear un canal para conversaciones
       const channel = supabase.channel(`conversations_${userId}`);
       
       // Suscribirse a conversaciones donde el usuario es buyer
@@ -104,6 +113,22 @@ export const supabaseRealtimeService = {
       }, (payload) => {
         console.log('💬 Conversación actualizada en tiempo real (seller):', payload);
         callback(payload);
+      });
+      
+      // También suscribirse a cambios en mensajes que puedan afectar las conversaciones
+      // Esto asegura que cuando llega un nuevo mensaje, se actualice la lista de conversaciones
+      channel.on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages'
+      }, (payload) => {
+        console.log('💬 Nuevo mensaje detectado (puede afectar conversaciones):', payload);
+        // Verificar si el mensaje pertenece a una conversación del usuario
+        // Esto se hace consultando la conversación asociada
+        if (payload.new?.conversation_id) {
+          // Llamar al callback para refrescar la lista
+          callback({ type: 'message_insert', conversation_id: payload.new.conversation_id });
+        }
       });
 
       channel.subscribe();

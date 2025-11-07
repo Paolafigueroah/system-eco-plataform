@@ -52,16 +52,28 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         messagesUnsubscribe.current = null;
       }
       const sub = subscribeToMessages(conversation.id, (payload) => {
+        console.log('💬 Payload recibido en tiempo real:', payload);
         const newMsg = payload?.new;
         if (!newMsg) {
+          // Si no hay newMsg, recargar todos los mensajes
           loadMessages();
           return;
         }
         // Evitar duplicados cuando llegan eventos simultáneos
         setMessages((prev) => {
-          if (prev.length && prev[prev.length - 1]?.id === newMsg.id) return prev;
+          // Verificar si el mensaje ya existe
+          const exists = prev.some(msg => msg.id === newMsg.id);
+          if (exists) {
+            console.log('⚠️ Mensaje duplicado detectado, ignorando');
+            return prev;
+          }
+          console.log('✅ Agregando nuevo mensaje a la lista');
           return [...prev, newMsg];
         });
+        // Marcar como leído automáticamente si es un mensaje recibido
+        if (newMsg.sender_id !== currentUser.id) {
+          chatService.markMessagesAsRead(conversation.id, currentUser.id);
+        }
       });
       messagesUnsubscribe.current = sub;
     }
