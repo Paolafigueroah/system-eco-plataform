@@ -44,9 +44,6 @@ export const ThemeProvider = ({ children }) => {
     
     // Guardar tema en localStorage
     localStorage.setItem('theme', theme);
-    
-    // Forzar re-render del componente
-    console.log('Tema aplicado:', theme, 'Clase dark:', root.classList.contains('dark'));
   }, [theme]);
 
   const toggleTheme = () => {

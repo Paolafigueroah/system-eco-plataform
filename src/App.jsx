@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './hooks/useAuth.jsx'
 import { ThemeProvider, useTheme } from './hooks/useTheme.jsx'
@@ -6,17 +6,20 @@ import Navbar from './components/Navbar'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineIndicator from './components/OfflineIndicator'
 import PWAInstaller from './components/PWAInstaller'
-import Home from './pages/Home'
-import About from './pages/About'
-import Contact from './pages/Contact'
-import Dashboard from './pages/Dashboard'
-import ChatPage from './pages/ChatPage'
-import ProductDetail from './pages/ProductDetail'
-import ResetPassword from './pages/ResetPassword'
-import Profile from './pages/Profile'
-import Favorites from './pages/Favorites'
-import Auth from './pages/Auth'
+import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
+
+// Lazy loading de páginas para mejorar rendimiento inicial
+const Home = lazy(() => import('./pages/Home'))
+const About = lazy(() => import('./pages/About'))
+const Contact = lazy(() => import('./pages/Contact'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const ChatPage = lazy(() => import('./pages/ChatPage'))
+const ProductDetail = lazy(() => import('./pages/ProductDetail'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Favorites = lazy(() => import('./pages/Favorites'))
+const Auth = lazy(() => import('./pages/Auth'))
 
 import { initializeDatabase } from './utils/databaseInitializer'
 
@@ -41,46 +44,48 @@ function AppContent() {
           <ErrorBoundary>
             <Navbar />
             <main className="container mx-auto px-4 py-8 overflow-x-hidden">
-              <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/chat" 
-                element={
-                  <ProtectedRoute>
-                    <ChatPage />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/profile" 
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/favorites" 
-                element={
-                  <ProtectedRoute>
-                    <Favorites />
-                  </ProtectedRoute>
-                } 
-              />
-              </Routes>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/chat" 
+                  element={
+                    <ProtectedRoute>
+                      <ChatPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/favorites" 
+                  element={
+                    <ProtectedRoute>
+                      <Favorites />
+                    </ProtectedRoute>
+                  } 
+                />
+                </Routes>
+              </Suspense>
             </main>
             <OfflineIndicator />
             <PWAInstaller />
