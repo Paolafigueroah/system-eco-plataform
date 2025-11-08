@@ -4,6 +4,7 @@ import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Heart,
 import { useAuth } from '../hooks/useAuth';
 import ToggleTheme from './ToggleTheme';
 import NotificationCenter from './NotificationCenter';
+import { logger } from '../utils/logger';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +21,7 @@ const Navbar = () => {
       await signOut();
       navigate('/');
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      logger.error('Error al cerrar sesión:', error);
     }
   };
 
@@ -43,6 +44,10 @@ const Navbar = () => {
                   alt="BioConnect Logo" 
                   className="w-full h-full object-contain"
                   style={{ imageRendering: 'crisp-edges' }}
+                  loading="eager"
+                  decoding="async"
+                  width="40"
+                  height="40"
                 />
               </div>
               <span className="hidden sm:block text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">

@@ -1,27 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Eye, Heart, MessageCircle, MapPin, Calendar, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
+import { logger } from '../utils/logger';
 
+/**
+ * Componente de tarjeta de producto
+ * Muestra la información de un producto en formato de tarjeta
+ * @param {Object} product - Datos del producto
+ * @param {Function} onEdit - Callback cuando se edita el producto
+ * @param {Function} onDelete - Callback cuando se elimina el producto
+ * @param {Function} onProductRemoved - Callback cuando se remueve de favoritos
+ */
 const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const formatPrice = (price) => {
+
+  // Memoizar funciones para evitar recrearlas en cada render
+  const formatPrice = useCallback((price) => {
     if (price === 0) return 'Gratis';
     return `$${parseFloat(price).toFixed(2)}`;
-  };
+  }, []);
 
-  const formatDate = (dateString) => {
+  const formatDate = useCallback((dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
-  };
+  }, []);
 
   // Verificar si el producto está en favoritos
   useEffect(() => {
@@ -33,7 +44,7 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
             setIsFavorite(result.data);
           }
         } catch (error) {
-          console.error('Error verificando favorito:', error);
+          logger.error('Error verificando favorito:', error);
         }
       }
     };
@@ -63,18 +74,19 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
           onProductRemoved(product.id);
         }
       } else {
-        console.error('Error:', result.error);
+        logger.error('Error:', result.error);
         alert(result.error);
       }
     } catch (error) {
-      console.error('Error toggleando favorito:', error);
+      logger.error('Error toggleando favorito:', error);
       alert('Error al actualizar favoritos');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getTransactionTypeLabel = (type) => {
+  // Memoizar funciones de formato
+  const getTransactionTypeLabel = useCallback((type) => {
     switch (type) {
       case 'venta':
         return 'Venta';
@@ -85,9 +97,9 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
       default:
         return type;
     }
-  };
+  }, []);
 
-  const getTransactionTypeColor = (type) => {
+  const getTransactionTypeColor = useCallback((type) => {
     switch (type) {
       case 'venta':
         return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
@@ -98,9 +110,9 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
       default:
         return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
     }
-  };
+  }, []);
 
-    const getConditionLabel = (condition) => {
+  const getConditionLabel = useCallback((condition) => {
     switch (condition) {
       case 'excelente':
         return 'Excelente';
@@ -112,26 +124,36 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
         return 'Aceptable';
       case 'necesita_reparacion':
         return 'Necesita reparación';
-default:
+      default:
         return condition;
     }
-  };
+  }, []);
 
-  // Verificar si el producto pertenece al usuario actual
-  const isOwner = user && product.user_id === user.id;
+  // Memoizar valores calculados
+  const isOwner = useMemo(() => user && product.user_id === user.id, [user, product.user_id]);
+  
+  // Memoizar URL de imagen principal
+  const mainImageUrl = useMemo(() => {
+    if (!product.images || product.images.length === 0) return null;
+    return Array.isArray(product.images) ? product.images[0] : product.images.split(',')[0];
+  }, [product.images]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Product Image */}
       <div className="relative h-48 sm:h-56 bg-gray-200 dark:bg-gray-700">
-        {product.images && product.images.length > 0 ? (
+        {mainImageUrl ? (
           <img
-            src={Array.isArray(product.images) ? product.images[0] : product.images.split(',')[0]} // URL real de la imagen
-            alt={product.title}
+            src={mainImageUrl}
+            alt={product.title || 'Producto'}
             className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
+              if (e.target.nextSibling) {
+                e.target.nextSibling.style.display = 'flex';
+              }
             }}
           />
         ) : null}
@@ -211,11 +233,8 @@ default:
         <div className="flex space-x-2">
           <Link
             to={`/product/${product.id}`}
-            onClick={() => {
-              console.log('🔍 ProductCard: Navegando a producto con ID:', product.id);
-              console.log('🔍 ProductCard: Datos del producto:', product);
-            }}
             className="flex-1 bg-emerald-600 text-white text-center py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200 text-sm font-medium"
+            aria-label={`Ver detalles de ${product.title}`}
           >
             Ver Detalles
           </Link>
@@ -229,6 +248,7 @@ default:
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               } disabled:opacity-50`}
               title={isFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}
+              aria-label={isFavorite ? `Remover ${product.title} de favoritos` : `Agregar ${product.title} a favoritos`}
             >
               {isLoading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
@@ -242,8 +262,9 @@ default:
               onClick={() => onEdit(product)}
               className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
               title="Editar producto"
+              aria-label={`Editar producto ${product.title}`}
             >
-              <Edit size={16} />
+              <Edit size={16} aria-hidden="true" />
             </button>
           )}
           {isOwner && onDelete && (
@@ -251,16 +272,18 @@ default:
               onClick={() => onDelete(product)}
               className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors duration-200"
               title="Eliminar producto"
+              aria-label={`Eliminar producto ${product.title}`}
             >
-              <Trash2 size={16} />
+              <Trash2 size={16} aria-hidden="true" />
             </button>
           )}
           <Link
             to="/chat"
             className="bg-sky-600 text-white p-2 rounded-lg hover:bg-sky-700 transition-colors duration-200"
             title="Abrir chat"
+            aria-label="Abrir chat con el vendedor"
           >
-            <MessageCircle size={16} />
+            <MessageCircle size={16} aria-hidden="true" />
           </Link>
         </div>
 
@@ -280,4 +303,13 @@ default:
   );
 };
 
-export default ProductCard;
+// Memoizar componente para evitar re-renders innecesarios
+export default React.memo(ProductCard, (prevProps, nextProps) => {
+  // Comparación personalizada para optimizar renders
+  return (
+    prevProps.product?.id === nextProps.product?.id &&
+    prevProps.product?.views === nextProps.product?.views &&
+    prevProps.product?.favorites === nextProps.product?.favorites &&
+    prevProps.user?.id === nextProps.user?.id
+  );
+});

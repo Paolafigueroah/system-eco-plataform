@@ -4,6 +4,7 @@ import { supabaseProductService } from '../services/supabaseProductService';
 import { useRealtime } from '../hooks/useRealtime';
 import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
 import { migrationConfig } from '../config/migrationConfig';
+import { logger } from '../utils/logger';
 import { 
   Package, 
   TrendingUp, 
@@ -64,14 +65,14 @@ const Dashboard = () => {
     if (user && user.id) {
       // Suscribirse a cambios en productos en tiempo real (una sola vez por usuario)
       const productsSubscription = subscribeToProducts((payload) => {
-        console.log('📦 Producto actualizado en tiempo real:', payload);
+        logger.log('Producto actualizado en tiempo real', payload);
         // Recargar productos cuando haya cambios
         loadUserData();
       });
 
       // Suscribirse a cambios en puntos en tiempo real
       const pointsSubscription = subscribeToUserPoints(user.id, (payload) => {
-        console.log('🎮 Puntos actualizados en tiempo real:', payload);
+        logger.log('Puntos actualizados en tiempo real', payload);
         // Aquí podrías actualizar el estado de puntos si fuera necesario
       });
 
@@ -117,7 +118,7 @@ const Dashboard = () => {
         });
       }
     } catch (error) {
-      console.error('Error cargando datos del usuario:', error);
+      logger.error('Error cargando datos del usuario', error);
     } finally {
       setLoading(false);
     }
@@ -191,11 +192,11 @@ const Dashboard = () => {
         setShowDeleteConfirm(false);
         setDeletingProduct(null);
       } else {
-        console.error('Error eliminando producto:', result.error);
+        logger.error('Error eliminando producto', result.error);
         // Aquí podrías mostrar un mensaje de error al usuario
       }
     } catch (error) {
-      console.error('Error eliminando producto:', error);
+      logger.error('Error eliminando producto', error);
     }
   };
 

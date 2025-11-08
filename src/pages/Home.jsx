@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Users, Code, Gift, TrendingUp, MessageCircle, Award, Plus, Search, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -7,6 +7,7 @@ import AddProductForm from '../components/AddProductForm';
 import ProductCard from '../components/ProductCard';
 import SearchProducts from '../components/SearchProducts';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
+import { logger } from '../utils/logger';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
@@ -74,11 +75,8 @@ const Home = () => {
     'Otros productos'
   ];
 
-  useEffect(() => {
-    loadProducts();
-  }, [selectedCategory, searchTerm]);
-
-  const loadProducts = async () => {
+  // Memoizar función de carga de productos
+  const loadProducts = React.useCallback(async () => {
     setLoading(true);
     try {
       let result;
@@ -100,24 +98,28 @@ const Home = () => {
         setProducts(result.data);
       }
     } catch (error) {
-      console.error('Error cargando productos:', error);
+      logger.error('Error cargando productos:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCategory, searchTerm]);
 
-  const handleProductAdded = (newProduct) => {
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  const handleProductAdded = useCallback((newProduct) => {
     setProducts(prev => [newProduct, ...prev]);
-  };
+  }, []);
 
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(selectedCategory === category ? '' : category);
-  };
+  const handleCategoryClick = useCallback((category) => {
+    setSelectedCategory(prev => prev === category ? '' : category);
+  }, []);
 
-  const handleSearch = (e) => {
+  const handleSearch = useCallback((e) => {
     e.preventDefault();
     loadProducts();
-  };
+  }, [loadProducts]);
 
   return (
     <div className="space-y-16 bg-white dark:bg-gray-900 transition-colors duration-200">

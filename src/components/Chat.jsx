@@ -12,6 +12,7 @@ import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatConversation from './ChatConversation';
 import ChatConversationList from './ChatConversationList';
 import EnhancedChatNotifications from './EnhancedChatNotifications';
+import { logger } from '../utils/logger';
 
 const Chat = ({ onClose }) => {
   const { user } = useAuth();
@@ -51,7 +52,7 @@ const Chat = ({ onClose }) => {
       subscription = subscribeToConversations(user.id, (payload) => {
         if (!isMounted) return;
         
-        console.log('🔄 Cambio detectado en conversaciones:', payload);
+        logger.chat('Cambio detectado en conversaciones', payload);
         // Refrescar lista cuando haya cambios relevantes (nuevo mensaje, nueva conversación, etc.)
         // Usar un pequeño delay para evitar múltiples recargas
         if (timeoutId) {
@@ -88,24 +89,22 @@ const Chat = ({ onClose }) => {
   const loadConversations = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Cargando conversaciones para usuario:', user.id);
+      logger.chat('Cargando conversaciones para usuario', user.id);
       
       const result = await chatService.getUserConversations(user.id);
       
-      console.log('🔄 Resultado de conversaciones:', result);
-      
       if (result.success) {
-        console.log('✅ Conversaciones cargadas:', result.data);
+        logger.chat('Conversaciones cargadas', result.data);
         setConversations(result.data);
         
         // Calcular mensajes no leídos
         setUnreadCount(0);
       } else {
-        console.error('❌ Error al cargar conversaciones:', result.error);
+        logger.error('Error al cargar conversaciones', result.error);
         setConversations([]);
       }
     } catch (error) {
-      console.error('❌ Error cargando conversaciones:', error);
+      logger.error('Error cargando conversaciones', error);
       setConversations([]);
     } finally {
       setLoading(false);
@@ -129,23 +128,21 @@ const Chat = ({ onClose }) => {
 
   const handleNewConversation = async () => {
     try {
-      console.log('🔍 Iniciando nueva conversación...', { userId: user.id });
+      logger.chat('Iniciando nueva conversación', { userId: user.id });
       
       // Usar API expuesta por los servicios: getAllUsers
       const result = await chatService.getAllUsers(user.id);
       
-      console.log('🔍 Resultado de getAllUsers:', result);
-      
       if (result.success) {
-        console.log('✅ Usuarios cargados exitosamente:', result.data);
+        logger.chat('Usuarios cargados exitosamente', result.data);
         setAvailableUsers(result.data);
         setShowNewConversationModal(true);
       } else {
-        console.error('❌ Error al cargar usuarios:', result.error);
+        logger.error('Error al cargar usuarios', result.error);
         alert('Error al cargar usuarios: ' + result.error);
       }
     } catch (error) {
-      console.error('❌ Error cargando usuarios:', error);
+      logger.error('Error cargando usuarios', error);
       alert('Error cargando usuarios: ' + error.message);
     }
   };

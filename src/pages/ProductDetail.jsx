@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 import ProductReviews from '../components/ProductReviews';
 import { migrationConfig } from '../config/migrationConfig';
+import { logger } from '../utils/logger';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -42,22 +43,21 @@ const ProductDetail = () => {
           return;
         }
 
-        console.log('🔍 ProductDetail: Obteniendo producto con ID:', id);
+        logger.log('Obteniendo producto con ID:', id);
         const result = await productService.getProductById(id);
-        console.log('🔍 ProductDetail: Resultado del servicio:', result);
         
         if (result.success && result.data) {
-          console.log('🔍 ProductDetail: Producto cargado exitosamente:', result.data);
+          logger.log('Producto cargado exitosamente:', result.data);
           setProduct(result.data);
           // Incrementar vistas del producto
           await productService.incrementViews(id);
         } else {
-          console.error('🔍 ProductDetail: Error al cargar producto:', result.error);
+          logger.error('Error al cargar producto:', result.error);
           setError(result.error || 'Producto no encontrado');
           setProduct(null);
         }
       } catch (err) {
-        console.error('🔍 ProductDetail: Error inesperado:', err);
+        logger.error('Error inesperado al cargar producto:', err);
         setError('Error al cargar el producto: ' + err.message);
         setProduct(null);
       } finally {
@@ -359,12 +359,16 @@ const ProductDetail = () => {
                   <>
                     <img
                       src={productImages[currentImageIndex]}
-                      alt={product.title}
+                      alt={product.title || 'Imagen del producto'}
                       className="w-full h-full object-cover cursor-pointer"
+                      loading="lazy"
+                      decoding="async"
                       onClick={() => setShowImageModal(true)}
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
+                        if (e.target.nextSibling) {
+                          e.target.nextSibling.style.display = 'flex';
+                        }
                       }}
                     />
                     
@@ -374,18 +378,20 @@ const ProductDetail = () => {
                         <button
                           onClick={prevImage}
                           className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                          aria-label="Imagen anterior"
                         >
-                          <ChevronLeft size={20} />
+                          <ChevronLeft size={20} aria-hidden="true" />
                         </button>
                         <button
                           onClick={nextImage}
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
+                          aria-label="Imagen siguiente"
                         >
-                          <ChevronRight size={20} />
+                          <ChevronRight size={20} aria-hidden="true" />
                         </button>
                         
                         {/* Indicadores de imagen */}
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2" role="tablist" aria-label="Navegación de imágenes">
                           {productImages.map((_, index) => (
                             <button
                               key={index}
@@ -393,6 +399,9 @@ const ProductDetail = () => {
                               className={`w-2 h-2 rounded-full transition-colors ${
                                 index === currentImageIndex ? 'bg-white' : 'bg-white/50'
                               }`}
+                              role="tab"
+                              aria-selected={index === currentImageIndex}
+                              aria-label={`Imagen ${index + 1}`}
                             />
                           ))}
                         </div>
@@ -432,6 +441,8 @@ const ProductDetail = () => {
                           src={image}
                           alt={`${product.title} ${index + 1}`}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </button>
                     ))}
@@ -451,20 +462,22 @@ const ProductDetail = () => {
                     {getTransactionTypeLabel(product.transaction_type)}
                   </span>
                   <div className="flex items-center space-x-2">
-                    <button
-                      onClick={handleShare}
-                      className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                      title="Compartir"
-                    >
-                      <Share2 size={20} />
-                    </button>
-                    <button
-                      onClick={handleReport}
-                      className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                      title="Reportar"
-                    >
-                      <Flag size={20} />
-                    </button>
+                  <button 
+                    onClick={handleShare}
+                    className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    title="Compartir"
+                    aria-label="Compartir producto"
+                  >
+                    <Share2 size={20} aria-hidden="true" />
+                  </button>
+                  <button
+                    onClick={handleReport}
+                    className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Reportar"
+                    aria-label="Reportar producto"
+                  >
+                    <Flag size={20} aria-hidden="true" />
+                  </button>
                   </div>
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -519,8 +532,9 @@ const ProductDetail = () => {
                 <button 
                   onClick={handleContactSeller}
                   className="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200 font-medium flex items-center justify-center"
+                  aria-label="Contactar vendedor"
                 >
-                  <MessageCircle size={20} className="mr-2" />
+                  <MessageCircle size={20} className="mr-2" aria-hidden="true" />
                   Contactar Vendedor
                 </button>
                 <div className="flex space-x-2">
@@ -539,12 +553,13 @@ const ProductDetail = () => {
                         ? 'bg-red-600 text-white hover:bg-red-700' 
                         : 'bg-gray-200 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
+                    aria-label={isFavorite ? `Remover ${product.title} de favoritos` : `Agregar ${product.title} a favoritos`}
                   >
                     {isLoadingFavorite ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                     ) : (
                       <>
-                        <Heart size={16} className={`mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                        <Heart size={16} className={`mr-2 ${isFavorite ? 'fill-current' : ''}`} aria-hidden="true" />
                         {isFavorite ? 'En Favoritos' : 'Favorito'}
                       </>
                     )}
@@ -623,8 +638,10 @@ const ProductDetail = () => {
               
               <img
                 src={productImages[currentImageIndex]}
-                alt={product.title}
+                alt={product.title || 'Imagen del producto'}
                 className="w-full h-full object-contain rounded-lg"
+                loading="eager"
+                decoding="async"
               />
               
               {productImages.length > 1 && (
@@ -632,17 +649,19 @@ const ProductDetail = () => {
                   <button
                     onClick={prevImage}
                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+                    aria-label="Imagen anterior"
                   >
-                    <ChevronLeft size={24} />
+                    <ChevronLeft size={24} aria-hidden="true" />
                   </button>
                   <button
                     onClick={nextImage}
                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
+                    aria-label="Imagen siguiente"
                   >
-                    <ChevronRight size={24} />
+                    <ChevronRight size={24} aria-hidden="true" />
                   </button>
                   
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2" role="tablist" aria-label="Navegación de imágenes">
                     {productImages.map((_, index) => (
                       <button
                         key={index}
@@ -650,6 +669,9 @@ const ProductDetail = () => {
                         className={`w-3 h-3 rounded-full transition-colors ${
                           index === currentImageIndex ? 'bg-white' : 'bg-white/50'
                         }`}
+                        role="tab"
+                        aria-selected={index === currentImageIndex}
+                        aria-label={`Imagen ${index + 1}`}
                       />
                     ))}
                   </div>

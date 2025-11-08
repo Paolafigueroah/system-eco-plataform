@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle, ArrowLeft, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { isValidEmail } from '../utils/validation';
+import { logger } from '../utils/logger';
 
 const Login = ({ onSwitchToSignup }) => {
   const { signIn, resetPassword, signInWithGoogle, loading: authLoading } = useAuth();
@@ -319,7 +320,7 @@ const Login = ({ onSwitchToSignup }) => {
         setIsLoading(false); // Solo ocultar loading en caso de error
       }
     } catch (error) {
-      console.error('Error en login:', error);
+      logger.error('Error en login:', error);
       setLoginStatus({
         type: 'error',
         message: 'Error de conexión. Inténtalo de nuevo.'

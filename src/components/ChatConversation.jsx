@@ -24,6 +24,7 @@ import ChatMessage from './ChatMessage';
 import EmojiPicker from './EmojiPicker';
 import MessageSearch from './MessageSearch';
 import { useTheme } from '../hooks/useTheme';
+import { logger } from '../utils/logger';
 
 const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const { theme } = useTheme();
@@ -64,7 +65,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       subscription = subscribeToMessages(conversation.id, (payload) => {
         if (!isMounted) return;
         
-        console.log('💬 Payload recibido en tiempo real:', payload);
+        logger.chat('Payload recibido en tiempo real', payload);
         const newMsg = payload?.new;
         if (!newMsg) {
           // Si no hay newMsg, recargar todos los mensajes
@@ -78,10 +79,10 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           // Verificar si el mensaje ya existe
           const exists = prev.some(msg => msg.id === newMsg.id);
           if (exists) {
-            console.log('⚠️ Mensaje duplicado detectado, ignorando');
+            logger.warn('Mensaje duplicado detectado, ignorando');
             return prev;
           }
-          console.log('✅ Agregando nuevo mensaje a la lista');
+          logger.chat('Agregando nuevo mensaje a la lista');
           return [...prev, newMsg];
         });
         // Marcar como leído automáticamente si es un mensaje recibido
@@ -115,21 +116,19 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const loadMessages = async () => {
     try {
       setLoading(true);
-      console.log('🔄 Cargando mensajes para conversación:', conversation.id);
+      logger.chat('Cargando mensajes para conversación', conversation.id);
       
       const result = await chatService.getConversationMessages(conversation.id);
       
-      console.log('🔄 Resultado de mensajes:', result);
-      
       if (result.success) {
-        console.log('✅ Mensajes cargados:', result.data);
+        logger.chat('Mensajes cargados', result.data);
         setMessages(result.data);
       } else {
-        console.error('❌ Error al cargar mensajes:', result.error);
+        logger.error('Error al cargar mensajes', result.error);
         setMessages([]);
       }
     } catch (error) {
-      console.error('❌ Error cargando mensajes:', error);
+      logger.error('Error cargando mensajes', error);
       setMessages([]);
     } finally {
       setLoading(false);
@@ -194,7 +193,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     setIsTyping(false);
     
     try {
-      console.log('📤 Enviando mensaje:', {
+      logger.chat('Enviando mensaje', {
         conversationId: conversation.id,
         senderId: currentUser.id,
         content: messageContent
@@ -202,21 +201,19 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       
       const result = await chatService.sendMessage(conversation.id, currentUser.id, messageContent);
       
-      console.log('📤 Resultado de envío:', result);
-      
       if (result.success) {
-        console.log('✅ Mensaje enviado exitosamente');
+        logger.chat('Mensaje enviado exitosamente');
         setLastMessageStatus('sent');
         // Marcar mensajes como leídos
         await chatService.markMessagesAsRead(conversation.id, currentUser.id);
       } else {
-        console.error('❌ Error al enviar mensaje:', result.error);
+        logger.error('Error al enviar mensaje', result.error);
         setLastMessageStatus('error');
         alert('Error al enviar mensaje: ' + result.error);
         setNewMessage(messageContent); // Restaurar mensaje si falló
       }
     } catch (error) {
-      console.error('❌ Error al enviar mensaje:', error);
+      logger.error('Error al enviar mensaje', error);
       setLastMessageStatus('error');
       alert('Error al enviar mensaje');
       setNewMessage(messageContent); // Restaurar mensaje si falló
@@ -414,6 +411,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
               rows={1}
               maxLength={1000}
               disabled={sending}
+              aria-label="Escribe un mensaje"
             />
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
               {newMessage.length}/1000
