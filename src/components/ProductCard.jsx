@@ -138,8 +138,24 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
     return Array.isArray(product.images) ? product.images[0] : product.images.split(',')[0];
   }, [product.images]);
 
+  // Determinar si el producto está disponible
+  const isAvailable = product.status === 'active' || !product.status;
+  const isSold = product.status === 'sold';
+  const isInactive = product.status === 'inactive';
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 ${!isAvailable ? 'opacity-75' : ''} relative`}>
+      {/* Status Badge */}
+      {isSold && (
+        <div className="absolute top-2 left-2 z-20 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+          Vendido
+        </div>
+      )}
+      {isInactive && (
+        <div className="absolute top-2 left-2 z-20 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
+          No Disponible
+        </div>
+      )}
       {/* Product Image */}
       <div className="relative h-48 sm:h-56 bg-gray-200 dark:bg-gray-700">
         {mainImageUrl ? (

@@ -209,6 +209,44 @@ export const supabaseProductService = {
     }
   },
 
+  // Actualizar estado del producto (disponible/vendido/no disponible)
+  updateProductStatus: async (productId, status) => {
+    try {
+      // Validación de parámetros
+      if (!productId || typeof productId !== 'string') {
+        return supabaseUtils.handleError(
+          new Error('productId es requerido y debe ser un string'),
+          'Actualizar estado del producto'
+        );
+      }
+
+      if (!['active', 'sold', 'inactive'].includes(status)) {
+        return supabaseUtils.handleError(
+          new Error('status debe ser: active, sold o inactive'),
+          'Actualizar estado del producto'
+        );
+      }
+
+      console.log('📦 Supabase: Actualizando estado del producto...', { productId, status });
+
+      const { data, error } = await supabase
+        .from('products')
+        .update({ 
+          status: status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', productId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return supabaseUtils.handleSuccess(data, 'Actualizar estado del producto');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Actualizar estado del producto');
+    }
+  },
+
   // Actualizar producto
   updateProduct: async (productId, updateData) => {
     try {

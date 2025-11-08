@@ -1,22 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import ProductCard from '../components/ProductCard';
 import { Heart, BarChart3, Tag, DollarSign, Package } from 'lucide-react';
+import { useRealtime } from '../hooks/useRealtime';
+import { logger } from '../utils/logger';
 
 const Favorites = () => {
   const { user, isAuthenticated } = useAuth();
+  const { subscribeToFavorites, unsubscribe } = useRealtime();
   const [favorites, setFavorites] = useState([]);
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const favoritesUnsubscribe = useRef(null);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user?.id) {
       loadFavorites();
       loadStats();
+      
+      // Suscribirse a cambios en favoritos en tiempo real
+      const subscription = subscribeToFavorites(user.id, (payload) => {
+        logger.log('Favorito actualizado en tiempo real', payload);
+        // Recargar favoritos cuando haya cambios
+        loadFavorites();
+        loadStats();
+      });
+      
+      favoritesUnsubscribe.current = subscription;
+      
+      // Cleanup
+      return () => {
+        if (favoritesUnsubscribe.current) {
+          unsubscribe(favoritesUnsubscribe.current);
+          favoritesUnsubscribe.current = null;
+        }
+      };
     }
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, subscribeToFavorites, unsubscribe]);
 
   const loadFavorites = async () => {
     try {
@@ -28,7 +50,7 @@ const Favorites = () => {
         setError(result.error);
       }
     } catch (error) {
-      console.error('Error cargando favoritos:', error);
+      logger.error('Error cargando favoritos', error);
       setError('Error cargando favoritos');
     } finally {
       setIsLoading(false);
@@ -42,20 +64,22 @@ const Favorites = () => {
         // Normalizar estructura para el UI actual
         const raw = result.data;
         const normalized = {
-          total_favorites: raw.totalFavorites ?? raw.total_favorites ?? 0,
+          total_favorites: raw.totalFavorites ?? raw.total_favorites ?? favorites.length,
           categories: Array.isArray(raw.categories)
-            ? raw.categories.map((category) => (
-                typeof category === 'string'
-                  ? { category, count: favorites.filter(f => f.category === category).length }
-                  : category
-              ))
+            ? raw.categories.map((category) => {
+                const categoryName = typeof category === 'string' ? category : category.category || category;
+                return {
+                  category: categoryName,
+                  count: favorites.filter(f => f.category === categoryName).length
+                };
+              })
             : [],
           transaction_types: raw.transaction_types || []
         };
         setStats(normalized);
       }
     } catch (error) {
-      console.error('Error cargando estadísticas:', error);
+      logger.error('Error cargando estadísticas', error);
     }
   };
 

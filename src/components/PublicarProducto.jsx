@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseProductService } from '../services/supabaseProductService';
+import { logger } from '../utils/logger';
 
 const PublicarProducto = ({ onProductPublished, onClose }) => {
   const { user } = useAuth();
@@ -152,6 +153,24 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
     setErrors({});
 
     try {
+      // Primero subir las imágenes si hay
+      let imageUrls = [];
+      if (imageFiles.length > 0) {
+        const { supabaseImageService } = await import('../services/supabaseImageService');
+        const uploadResult = await supabaseImageService.uploadMultipleImages(
+          imageFiles,
+          user.id
+        );
+        
+        if (uploadResult.success && uploadResult.data.uploaded) {
+          imageUrls = uploadResult.data.uploaded.map(img => img.url);
+        } else {
+          setErrors({ submit: 'Error subiendo imágenes: ' + (uploadResult.error || 'Error desconocido') });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // Crear producto usando Supabase
       const productData = {
         title: formData.titulo,
@@ -163,7 +182,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
         location: formData.ubicacion,
         user_email: user.email,
         user_name: user.display_name || user.email,
-        images: imageFiles.length > 0 ? imageFiles.map(file => file.name) : []
+        images: imageUrls // URLs reales de las imágenes subidas
       };
 
       const result = await supabaseProductService.createProduct(productData);
@@ -195,7 +214,7 @@ const PublicarProducto = ({ onProductPublished, onClose }) => {
         setErrors({ submit: 'Error al publicar el producto. Inténtalo de nuevo.' });
       }
     } catch (error) {
-      console.error('Error al publicar producto:', error);
+      logger.error('Error al publicar producto', error);
       setErrors({ submit: 'Error de conexión. Inténtalo de nuevo.' });
     } finally {
       setIsLoading(false);

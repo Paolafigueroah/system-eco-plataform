@@ -165,6 +165,34 @@ const Dashboard = () => {
     setEditingProduct(null);
   };
 
+  const handleUpdateStatus = async (productId, status) => {
+    try {
+      const productService = getProductService();
+      if (!productService || !productService.updateProductStatus) {
+        logger.error('Servicio no disponible o método no implementado');
+        return;
+      }
+
+      const result = await productService.updateProductStatus(productId, status);
+      
+      if (result.success) {
+        // Actualizar el producto en la lista
+        setUserProducts(prev =>
+          prev.map(product =>
+            product.id === productId ? { ...product, status: status } : product
+          )
+        );
+        logger.log('Estado del producto actualizado', { productId, status });
+      } else {
+        logger.error('Error actualizando estado del producto', result.error);
+        alert('Error al actualizar el estado: ' + result.error);
+      }
+    } catch (error) {
+      logger.error('Error actualizando estado del producto', error);
+      alert('Error al actualizar el estado del producto');
+    }
+  };
+
   const handleDeleteProduct = (product) => {
     setDeletingProduct(product);
     setShowDeleteConfirm(true);
@@ -421,19 +449,69 @@ const Dashboard = () => {
                     <span className="text-gray-500 dark:text-gray-400">Publicado:</span>
                     <span className="font-medium text-gray-900 dark:text-white">{formatDate(product.created_at)}</span>
                   </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500 dark:text-gray-400">Estado:</span>
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {product.status === 'sold' ? 'Vendido' : 
+                       product.status === 'inactive' ? 'No Disponible' : 
+                       'Disponible'}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex space-x-2">
+                {/* Status Badge */}
+                <div className="mb-3">
+                  {product.status === 'sold' && (
+                    <span className="inline-block bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 px-2 py-1 rounded-full text-xs font-medium">
+                      Vendido
+                    </span>
+                  )}
+                  {product.status === 'inactive' && (
+                    <span className="inline-block bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-medium">
+                      No Disponible
+                    </span>
+                  )}
+                  {(!product.status || product.status === 'active') && (
+                    <span className="inline-block bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 px-2 py-1 rounded-full text-xs font-medium">
+                      Disponible
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {product.status !== 'sold' && (
+                    <button 
+                      onClick={() => handleUpdateStatus(product.id, 'sold')}
+                      className="flex-1 bg-orange-600 text-white py-2 px-3 rounded-lg hover:bg-orange-700 transition-colors text-sm"
+                      title="Marcar como vendido"
+                    >
+                      Vendido
+                    </button>
+                  )}
+                  {product.status !== 'inactive' && (
+                    <button 
+                      onClick={() => handleUpdateStatus(product.id, 'inactive')}
+                      className="flex-1 bg-gray-600 text-white py-2 px-3 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                      title="Marcar como no disponible"
+                    >
+                      No Disponible
+                    </button>
+                  )}
+                  {(product.status === 'sold' || product.status === 'inactive') && (
+                    <button 
+                      onClick={() => handleUpdateStatus(product.id, 'active')}
+                      className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition-colors text-sm"
+                      title="Marcar como disponible"
+                    >
+                      Disponible
+                    </button>
+                  )}
                   <button 
                     onClick={() => handleEditProduct(product)}
-                    className="flex-1 bg-emerald-600 text-white py-2 px-3 rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+                    className="bg-emerald-600 text-white py-2 px-3 rounded-lg hover:bg-emerald-700 transition-colors text-sm"
                   >
                     <Edit size={14} className="inline mr-1" />
                     Editar
-                  </button>
-                  <button className="flex-1 bg-sky-600 text-white py-2 px-3 rounded-lg hover:bg-sky-700 transition-colors text-sm">
-                    <MessageCircle size={14} className="inline mr-1" />
-                    Chat
                   </button>
                   <button 
                     onClick={() => handleDeleteProduct(product)}
