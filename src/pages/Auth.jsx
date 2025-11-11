@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContainer from '../components/AuthContainer';
 import { useAuth } from '../hooks/useAuth';
@@ -8,7 +8,7 @@ const Auth = () => {
   const { user } = useAuth();
 
   // Redirect if user is already authenticated
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       navigate('/');
     }

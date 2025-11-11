@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { isValidEmail, isValidPassword } from '../utils/validation';
@@ -76,20 +76,26 @@ const Signup = ({ onSwitchToLogin }) => {
   // Verificar si el usuario está bloqueado
   useEffect(() => {
     if (blockUntil) {
-      const now = Date.now();
-      if (now >= blockUntil) {
-        setIsBlocked(false);
-        setBlockUntil(null);
-        setSubmitAttempts(0);
-      } else {
-        const remaining = Math.ceil((blockUntil - now) / 1000);
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        setSignupStatus({
-          type: 'error',
-          message: `Demasiados intentos. Por favor espera ${minutes}:${seconds.toString().padStart(2, '0')} antes de intentar de nuevo.`
-        });
-      }
+      const interval = setInterval(() => {
+        const now = Date.now();
+        if (now >= blockUntil) {
+          setIsBlocked(false);
+          setBlockUntil(null);
+          setSubmitAttempts(0);
+          setSignupStatus(null);
+          clearInterval(interval);
+        } else {
+          const remaining = Math.ceil((blockUntil - now) / 1000);
+          const minutes = Math.floor(remaining / 60);
+          const seconds = remaining % 60;
+          setSignupStatus({
+            type: 'error',
+            message: `Demasiados intentos. Por favor espera ${minutes}:${seconds.toString().padStart(2, '0')} antes de intentar de nuevo.`
+          });
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
     }
   }, [blockUntil]);
 
@@ -135,18 +141,29 @@ const Signup = ({ onSwitchToLogin }) => {
       const result = await signUp(formData.email, formData.password, formData.displayName);
       
       if (result.success) {
-        setSignupStatus({
-          type: 'success',
-          message: '¡Cuenta creada exitosamente! Redirigiendo...'
-        });
+        // Verificar si se requiere confirmación de email
+        if (result.data?.needsEmailConfirmation) {
+          setSignupStatus({
+            type: 'success',
+            message: '¡Cuenta creada exitosamente! Por favor revisa tu correo electrónico para confirmar tu cuenta.'
+          });
+        } else {
+          setSignupStatus({
+            type: 'success',
+            message: '¡Cuenta creada exitosamente! Redirigiendo...'
+          });
+        }
+        setSubmitAttempts(0); // Resetear intentos en caso de éxito
         // La navegación se maneja automáticamente por el hook useAuth
       } else {
+        setSubmitAttempts(prev => prev + 1); // Incrementar intentos fallidos
         setSignupStatus({
           type: 'error',
           message: result.error || 'Error al crear la cuenta'
         });
       }
     } catch (error) {
+      setSubmitAttempts(prev => prev + 1); // Incrementar intentos fallidos
       setSignupStatus({
         type: 'error',
         message: 'Error de conexión. Inténtalo de nuevo.'

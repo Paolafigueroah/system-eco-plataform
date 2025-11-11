@@ -35,7 +35,14 @@ export const supabaseAuthService = {
         }
       }
 
-      return supabaseUtils.handleSuccess(data, 'Registro de usuario');
+      // Verificar si se requiere confirmación de email
+      // En Supabase, si email_confirm es false, el usuario necesita confirmar su email
+      const needsEmailConfirmation = data.user && !data.session;
+      
+      return supabaseUtils.handleSuccess({
+        ...data,
+        needsEmailConfirmation
+      }, 'Registro de usuario');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Registro de usuario');
     }
