@@ -34,16 +34,36 @@ const GamificationPanel = () => {
     
     setLoading(true);
     try {
-      // Simular datos de gamificación por ahora
-      setPoints(150); // Puntos fijos por ahora
-      setBadges([
-        { id: 1, name: 'Primer Producto', icon: 'Gift', description: 'Publicaste tu primer producto' },
-        { id: 2, name: 'Eco Warrior', icon: 'Leaf', description: 'Ayudaste al medio ambiente' }
-      ]);
-      setActions([
-        { id: 1, action: 'Publicaste un producto', points: 10, timestamp: new Date() },
-        { id: 2, action: 'Completaste tu perfil', points: 5, timestamp: new Date() }
-      ]);
+      // Obtener puntos del usuario
+      const pointsResult = await supabaseGamificationService.getUserPoints(user.id);
+      if (pointsResult.success) {
+        setPoints(pointsResult.data.points || 0);
+      }
+
+      // Obtener badges del usuario
+      const badgesResult = await supabaseGamificationService.getUserBadges(user.id);
+      if (badgesResult.success && badgesResult.data) {
+        const userBadges = badgesResult.data.map(ub => ({
+          id: ub.badge_id,
+          name: ub.badge?.name || ub.badge_id,
+          icon: ub.badge?.icon || 'Award',
+          description: ub.badge?.description || '',
+          earned_at: ub.earned_at
+        }));
+        setBadges(userBadges);
+      }
+
+      // Obtener acciones del usuario
+      const actionsResult = await supabaseGamificationService.getUserActions(user.id, 10);
+      if (actionsResult.success && actionsResult.data) {
+        const userActions = actionsResult.data.map(a => ({
+          id: a.id,
+          action: a.action,
+          points: a.points || 0,
+          timestamp: new Date(a.created_at)
+        }));
+        setActions(userActions);
+      }
     } catch (error) {
       console.error('Error cargando datos de gamificación:', error);
       // Asegurar que siempre tengamos arrays válidos

@@ -7,12 +7,37 @@
   "background_color": "#ffffff",
   "theme_color": "#059669",
   "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "social"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Publicar Producto",
+      "short_name": "Publicar",
+      "description": "Publica un nuevo producto",
+      "url": "/dashboard?action=publish",
+      "icons": [{ "src": "/logo.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Favoritos",
+      "short_name": "Favoritos",
+      "description": "Ver tus productos favoritos",
+      "url": "/favorites",
+      "icons": [{ "src": "/logo.svg", "sizes": "96x96" }]
     }
   ]
 }

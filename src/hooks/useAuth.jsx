@@ -4,6 +4,21 @@ import { supabase } from '../supabaseConfig';
 
 const AuthContext = createContext();
 
+/**
+ * Hook para acceder al contexto de autenticación
+ * 
+ * @returns {Object} Objeto con el estado y funciones de autenticación
+ * @returns {Object|null} returns.user - Usuario actual autenticado
+ * @returns {boolean} returns.loading - Estado de carga
+ * @returns {boolean} returns.isAuthenticated - Si el usuario está autenticado
+ * @returns {Function} returns.signIn - Función para iniciar sesión
+ * @returns {Function} returns.signUp - Función para registrarse
+ * @returns {Function} returns.signOut - Función para cerrar sesión
+ * @returns {Function} returns.resetPassword - Función para resetear contraseña
+ * 
+ * @example
+ * const { user, signIn, isAuthenticated } = useAuth();
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -22,6 +37,19 @@ export const useAuth = () => {
   return context;
 };
 
+/**
+ * Proveedor de contexto de autenticación
+ * 
+ * @component
+ * @param {Object} props - Propiedades del componente
+ * @param {React.ReactNode} props.children - Componentes hijos
+ * @returns {JSX.Element} Proveedor de autenticación
+ * 
+ * @example
+ * <AuthProvider>
+ *   <App />
+ * </AuthProvider>
+ */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);

@@ -97,13 +97,10 @@ export const handleError = (error, context = 'Operación', options = {}) => {
     });
   }
 
-  // En producción, enviar a servicio de monitoreo
+  // En producción, los errores se loggean en consola
+  // Para monitoreo avanzado, se puede integrar un servicio externo aquí
   if (logToService && import.meta.env.PROD) {
-    // TODO: Integrar con Sentry o similar
-    // Sentry.captureException(error, {
-    //   tags: { context },
-    //   extra: options.metadata
-    // });
+    // Los errores ya se loggean arriba con logger.error
   }
 
   // Mostrar notificación al usuario (si está disponible)

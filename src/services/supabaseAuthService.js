@@ -1,8 +1,23 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
-// Servicio de autenticación con Supabase
+/**
+ * Servicio de autenticación con Supabase
+ * Proporciona funciones para registro, login, logout y gestión de usuarios
+ * 
+ * @namespace supabaseAuthService
+ */
 export const supabaseAuthService = {
-  // Registrar nuevo usuario
+  /**
+   * Registrar nuevo usuario
+   * 
+   * @param {string} email - Email del usuario
+   * @param {string} password - Contraseña del usuario
+   * @param {string} displayName - Nombre a mostrar del usuario
+   * @returns {Promise<Object>} Resultado de la operación con success, data y error
+   * 
+   * @example
+   * const result = await supabaseAuthService.signUp('user@example.com', 'password123', 'John Doe');
+   */
   signUp: async (email, password, displayName) => {
     try {
       console.log('🔐 Supabase: Registrando usuario...', email);
@@ -48,7 +63,16 @@ export const supabaseAuthService = {
     }
   },
 
-  // Iniciar sesión
+  /**
+   * Iniciar sesión
+   * 
+   * @param {string} email - Email del usuario
+   * @param {string} password - Contraseña del usuario
+   * @returns {Promise<Object>} Resultado de la operación con success, data y error
+   * 
+   * @example
+   * const result = await supabaseAuthService.signIn('user@example.com', 'password123');
+   */
   signIn: async (email, password) => {
     try {
       console.log('🔐 Supabase: Iniciando sesión...', email);

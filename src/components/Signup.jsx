@@ -3,6 +3,17 @@ import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-
 import { useAuth } from '../hooks/useAuth';
 import { isValidEmail, isValidPassword } from '../utils/validation';
 
+/**
+ * Componente de registro de usuario
+ * 
+ * @component
+ * @param {Object} props - Propiedades del componente
+ * @param {Function} props.onSwitchToLogin - Función para cambiar a la vista de login
+ * @returns {JSX.Element} Formulario de registro
+ * 
+ * @example
+ * <Signup onSwitchToLogin={() => setIsLogin(true)} />
+ */
 const Signup = ({ onSwitchToLogin }) => {
   const { signUp, signInWithGoogle, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({

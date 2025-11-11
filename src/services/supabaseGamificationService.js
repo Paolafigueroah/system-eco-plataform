@@ -17,7 +17,7 @@ export const supabaseGamificationService = {
         throw error;
       }
 
-      const points = data ? data.total_points : 0;
+      const points = data ? (data.total_points || data.points || 0) : 0;
       return supabaseUtils.handleSuccess({ points, userId }, 'Obtener puntos del usuario');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener puntos del usuario');
@@ -32,7 +32,7 @@ export const supabaseGamificationService = {
       // Verificar si el usuario ya tiene registro de puntos
       const { data: existingPoints, error: checkError } = await supabase
         .from('user_points')
-        .select('total_points')
+        .select('points, total_points')
         .eq('user_id', userId)
         .single();
 
@@ -43,7 +43,8 @@ export const supabaseGamificationService = {
       }
       
       if (existingPoints) {
-        newTotalPoints = existingPoints.total_points + points;
+        const currentPoints = existingPoints.points || existingPoints.total_points || 0;
+        newTotalPoints = currentPoints + points;
       }
 
       // Actualizar o crear registro de puntos
@@ -51,6 +52,7 @@ export const supabaseGamificationService = {
         .from('user_points')
         .upsert({
           user_id: userId,
+          points: newTotalPoints,
           total_points: newTotalPoints,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' })
@@ -82,8 +84,8 @@ export const supabaseGamificationService = {
         .insert({
           user_id: userId,
           action,
-          points_earned: points,
-          description,
+          points: points,
+          metadata: description ? { description } : null,
           created_at: new Date().toISOString()
         })
         .select()
@@ -238,7 +240,7 @@ export const supabaseGamificationService = {
           *,
           user:profiles!user_id(display_name, email)
         `)
-        .order('total_points', { ascending: false })
+        .order('points', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
