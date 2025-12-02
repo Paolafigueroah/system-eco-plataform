@@ -40,14 +40,13 @@ function AppContent() {
   }, []);
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden" data-theme={theme}>
-        <ErrorBoundary>
-          <Navbar />
-          <main className="container mx-auto px-4 py-8 overflow-x-hidden">
-            <Suspense fallback={<LoadingSpinner />}>
-              <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden" data-theme={theme}>
+      <ErrorBoundary>
+        <Navbar />
+        <main className="container mx-auto px-4 py-8 overflow-x-hidden">
+          <Suspense fallback={<LoadingSpinner />}>
+            <AnimatePresence mode="wait" initial={false}>
+              <Routes location={location} key={location.pathname}>
                   <Route path="/" element={
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -158,16 +157,17 @@ function AppContent() {
           <PWAInstaller />
         </ErrorBoundary>
       </div>
-    </AuthProvider>
   );
 }
 
 function App() {
   return (
     <ThemeProvider>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <AppContent />
-      </Router>
+      <AuthProvider>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AppContent />
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
