@@ -33,7 +33,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState('connected');
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
   const [lastMessageStatus, setLastMessageStatus] = useState('sent');
   const [showSearch, setShowSearch] = useState(false);
   const messagesEndRef = useRef(null);
@@ -46,6 +46,8 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     
     let isMounted = true;
     let subscription = null;
+    let reconnectTimeout = null;
+    let statusCheckInterval = null;
     
     const setupSubscription = async () => {
       // Cargar mensajes iniciales
@@ -56,42 +58,93 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       }
 
       // Limpiar suscripción anterior si existe
-      if (messagesUnsubscribe.current) {
-        unsubscribe(messagesUnsubscribe.current);
+      if (messagesUnsubscribe.current && messagesUnsubscribe.current.subscription) {
+        unsubscribe(messagesUnsubscribe.current.subscription);
         messagesUnsubscribe.current = null;
       }
+
+      setConnectionStatus('connecting');
 
       // Crear nueva suscripción
       subscription = subscribeToMessages(conversation.id, (payload) => {
         if (!isMounted) return;
         
-        logger.chat('Payload recibido en tiempo real', payload);
-        const newMsg = payload?.new;
+        logger.chat('📨 Payload recibido en tiempo real', payload);
+        
+        // El payload de Supabase Realtime tiene esta estructura:
+        // { eventType: 'INSERT'|'UPDATE'|'DELETE', new: {...}, old: {...} }
+        // O simplemente: { new: {...} } para INSERT
+        const newMsg = payload?.new || payload?.record;
+        
         if (!newMsg) {
-          // Si no hay newMsg, recargar todos los mensajes
+          logger.warn('⚠️ Payload sin datos de mensaje, recargando...');
           if (isMounted) {
             loadMessages();
           }
           return;
         }
+        
         // Evitar duplicados cuando llegan eventos simultáneos
         setMessages((prev) => {
           // Verificar si el mensaje ya existe
           const exists = prev.some(msg => msg.id === newMsg.id);
           if (exists) {
-            logger.warn('Mensaje duplicado detectado, ignorando');
+            logger.warn('⚠️ Mensaje duplicado detectado, ignorando');
             return prev;
           }
-          logger.chat('Agregando nuevo mensaje a la lista');
+          logger.chat('✅ Agregando nuevo mensaje a la lista', newMsg);
           return [...prev, newMsg];
         });
+        
         // Marcar como leído automáticamente si es un mensaje recibido
         if (newMsg.sender_id !== currentUser.id && isMounted) {
           chatService.markMessagesAsRead(conversation.id, currentUser.id);
         }
       });
       
-      messagesUnsubscribe.current = subscription;
+      // Verificar estado de la suscripción
+      if (subscription) {
+        const checkStatus = () => {
+          if (!isMounted) return;
+          
+          // El canal de Supabase tiene diferentes estados
+          const channelState = subscription.state || subscription.constructor?.name;
+          
+          if (subscription.state === 'joined' || subscription.state === 'SUBSCRIBED') {
+            setConnectionStatus('connected');
+            logger.chat('✅ Conectado a tiempo real');
+          } else if (subscription.state === 'closed' || subscription.state === 'CLOSED' || subscription.state === 'CHANNEL_ERROR') {
+            setConnectionStatus('disconnected');
+            logger.warn('⚠️ Canal cerrado o con error, intentando reconectar...');
+            // Intentar reconectar después de 3 segundos
+            if (isMounted && !reconnectTimeout) {
+              reconnectTimeout = setTimeout(() => {
+                if (isMounted) {
+                  logger.chat('🔄 Intentando reconectar...');
+                  setupSubscription();
+                }
+              }, 3000);
+            }
+          } else {
+            setConnectionStatus('connecting');
+          }
+        };
+        
+        // Verificar estado inicial después de un momento
+        setTimeout(checkStatus, 1000);
+        
+        // Verificar periódicamente (cada 5 segundos)
+        statusCheckInterval = setInterval(checkStatus, 5000);
+        
+        // Guardar referencia para limpiar
+        messagesUnsubscribe.current = { 
+          subscription, 
+          interval: statusCheckInterval 
+        };
+      } else {
+        setConnectionStatus('disconnected');
+        logger.error('❌ No se pudo crear la suscripción');
+      }
     };
     
     setupSubscription();
@@ -99,8 +152,19 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     // Cleanup function
     return () => {
       isMounted = false;
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+      if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+      }
       if (messagesUnsubscribe.current) {
-        unsubscribe(messagesUnsubscribe.current);
+        if (messagesUnsubscribe.current.interval) {
+          clearInterval(messagesUnsubscribe.current.interval);
+        }
+        if (messagesUnsubscribe.current.subscription) {
+          unsubscribe(messagesUnsubscribe.current.subscription);
+        }
         messagesUnsubscribe.current = null;
       }
       if (subscription) {
@@ -202,8 +266,20 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       const result = await chatService.sendMessage(conversation.id, currentUser.id, messageContent);
       
       if (result.success) {
-        logger.chat('Mensaje enviado exitosamente');
+        logger.chat('Mensaje enviado exitosamente', result.data);
         setLastMessageStatus('sent');
+        
+        // Agregar el mensaje localmente inmediatamente para mejor UX
+        if (result.data) {
+          setMessages((prev) => {
+            const exists = prev.some(msg => msg.id === result.data.id);
+            if (exists) {
+              return prev;
+            }
+            return [...prev, result.data];
+          });
+        }
+        
         // Marcar mensajes como leídos
         await chatService.markMessagesAsRead(conversation.id, currentUser.id);
       } else {
@@ -294,9 +370,11 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
               {/* Indicador de estado de conexión */}
               <div className="flex items-center space-x-1">
                 {connectionStatus === 'connected' ? (
-                  <Wifi className="h-3 w-3 text-green-500" title="Conectado" />
+                  <Wifi className="h-3 w-3 text-green-500 animate-pulse" title="Conectado en tiempo real" />
+                ) : connectionStatus === 'connecting' ? (
+                  <Loader2 className="h-3 w-3 text-yellow-500 animate-spin" title="Conectando..." />
                 ) : (
-                  <WifiOff className="h-3 w-3 text-red-500" title="Desconectado" />
+                  <WifiOff className="h-3 w-3 text-red-500" title="Desconectado - Los mensajes pueden no llegar en tiempo real" />
                 )}
                 {isTyping && (
                   <div className="flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-400">

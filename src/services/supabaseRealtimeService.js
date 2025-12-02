@@ -56,31 +56,58 @@ export const supabaseRealtimeService = {
     try {
       console.log('⚡ Supabase: Suscribiéndose a mensajes...', conversationId);
       
-      const subscription = supabase
-        .channel(`messages_${conversationId}`)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`
-        }, (payload) => {
-          console.log('💬 Nuevo mensaje en tiempo real:', payload);
-          callback(payload);
-        })
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`
-        }, (payload) => {
-          console.log('💬 Mensaje actualizado en tiempo real:', payload);
-          callback(payload);
-        })
-        .subscribe();
+      if (!conversationId) {
+        console.error('❌ conversationId es requerido para suscribirse a mensajes');
+        return null;
+      }
 
-      return subscription;
+      const channelName = `messages_${conversationId}`;
+      const channel = supabase.channel(channelName, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: conversationId }
+        }
+      });
+
+      // Suscribirse a INSERT de mensajes
+      channel.on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `conversation_id=eq.${conversationId}`
+      }, (payload) => {
+        console.log('💬 Nuevo mensaje en tiempo real:', payload);
+        if (callback) callback(payload);
+      });
+
+      // Suscribirse a UPDATE de mensajes
+      channel.on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages',
+        filter: `conversation_id=eq.${conversationId}`
+      }, (payload) => {
+        console.log('💬 Mensaje actualizado en tiempo real:', payload);
+        if (callback) callback(payload);
+      });
+
+      // Manejar estado de suscripción
+      channel.subscribe((status) => {
+        console.log(`📡 Estado de suscripción a mensajes (${conversationId}):`, status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Suscrito exitosamente a mensajes');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Error en el canal de mensajes');
+        } else if (status === 'TIMED_OUT') {
+          console.warn('⏱️ Timeout al suscribirse a mensajes');
+        } else if (status === 'CLOSED') {
+          console.warn('🔒 Canal de mensajes cerrado');
+        }
+      });
+
+      return channel;
     } catch (error) {
-      console.error('Error suscribiéndose a mensajes:', error);
+      console.error('❌ Error suscribiéndose a mensajes:', error);
       return null;
     }
   },
@@ -90,8 +117,19 @@ export const supabaseRealtimeService = {
     try {
       console.log('⚡ Supabase: Suscribiéndose a conversaciones...', userId);
       
+      if (!userId) {
+        console.error('❌ userId es requerido para suscribirse a conversaciones');
+        return null;
+      }
+
       // Crear un canal para conversaciones
-      const channel = supabase.channel(`conversations_${userId}`);
+      const channelName = `conversations_${userId}`;
+      const channel = supabase.channel(channelName, {
+        config: {
+          broadcast: { self: true },
+          presence: { key: userId }
+        }
+      });
       
       // Suscribirse a conversaciones donde el usuario es buyer
       channel.on('postgres_changes', {
@@ -101,7 +139,7 @@ export const supabaseRealtimeService = {
         filter: `buyer_id=eq.${userId}`
       }, (payload) => {
         console.log('💬 Conversación actualizada en tiempo real (buyer):', payload);
-        callback(payload);
+        if (callback) callback(payload);
       });
 
       // Suscribirse a conversaciones donde el usuario es seller
@@ -112,7 +150,7 @@ export const supabaseRealtimeService = {
         filter: `seller_id=eq.${userId}`
       }, (payload) => {
         console.log('💬 Conversación actualizada en tiempo real (seller):', payload);
-        callback(payload);
+        if (callback) callback(payload);
       });
       
       // También suscribirse a cambios en mensajes que puedan afectar las conversaciones
@@ -124,18 +162,29 @@ export const supabaseRealtimeService = {
       }, (payload) => {
         console.log('💬 Nuevo mensaje detectado (puede afectar conversaciones):', payload);
         // Verificar si el mensaje pertenece a una conversación del usuario
-        // Esto se hace consultando la conversación asociada
-        if (payload.new?.conversation_id) {
+        if (payload.new?.conversation_id && callback) {
           // Llamar al callback para refrescar la lista
           callback({ type: 'message_insert', conversation_id: payload.new.conversation_id });
         }
       });
 
-      channel.subscribe();
+      // Manejar estado de suscripción
+      channel.subscribe((status) => {
+        console.log(`📡 Estado de suscripción a conversaciones (${userId}):`, status);
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Suscrito exitosamente a conversaciones');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Error en el canal de conversaciones');
+        } else if (status === 'TIMED_OUT') {
+          console.warn('⏱️ Timeout al suscribirse a conversaciones');
+        } else if (status === 'CLOSED') {
+          console.warn('🔒 Canal de conversaciones cerrado');
+        }
+      });
 
       return channel;
     } catch (error) {
-      console.error('Error suscribiéndose a conversaciones:', error);
+      console.error('❌ Error suscribiéndose a conversaciones:', error);
       return null;
     }
   },
@@ -193,7 +242,13 @@ export const supabaseRealtimeService = {
   // Desuscribirse de un canal
   unsubscribe: (subscription) => {
     if (subscription) {
-      supabase.removeChannel(subscription);
+      try {
+        console.log('🔌 Desuscribiéndose del canal...');
+        supabase.removeChannel(subscription);
+        console.log('✅ Canal removido exitosamente');
+      } catch (error) {
+        console.error('❌ Error al desuscribirse:', error);
+      }
     }
   },
 
@@ -204,7 +259,36 @@ export const supabaseRealtimeService = {
 
   // Verificar estado de conexión
   getConnectionStatus: () => {
-    return supabase.realtime.getChannels().length > 0;
+    const channels = supabase.realtime.getChannels();
+    const hasChannels = channels.length > 0;
+    console.log(`📊 Estado de conexión: ${hasChannels ? 'Conectado' : 'Desconectado'} (${channels.length} canales activos)`);
+    return hasChannels;
+  },
+
+  // Verificar si Realtime está habilitado para una tabla
+  checkRealtimeEnabled: async (tableName) => {
+    try {
+      // Intentar crear una suscripción de prueba
+      const testChannel = supabase.channel(`test_${Date.now()}`);
+      testChannel.on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: tableName
+      }, () => {});
+      
+      const status = await new Promise((resolve) => {
+        testChannel.subscribe((status) => {
+          testChannel.unsubscribe();
+          supabase.removeChannel(testChannel);
+          resolve(status);
+        });
+      });
+
+      return status === 'SUBSCRIBED';
+    } catch (error) {
+      console.error(`❌ Error verificando Realtime para ${tableName}:`, error);
+      return false;
+    }
   }
 };
 

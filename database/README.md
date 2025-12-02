@@ -43,11 +43,25 @@ Contiene:
 1. Ejecuta en el SQL Editor de Supabase
 2. También configura el bucket manualmente en Storage → Buckets si es necesario
 
+### 4. `realtime.sql` - Habilitar Realtime para Chat
+**IMPORTANTE - Requerido para chat en tiempo real**
+
+Contiene:
+- Habilitación de Realtime para la tabla `messages`
+- Habilitación de Realtime para la tabla `conversations`
+- Habilitación de Realtime para la tabla `message_reads`
+
+**Cómo usar:**
+1. Ejecuta en el SQL Editor de Supabase
+2. Verifica que las tablas aparezcan en la publicación `supabase_realtime`
+3. También puedes habilitarlo manualmente en Database → Replication en el dashboard de Supabase
+
 ## Orden de Ejecución Recomendado
 
 1. **schema.sql** - Base de datos completa
 2. **fixes.sql** - Correcciones y gamificación
-3. **storage.sql** - Storage para imágenes (opcional)
+3. **realtime.sql** - Habilitar chat en tiempo real ⚡
+4. **storage.sql** - Storage para imágenes (opcional)
 
 ## Notas
 
