@@ -85,10 +85,31 @@ export const supabaseChatService = {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .select()
+        .select(`
+          *,
+          buyer:profiles!buyer_id(id, display_name, email),
+          seller:profiles!seller_id(id, display_name, email)
+        `)
         .single();
 
       if (error) throw error;
+
+      // Transformar la conversación para incluir other_user
+      if (data) {
+        const isBuyer = data.buyer_id === buyerId;
+        const otherUser = isBuyer ? data.seller : data.buyer;
+        
+        const transformedData = {
+          ...data,
+          other_user: {
+            id: otherUser?.id,
+            name: otherUser?.display_name || otherUser?.email || 'Usuario',
+            email: otherUser?.email
+          }
+        };
+
+        return supabaseUtils.handleSuccess(transformedData, 'Crear conversación');
+      }
 
       return supabaseUtils.handleSuccess(data, 'Crear conversación');
     } catch (error) {

@@ -162,14 +162,34 @@ export const supabaseAuthService = {
     try {
       console.log('🔐 Supabase: Restableciendo contraseña...', email);
       
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+      // Validar email
+      if (!email || typeof email !== 'string' || !email.trim()) {
+        return supabaseUtils.handleError(
+          new Error('El correo electrónico es requerido'),
+          'Restablecimiento de contraseña'
+        );
+      }
+
+      // Construir URL de redirección
+      const redirectUrl = `${window.location.origin}/reset-password`;
+      console.log('🔐 URL de redirección:', redirectUrl);
+      
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: redirectUrl
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error de Supabase al restablecer contraseña:', error);
+        throw error;
+      }
 
-      return supabaseUtils.handleSuccess(data, 'Restablecimiento de contraseña');
+      console.log('✅ Email de restablecimiento enviado exitosamente');
+      return supabaseUtils.handleSuccess(
+        { message: 'Se ha enviado un enlace de restablecimiento a tu correo electrónico' },
+        'Restablecimiento de contraseña'
+      );
     } catch (error) {
+      console.error('❌ Error completo al restablecer contraseña:', error);
       return supabaseUtils.handleError(error, 'Restablecimiento de contraseña');
     }
   },

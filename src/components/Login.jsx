@@ -188,24 +188,35 @@ const Login = ({ onSwitchToSignup }) => {
     setForgotPasswordStatus(null);
 
     try {
+      logger.chat('Solicitando restablecimiento de contraseña para:', forgotPasswordEmail);
       const result = await resetPassword(forgotPasswordEmail);
+      
+      logger.chat('Resultado de resetPassword:', result);
       
       if (result.success) {
         setForgotPasswordStatus({
           type: 'success',
-          message: 'Se ha enviado un enlace de restablecimiento a tu correo electrónico'
+          message: result.data?.message || 'Se ha enviado un enlace de restablecimiento a tu correo electrónico. Por favor revisa tu bandeja de entrada.'
         });
         setForgotPasswordEmail('');
+        
+        // Cerrar el modal después de 3 segundos si fue exitoso
+        setTimeout(() => {
+          closeForgotPasswordModal();
+        }, 3000);
       } else {
+        const errorMessage = result.userMessage || result.error || 'Error al enviar el correo de restablecimiento';
+        logger.error('Error al restablecer contraseña:', errorMessage);
         setForgotPasswordStatus({
           type: 'error',
-          message: result.error || 'Error al enviar el correo de restablecimiento'
+          message: errorMessage
         });
       }
     } catch (error) {
+      logger.error('Error inesperado al restablecer contraseña:', error);
       setForgotPasswordStatus({
         type: 'error',
-        message: 'Error interno del servidor'
+        message: error.message || 'Error interno del servidor. Por favor intenta de nuevo.'
       });
     } finally {
       setIsLoading(false);

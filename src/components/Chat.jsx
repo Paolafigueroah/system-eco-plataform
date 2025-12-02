@@ -150,29 +150,59 @@ const Chat = ({ onClose }) => {
 
   const handleStartConversation = async (otherUserId) => {
     try {
+      logger.chat('Iniciando conversación con usuario', { currentUserId: user.id, otherUserId });
+      
+      if (!otherUserId || otherUserId === user.id) {
+        alert('No puedes crear una conversación contigo mismo');
+        return;
+      }
+
       const result = await chatService.createConversation(user.id, otherUserId, null);
+      
       if (result.success) {
-        // Recargar conversaciones
-        await loadConversations();
+        logger.chat('✅ Conversación creada exitosamente', result.data);
+        
+        // Cerrar el modal
         setShowNewConversationModal(false);
         
-        // Seleccionar directamente la conversación creada si viene en data
+        // Recargar conversaciones para obtener la lista actualizada
+        await loadConversations();
+        
+        // Seleccionar directamente la conversación creada
         const created = result.data;
-        if (created && created.id && (!String(created.id).startsWith('conv_'))) {
+        if (created && created.id) {
+          // La conversación ya viene transformada del servicio con other_user
           handleConversationSelect(created);
-          return;
+        } else {
+          // Fallback: buscar en la lista actualizada
+          const updated = conversations.find(c => 
+            (c.buyer_id === user.id && c.seller_id === otherUserId) ||
+            (c.buyer_id === otherUserId && c.seller_id === user.id)
+          );
+          if (updated) {
+            handleConversationSelect(updated);
+          } else {
+            // Si aún no aparece, esperar un momento y recargar
+            setTimeout(async () => {
+              await loadConversations();
+              const found = conversations.find(c => 
+                (c.buyer_id === user.id && c.seller_id === otherUserId) ||
+                (c.buyer_id === otherUserId && c.seller_id === user.id)
+              );
+              if (found) {
+                handleConversationSelect(found);
+              }
+            }, 1000);
+          }
         }
-        // Fallback: buscarla en lista actualizada
-        const updated = (prev => prev)(conversations).find(c => 
-          (c.buyer_id === user.id && c.seller_id === otherUserId) ||
-          (c.buyer_id === otherUserId && c.seller_id === user.id)
-        );
-        if (updated && (!String(updated.id).startsWith('conv_'))) handleConversationSelect(updated);
       } else {
-        console.error('Error al crear conversación:', result.error);
+        logger.error('❌ Error al crear conversación', result.error);
+        const errorMessage = result.error || result.userMessage || 'Error desconocido al crear la conversación';
+        alert(`Error al crear conversación:\n${errorMessage}`);
       }
     } catch (error) {
-      console.error('Error creando conversación:', error);
+      logger.error('Error creando conversación', error);
+      alert('Error al crear conversación: ' + (error.message || 'Error desconocido'));
     }
   };
 
@@ -328,18 +358,18 @@ const Chat = ({ onClose }) => {
             
             <div className="p-3 sm:p-4 overflow-y-auto max-h-[70vh] sm:max-h-[60vh]">
               <div className="space-y-2">
-                {availableUsers.map((user) => (
+                {availableUsers.map((otherUser) => (
                   <button
-                    key={user.id}
-                    onClick={() => handleStartConversation(user.id)}
+                    key={otherUser.id}
+                    onClick={() => handleStartConversation(otherUser.id)}
                     className="w-full flex items-center space-x-3 p-2 sm:p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-semibold text-sm sm:text-base">
-                      {chatUtils.getInitials(user.display_name || user.email)}
+                      {chatUtils.getInitials(otherUser.display_name || otherUser.email)}
                     </div>
                     <div className="text-left flex-1 min-w-0">
-                      <p className="font-medium text-sm sm:text-base truncate text-gray-900 dark:text-white">{user.display_name || 'Usuario'}</p>
-                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                      <p className="font-medium text-sm sm:text-base truncate text-gray-900 dark:text-white">{otherUser.display_name || 'Usuario'}</p>
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{otherUser.email}</p>
                     </div>
                   </button>
                 ))}

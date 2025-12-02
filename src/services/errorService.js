@@ -15,6 +15,9 @@ const errorMessages = {
   'Invalid email': 'El formato del email no es válido.',
   'Password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres.',
   'Signup is disabled': 'El registro está deshabilitado temporalmente.',
+  'User not found': 'No existe una cuenta con este correo electrónico.',
+  'For security purposes, you can only request this once every 60 seconds': 'Por seguridad, solo puedes solicitar esto una vez cada 60 segundos. Por favor espera un momento.',
+  'Email rate limit exceeded': 'Demasiados intentos. Por favor espera unos minutos antes de intentar de nuevo.',
   
   // Errores de base de datos
   'duplicate key value violates unique constraint': 'Este registro ya existe.',

@@ -22,13 +22,64 @@ const ResetPassword = () => {
   useEffect(() => {
     // Verificar si hay una sesión válida de restablecimiento
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsValidSession(true);
-      } else {
+      try {
+        // Verificar si hay un hash de token en la URL (Supabase envía el token en el hash)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const type = hashParams.get('type');
+        
+        console.log('🔐 Verificando sesión de reset password:', { accessToken: !!accessToken, type });
+        
+        if (accessToken && type === 'recovery') {
+          // Hay un token de recuperación en la URL
+          try {
+            // Intentar establecer la sesión con el token
+            const { data: { session }, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: hashParams.get('refresh_token') || ''
+            });
+            
+            if (error) throw error;
+            
+            if (session) {
+              console.log('✅ Sesión de recuperación establecida');
+              setIsValidSession(true);
+              // Limpiar el hash de la URL
+              window.history.replaceState(null, '', window.location.pathname);
+              return;
+            }
+          } catch (sessionError) {
+            console.error('❌ Error estableciendo sesión de recuperación:', sessionError);
+          }
+        }
+        
+        // Verificar sesión actual
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Error obteniendo sesión:', error);
+          setStatus({
+            type: 'error',
+            message: 'Error al verificar la sesión. Por favor solicita un nuevo enlace de restablecimiento.'
+          });
+          return;
+        }
+        
+        if (session) {
+          console.log('✅ Sesión válida encontrada');
+          setIsValidSession(true);
+        } else {
+          console.warn('⚠️ No hay sesión válida');
+          setStatus({
+            type: 'error',
+            message: 'Sesión inválida o expirada. Por favor solicita un nuevo enlace de restablecimiento.'
+          });
+        }
+      } catch (error) {
+        console.error('❌ Error verificando sesión:', error);
         setStatus({
           type: 'error',
-          message: 'Sesión inválida o expirada. Por favor solicita un nuevo enlace de restablecimiento.'
+          message: 'Error al verificar la sesión. Por favor solicita un nuevo enlace de restablecimiento.'
         });
       }
     };
