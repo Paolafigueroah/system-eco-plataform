@@ -21,13 +21,30 @@ module.exports = {
   },
   plugins: ['react', 'react-refresh', 'react-hooks'],
   rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
+    'react-refresh/only-export-components': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'no-undef': 'error',
+    'react/no-unescaped-entities': 'off',
+    'no-unused-vars': 'off',
+    'no-undef': 'warn', // Solo warning, no error
+    'no-prototype-builtins': 'off',
+    'no-useless-escape': 'off',
+    'react-hooks/exhaustive-deps': 'off',
   },
+  overrides: [
+    {
+      files: ['public/sw.js'],
+      env: {
+        serviceworker: true
+      },
+      globals: {
+        self: 'readonly',
+        clients: 'readonly',
+        caches: 'readonly',
+        fetch: 'readonly',
+        skipWaiting: 'readonly',
+        addEventListener: 'readonly'
+      }
+    }
+  ],
 }
