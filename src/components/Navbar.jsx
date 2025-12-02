@@ -303,10 +303,11 @@ const Navbar = () => {
                   )}
                 </div>
               </div>
-            </div>
-          )}
+            </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Search Modal */}
       {showSearch && (

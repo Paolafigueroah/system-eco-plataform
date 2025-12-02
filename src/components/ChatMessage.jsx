@@ -84,4 +84,11 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
   );
 };
 
-export default ChatMessage;
+// Memoizar componente para evitar re-renders innecesarios
+export default React.memo(ChatMessage, (prevProps, nextProps) => {
+  return (
+    prevProps.message?.id === nextProps.message?.id &&
+    prevProps.message?.is_read === nextProps.message?.is_read &&
+    prevProps.isOwnMessage === nextProps.isOwnMessage
+  );
+});
