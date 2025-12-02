@@ -1,8 +1,25 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
-// Servicio de productos con Supabase
+/**
+ * Servicio de productos con Supabase
+ * Proporciona funciones para CRUD de productos
+ * 
+ * @namespace supabaseProductService
+ */
 export const supabaseProductService = {
-  // Obtener todos los productos
+  /**
+   * Obtener todos los productos activos con filtros opcionales
+   * 
+   * @param {Object} filters - Filtros opcionales
+   * @param {string} [filters.category] - Filtrar por categoría
+   * @param {string} [filters.transaction_type] - Filtrar por tipo de transacción (venta/intercambio/donación)
+   * @param {string} [filters.location] - Filtrar por ubicación
+   * @param {string} [filters.search] - Buscar en título y descripción
+   * @returns {Promise<Object>} Resultado con success, data (array de productos) y error
+   * 
+   * @example
+   * const result = await supabaseProductService.getAllProducts({ category: 'electronics' });
+   */
   getAllProducts: async (filters = {}) => {
     try {
       console.log('📦 Supabase: Obteniendo productos...', filters);
@@ -37,7 +54,15 @@ export const supabaseProductService = {
     }
   },
 
-  // Obtener producto por ID
+  /**
+   * Obtener un producto por su ID
+   * 
+   * @param {string} productId - ID del producto (UUID)
+   * @returns {Promise<Object>} Resultado con success, data (producto) y error
+   * 
+   * @example
+   * const result = await supabaseProductService.getProductById('123e4567-e89b-12d3-a456-426614174000');
+   */
   getProductById: async (productId) => {
     try {
       // Validación de parámetros

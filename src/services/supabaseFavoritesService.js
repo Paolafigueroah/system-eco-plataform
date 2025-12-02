@@ -1,8 +1,21 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
-// Servicio de favoritos con Supabase
+/**
+ * Servicio de favoritos con Supabase
+ * Proporciona funciones para gestionar productos favoritos de usuarios
+ * 
+ * @namespace supabaseFavoritesService
+ */
 export const supabaseFavoritesService = {
-  // Agregar a favoritos
+  /**
+   * Agregar un producto a favoritos del usuario actual
+   * 
+   * @param {string} productId - ID del producto a agregar (UUID)
+   * @returns {Promise<Object>} Resultado con success, data y error
+   * 
+   * @example
+   * const result = await supabaseFavoritesService.addToFavorites('123e4567-e89b-12d3-a456-426614174000');
+   */
   addToFavorites: async (productId) => {
     try {
       console.log('❤️ Supabase: Agregando a favoritos...', productId);

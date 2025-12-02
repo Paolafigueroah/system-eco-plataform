@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Eye, EyeOff, Lock, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '../supabaseConfig';
 import { isValidPassword } from '../utils/validation';
+import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const ResetPassword = () => {
     if (!formData.password.trim()) {
       newErrors.password = 'La contraseña es requerida';
     } else if (!isValidPassword(formData.password)) {
-      newErrors.password = 'La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos';
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres con 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (@$!%*?&)';
     }
 
     // Confirm password validation
@@ -195,6 +196,7 @@ const ResetPassword = () => {
                   {errors.password}
                 </p>
               )}
+              <PasswordStrengthIndicator password={formData.password} />
             </div>
 
             {/* Confirm Password */}
@@ -269,7 +271,7 @@ const ResetPassword = () => {
 
           {/* Footer */}
           <div className="text-center text-xs text-gray-500 dark:text-gray-500 mt-6">
-            <p>Tu contraseña debe tener al menos 8 caracteres y incluir mayúsculas, minúsculas, números y símbolos</p>
+            <p>Tu contraseña debe cumplir todos los requisitos mostrados arriba</p>
           </div>
         </div>
       </div>

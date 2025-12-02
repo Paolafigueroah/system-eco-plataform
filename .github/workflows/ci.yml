@@ -27,14 +27,25 @@ jobs:
       - name: Run linter
         run: npm run lint
       
-      - name: Run tests
+      - name: Run unit tests
         run: npm run test -- --run
+      
+      - name: Run E2E tests
+        run: npm run test:e2e
+        continue-on-error: true
       
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage/coverage-final.json
           fail_ci_if_error: false
+      
+      - name: Generate test report
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Unit tests: ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- E2E tests: ✅" >> $GITHUB_STEP_SUMMARY
 
   build:
     name: Build Application

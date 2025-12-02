@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { isValidEmail, isValidPassword } from '../utils/validation';
+import PasswordStrengthIndicator from './PasswordStrengthIndicator';
 
 /**
  * Componente de registro de usuario
@@ -70,7 +71,7 @@ const Signup = ({ onSwitchToLogin }) => {
     if (!formData.password.trim()) {
       newErrors.password = 'La contraseña es requerida';
     } else if (!isValidPassword(formData.password)) {
-      newErrors.password = 'La contraseña debe tener al menos 8 caracteres con 1 mayúscula, 1 minúscula y 1 número';
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres con 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (@$!%*?&)';
     }
 
     // Confirm Password validation
@@ -329,9 +330,7 @@ const Signup = ({ onSwitchToLogin }) => {
                   {errors.password}
                 </p>
               )}
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número
-              </p>
+              <PasswordStrengthIndicator password={formData.password} />
             </div>
 
             {/* Confirm Password Field */}

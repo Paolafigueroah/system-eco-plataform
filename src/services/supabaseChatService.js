@@ -1,8 +1,23 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
-// Servicio de chat con Supabase
+/**
+ * Servicio de chat con Supabase
+ * Proporciona funciones para conversaciones y mensajes en tiempo real
+ * 
+ * @namespace supabaseChatService
+ */
 export const supabaseChatService = {
-  // Crear nueva conversación
+  /**
+   * Crear una nueva conversación entre comprador y vendedor
+   * 
+   * @param {string} buyerId - ID del comprador (UUID)
+   * @param {string} sellerId - ID del vendedor (UUID)
+   * @param {string|null} [productId=null] - ID del producto relacionado (opcional)
+   * @returns {Promise<Object>} Resultado con success, data (conversación) y error
+   * 
+   * @example
+   * const result = await supabaseChatService.createConversation(buyerId, sellerId, productId);
+   */
   createConversation: async (buyerId, sellerId, productId = null) => {
     try {
       // Validación de parámetros

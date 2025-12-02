@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Heart, MessageCircle, MapPin, Calendar, User, Phone, Mail, Share2, Flag, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Eye, Heart, MessageCircle, MapPin, Calendar, User, Phone, Mail, Share2, Flag, Star, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { supabaseProductService } from '../services/supabaseProductService';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import { supabaseReviewService } from '../services/supabaseReviewService';
@@ -9,6 +9,7 @@ import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 import ProductReviews from '../components/ProductReviews';
 import { migrationConfig } from '../config/migrationConfig';
 import { logger } from '../utils/logger';
+import ImageZoom from '../components/ImageZoom';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -625,60 +626,16 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Modal de imagen */}
+        {/* Modal de imagen con zoom */}
         {showImageModal && productImages.length > 0 && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-            <div className="relative max-w-4xl max-h-[90vh] w-full">
-              <button
-                onClick={() => setShowImageModal(false)}
-                className="absolute top-4 right-4 z-10 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-              >
-                <X size={24} />
-              </button>
-              
-              <img
-                src={productImages[currentImageIndex]}
-                alt={product.title || 'Imagen del producto'}
-                className="w-full h-full object-contain rounded-lg"
-                loading="eager"
-                decoding="async"
-              />
-              
-              {productImages.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
-                    aria-label="Imagen anterior"
-                  >
-                    <ChevronLeft size={24} aria-hidden="true" />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-colors"
-                    aria-label="Imagen siguiente"
-                  >
-                    <ChevronRight size={24} aria-hidden="true" />
-                  </button>
-                  
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2" role="tablist" aria-label="Navegación de imágenes">
-                    {productImages.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentImageIndex(index)}
-                        className={`w-3 h-3 rounded-full transition-colors ${
-                          index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                        }`}
-                        role="tab"
-                        aria-selected={index === currentImageIndex}
-                        aria-label={`Imagen ${index + 1}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          <ImageZoom
+            src={productImages[currentImageIndex]}
+            alt={product.title || 'Imagen del producto'}
+            onClose={() => setShowImageModal(false)}
+            onPrev={productImages.length > 1 ? prevImage : null}
+            onNext={productImages.length > 1 ? nextImage : null}
+            hasNavigation={productImages.length > 1}
+          />
         )}
       </div>
     </div>

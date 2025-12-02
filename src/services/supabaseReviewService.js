@@ -1,7 +1,34 @@
 import { supabase, supabaseUtils } from '../supabaseConfig';
 
+/**
+ * Servicio de reseñas con Supabase
+ * Proporciona funciones para gestionar reseñas y ratings de productos
+ * 
+ * @namespace supabaseReviewService
+ */
 export const supabaseReviewService = {
-  // Crear nueva reseña
+  /**
+   * Crear una nueva reseña para un producto
+   * 
+   * @param {Object} reviewData - Datos de la reseña
+   * @param {string} reviewData.productId - ID del producto (UUID)
+   * @param {string} reviewData.userId - ID del usuario (UUID)
+   * @param {number} reviewData.rating - Rating (1-5)
+   * @param {string} reviewData.title - Título de la reseña
+   * @param {string} reviewData.comment - Comentario de la reseña
+   * @param {boolean} reviewData.recommend - Si recomienda el producto
+   * @returns {Promise<Object>} Resultado con success, data (reseña) y error
+   * 
+   * @example
+   * const result = await supabaseReviewService.createReview({
+   *   productId: '123...',
+   *   userId: '456...',
+   *   rating: 5,
+   *   title: 'Excelente producto',
+   *   comment: 'Muy recomendado',
+   *   recommend: true
+   * });
+   */
   createReview: async (reviewData) => {
     try {
       console.log('📝 Supabase: Creando reseña...', reviewData);

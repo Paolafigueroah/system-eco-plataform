@@ -4,11 +4,48 @@ export const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 
-// Password validation
+// Password validation - Contraseña segura
 export const isValidPassword = (password) => {
-  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+  // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,}$/;
   return passwordRegex.test(password);
+};
+
+// Password strength checker
+export const getPasswordStrength = (password) => {
+  if (!password) return { strength: 0, label: '', color: '' };
+  
+  let strength = 0;
+  const checks = {
+    length: password.length >= 8,
+    lowercase: /[a-z]/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    number: /\d/.test(password),
+    special: /[@$!%*?&]/.test(password)
+  };
+  
+  strength = Object.values(checks).filter(Boolean).length;
+  
+  if (strength <= 2) {
+    return { strength, label: 'Débil', color: 'red' };
+  } else if (strength === 3) {
+    return { strength, label: 'Regular', color: 'yellow' };
+  } else if (strength === 4) {
+    return { strength, label: 'Buena', color: 'blue' };
+  } else {
+    return { strength, label: 'Fuerte', color: 'green' };
+  }
+};
+
+// Get password requirements status
+export const getPasswordRequirements = (password) => {
+  return {
+    length: password.length >= 8,
+    lowercase: /[a-z]/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    number: /\d/.test(password),
+    special: /[@$!%*?&]/.test(password)
+  };
 };
 
 // Phone number validation (basic)
