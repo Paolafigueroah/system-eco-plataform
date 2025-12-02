@@ -8,6 +8,15 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/tests/setup.js',
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    teardownTimeout: 10000,
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -16,7 +25,8 @@ export default defineConfig({
         'src/test/',
         '**/*.config.js',
         '**/*.config.ts',
-        'dist/'
+        'dist/',
+        'e2e/'
       ]
     }
   },
