@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { Eye, Heart, MessageCircle, MapPin, Calendar, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -144,7 +145,14 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const isInactive = product.status === 'inactive';
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 ${!isAvailable ? 'opacity-75' : ''} relative`}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ scale: 1.02, y: -5 }}
+      whileTap={{ scale: 0.98 }}
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 ${!isAvailable ? 'opacity-75' : ''} relative`}
+    >
       {/* Status Badge */}
       {isSold && (
         <div className="absolute top-2 left-2 z-20 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg">
@@ -315,7 +323,7 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

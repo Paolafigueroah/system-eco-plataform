@@ -44,10 +44,66 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Estrategia de cache: Network First, fallback a Cache
+// Estrategia de cache mejorada: Stale-While-Revalidate para assets estáticos
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+  
+  // Estrategia para imágenes: Cache First
+  if (request.destination === 'image') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        if (cachedResponse) {
+          // Revalidar en background
+          fetch(request).then((networkResponse) => {
+            if (networkResponse.ok) {
+              caches.open(RUNTIME_CACHE).then((cache) => {
+                cache.put(request, networkResponse.clone());
+              });
+            }
+          }).catch(() => {});
+          return cachedResponse;
+        }
+        return fetch(request).then((networkResponse) => {
+          if (networkResponse.ok) {
+            const responseClone = networkResponse.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return networkResponse;
+        });
+      })
+    );
+    return;
+  }
+  
+  // Estrategia para API: Network First con timeout
+  if (url.pathname.startsWith('/rest/v1/') || url.pathname.startsWith('/realtime/')) {
+    event.respondWith(
+      Promise.race([
+        fetch(request),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        )
+      ]).then((networkResponse) => {
+        if (networkResponse.ok) {
+          const responseClone = networkResponse.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(request).then((cachedResponse) => {
+          return cachedResponse || new Response(JSON.stringify({ error: 'Offline' }), {
+            headers: { 'Content-Type': 'application/json' }
+          });
+        });
+      })
+    );
+    return;
+  }
 
   // Ignorar requests a Supabase y APIs externas
   if (url.origin.includes('supabase.co') || 

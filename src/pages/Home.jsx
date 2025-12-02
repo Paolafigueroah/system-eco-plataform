@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Users, Code, Gift, TrendingUp, MessageCircle, Award, Plus, Search, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -6,6 +7,7 @@ import { supabaseProductService } from '../services/supabaseProductService';
 import AddProductForm from '../components/AddProductForm';
 import ProductCard from '../components/ProductCard';
 import SearchProducts from '../components/SearchProducts';
+import SkeletonLoader from '../components/SkeletonLoader';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 import { logger } from '../utils/logger';
 
@@ -269,19 +271,38 @@ const Home = () => {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
-              <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Cargando productos...</p>
-            </div>
-          ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 xl:gap-8">
-              {products.map((product) => (
-                <ProductCard 
-                  key={product.id || `product-${Math.random()}`} 
-                  product={product} 
-                />
+              {Array.from({ length: 8 }).map((_, index) => (
+                <SkeletonLoader key={index} variant="card" />
               ))}
             </div>
+          ) : products.length > 0 ? (
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.1
+                  }
+                }
+              }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 xl:gap-8"
+            >
+              {products.map((product) => (
+                <motion.div
+                  key={product.id || `product-${Math.random()}`}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </motion.div>
           ) : (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">

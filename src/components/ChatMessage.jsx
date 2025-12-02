@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Check, CheckCheck } from 'lucide-react';
 import { chatUtils } from '../services/supabaseChatService';
 import { useTheme } from '../hooks/useTheme';
@@ -29,7 +30,13 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
   };
 
   return (
-    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`} data-message-id={message.id}>
+    <motion.div
+      initial={{ opacity: 0, x: isOwnMessage ? 50 : -50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+      data-message-id={message.id}
+    >
       <div className={`max-w-xs lg:max-w-md ${isOwnMessage ? 'order-2' : 'order-1'}`}>
         {/* Nombre del remitente (solo para mensajes de otros) */}
         {!isOwnMessage && (
@@ -73,7 +80,7 @@ const ChatMessage = ({ message, isOwnMessage, currentUser }) => {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

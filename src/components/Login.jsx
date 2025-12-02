@@ -666,4 +666,5 @@ const Login = ({ onSwitchToSignup }) => {
   );
 };
 
-export default Login;
+// Memoizar componente para evitar re-renders innecesarios
+export default React.memo(Login);

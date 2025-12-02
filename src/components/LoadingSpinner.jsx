@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const LoadingSpinner = ({ 
   size = 'md', 
@@ -16,9 +17,20 @@ const LoadingSpinner = ({
   const spinner = (
     <div className={`flex items-center justify-center ${className}`}>
       <div className="text-center">
-        <div className={`${sizeClasses[size]} border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto`}></div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className={`${sizeClasses[size]} border-2 border-blue-500 border-t-transparent rounded-full mx-auto`}
+        />
         {text && (
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{text}</p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="mt-2 text-sm text-gray-600 dark:text-gray-400"
+          >
+            {text}
+          </motion.p>
         )}
       </div>
     </div>

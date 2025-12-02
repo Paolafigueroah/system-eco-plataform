@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Heart, Bell, Search } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -10,11 +11,21 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, signOut } = useAuth();
 
   const toggleMenu = () => setIsOpen(!isOpen);
+
+  // Detectar scroll para animación
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -33,7 +44,14 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-50 shadow-sm">
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.3 }}
+        className={`bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 sticky top-0 z-50 ${
+          scrolled ? 'shadow-lg' : 'shadow-sm'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -176,8 +194,15 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Navigation */}
-          {isOpen && (
-            <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="lg:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden"
+              >
               <div className="px-2 pt-2 pb-3 space-y-1">
                 {/* Navigation Links */}
                 {navItems.map((item) => {
