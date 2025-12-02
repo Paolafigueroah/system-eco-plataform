@@ -10,9 +10,10 @@ CREATE OR REPLACE FUNCTION increment_views(product_id UUID)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 BEGIN
-    UPDATE products
+    UPDATE public.products
     SET views = views + 1
     WHERE id = product_id;
 END;

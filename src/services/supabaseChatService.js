@@ -61,17 +61,37 @@ export const supabaseChatService = {
       console.log('💬 Supabase: Creando conversación...', { buyerId, sellerId, productId });
       
       // Verificar si ya existe una conversación entre estos usuarios
-      const { data: existingConversation, error: checkError } = await supabase
+      // Usamos dos consultas separadas para evitar problemas con la sintaxis de .or()
+      const { data: existingConversation1, error: checkError1 } = await supabase
         .from('conversations')
         .select('*')
-        .or(`buyer_id.eq.${buyerId}.seller_id.eq.${sellerId},buyer_id.eq.${sellerId}.seller_id.eq.${buyerId}`)
+        .eq('buyer_id', buyerId)
+        .eq('seller_id', sellerId)
         .maybeSingle();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows found
-        throw checkError;
+      if (checkError1 && checkError1.code !== 'PGRST116') {
+        throw checkError1;
+      }
+
+      // Si no encontramos en la primera dirección, buscar en la dirección inversa
+      let existingConversation = existingConversation1;
+      if (!existingConversation) {
+        const { data: existingConversation2, error: checkError2 } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('buyer_id', sellerId)
+          .eq('seller_id', buyerId)
+          .maybeSingle();
+
+        if (checkError2 && checkError2.code !== 'PGRST116') {
+          throw checkError2;
+        }
+
+        existingConversation = existingConversation2;
       }
 
       if (existingConversation) {
+        console.log('💬 Conversación ya existe:', existingConversation.id);
         return supabaseUtils.handleSuccess(existingConversation, 'Conversación ya existe');
       }
 

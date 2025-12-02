@@ -157,7 +157,11 @@ $$ language 'plpgsql';
 
 -- Función para crear perfil automáticamente después del registro
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 BEGIN
     INSERT INTO public.profiles (id, display_name, email, bio, location)
     VALUES (
@@ -168,45 +172,49 @@ BEGIN
         'Colombia'
     )
     ON CONFLICT (id) DO UPDATE SET
-        display_name = COALESCE(NEW.raw_user_meta_data->>'display_name', profiles.display_name),
+        display_name = COALESCE(NEW.raw_user_meta_data->>'display_name', public.profiles.display_name),
         email = NEW.email;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- Función para actualizar contadores de helpful/not_helpful
 CREATE OR REPLACE FUNCTION update_review_helpful_count()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         IF NEW.helpful THEN
-            UPDATE reviews SET helpful = helpful + 1 WHERE id = NEW.review_id;
+            UPDATE public.reviews SET helpful = helpful + 1 WHERE id = NEW.review_id;
         ELSE
-            UPDATE reviews SET not_helpful = not_helpful + 1 WHERE id = NEW.review_id;
+            UPDATE public.reviews SET not_helpful = not_helpful + 1 WHERE id = NEW.review_id;
         END IF;
         RETURN NEW;
     ELSIF TG_OP = 'UPDATE' THEN
         IF OLD.helpful != NEW.helpful THEN
             IF OLD.helpful THEN
-                UPDATE reviews SET helpful = helpful - 1 WHERE id = NEW.review_id;
-                UPDATE reviews SET not_helpful = not_helpful + 1 WHERE id = NEW.review_id;
+                UPDATE public.reviews SET helpful = helpful - 1 WHERE id = NEW.review_id;
+                UPDATE public.reviews SET not_helpful = not_helpful + 1 WHERE id = NEW.review_id;
             ELSE
-                UPDATE reviews SET not_helpful = not_helpful - 1 WHERE id = NEW.review_id;
-                UPDATE reviews SET helpful = helpful + 1 WHERE id = NEW.review_id;
+                UPDATE public.reviews SET not_helpful = not_helpful - 1 WHERE id = NEW.review_id;
+                UPDATE public.reviews SET helpful = helpful + 1 WHERE id = NEW.review_id;
             END IF;
         END IF;
         RETURN NEW;
     ELSIF TG_OP = 'DELETE' THEN
         IF OLD.helpful THEN
-            UPDATE reviews SET helpful = helpful - 1 WHERE id = OLD.review_id;
+            UPDATE public.reviews SET helpful = helpful - 1 WHERE id = OLD.review_id;
         ELSE
-            UPDATE reviews SET not_helpful = not_helpful - 1 WHERE id = OLD.review_id;
+            UPDATE public.reviews SET not_helpful = not_helpful - 1 WHERE id = OLD.review_id;
         END IF;
         RETURN OLD;
     END IF;
     RETURN NULL;
 END;
-$$ language 'plpgsql';
+$$;
 
 -- =====================================================
 -- 4. CREAR TRIGGERS
