@@ -348,4 +348,5 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+// Memoizar componente para evitar re-renders innecesarios
+export default React.memo(Navbar);
