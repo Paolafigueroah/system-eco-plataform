@@ -74,13 +74,44 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         // El payload de Supabase Realtime tiene esta estructura:
         // { eventType: 'INSERT'|'UPDATE'|'DELETE', new: {...}, old: {...} }
         // O simplemente: { new: {...} } para INSERT
-        const newMsg = payload?.new || payload?.record;
+        // También puede venir como payload directamente si es el record
+        let newMsg = null;
         
-        if (!newMsg) {
-          logger.warn('⚠️ Payload sin datos de mensaje, recargando...');
-          if (isMounted) {
-            loadMessages();
+        if (payload) {
+          // Intentar diferentes estructuras de payload
+          newMsg = payload.new || payload.record || payload;
+          
+          // Si el payload tiene eventType, solo procesar INSERT
+          if (payload.eventType && payload.eventType !== 'INSERT') {
+            logger.chat('⚠️ Evento no es INSERT, ignorando', payload.eventType);
+            return;
           }
+          
+          // Verificar que tenga los campos necesarios de un mensaje
+          if (newMsg && !newMsg.id && !newMsg.conversation_id) {
+            // Puede ser que el payload esté anidado
+            newMsg = payload.new?.id ? payload.new : 
+                    payload.record?.id ? payload.record : 
+                    null;
+          }
+        }
+        
+        if (!newMsg || !newMsg.id) {
+          logger.warn('⚠️ Payload sin datos de mensaje válidos, recargando...', payload);
+          if (isMounted) {
+            // Recargar mensajes después de un pequeño delay para dar tiempo a que se guarde en la BD
+            setTimeout(() => {
+              if (isMounted) {
+                loadMessages();
+              }
+            }, 500);
+          }
+          return;
+        }
+        
+        // Verificar que el mensaje pertenece a esta conversación
+        if (newMsg.conversation_id !== conversation.id) {
+          logger.warn('⚠️ Mensaje de otra conversación, ignorando', newMsg.conversation_id);
           return;
         }
         
@@ -89,17 +120,30 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           // Verificar si el mensaje ya existe
           const exists = prev.some(msg => msg.id === newMsg.id);
           if (exists) {
-            logger.warn('⚠️ Mensaje duplicado detectado, ignorando');
+            logger.warn('⚠️ Mensaje duplicado detectado, ignorando', newMsg.id);
             return prev;
           }
           logger.chat('✅ Agregando nuevo mensaje a la lista', newMsg);
-          return [...prev, newMsg];
+          // Ordenar por fecha para mantener el orden correcto
+          const updated = [...prev, newMsg].sort((a, b) => {
+            const dateA = new Date(a.created_at || 0);
+            const dateB = new Date(b.created_at || 0);
+            return dateA - dateB;
+          });
+          return updated;
         });
         
         // Marcar como leído automáticamente si es un mensaje recibido
         if (newMsg.sender_id !== currentUser.id && isMounted) {
           chatService.markMessagesAsRead(conversation.id, currentUser.id);
         }
+        
+        // Scroll automático al nuevo mensaje
+        setTimeout(() => {
+          if (isMounted) {
+            scrollToBottom();
+          }
+        }, 100);
       });
       
       // Verificar estado de la suscripción
