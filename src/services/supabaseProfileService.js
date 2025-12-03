@@ -19,9 +19,7 @@ export const supabaseProfileService = {
           return await supabaseProfileService.createProfile(userId, {
             display_name: '',
             bio: '',
-            location: '',
-            phone: '',
-            website: ''
+            location: ''
           });
         }
         throw error;
@@ -47,8 +45,6 @@ export const supabaseProfileService = {
         email: user.email,
         bio: profileData.bio || '',
         location: profileData.location || '',
-        phone: profileData.phone || '',
-        website: profileData.website || '',
         avatar_url: profileData.avatar_url || '',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()

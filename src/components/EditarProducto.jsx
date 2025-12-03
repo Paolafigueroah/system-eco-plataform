@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseProductService } from '../services/supabaseProductService';
+import { supabaseImageService } from '../services/supabaseImageService';
 
 const EditarProducto = ({ product, onProductUpdated, onClose }) => {
   const { user } = useAuth();
@@ -26,8 +27,9 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
     precio: '',
     ubicacion: ''
   });
-  const [images, setImages] = useState([]);
-  const [imageFiles, setImageFiles] = useState([]);
+  const [images, setImages] = useState([]); // URLs de imágenes (existentes y nuevas)
+  const [imageFiles, setImageFiles] = useState([]); // Archivos nuevos a subir
+  const [existingImages, setExistingImages] = useState([]); // URLs de imágenes existentes
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -47,10 +49,11 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
       
       // Cargar imágenes existentes si las hay
       if (product.images) {
-        const imageNames = Array.isArray(product.images) 
-          ? product.images.filter(name => name.trim())
-          : product.images.split(',').filter(name => name.trim());
-        setImages(imageNames);
+        const imageUrls = Array.isArray(product.images) 
+          ? product.images.filter(url => url && url.trim())
+          : product.images.split(',').filter(url => url && url.trim());
+        setImages(imageUrls);
+        setExistingImages(imageUrls);
       }
     }
   }, [product]);
@@ -73,25 +76,48 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.filter(file => {
-      const isValidType = file.type.startsWith('image/');
-      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
-      return isValidType && isValidSize;
+    
+    // Validar archivos usando el servicio
+    const validFiles = [];
+    const errors = [];
+    
+    files.forEach(file => {
+      const validation = supabaseImageService.validateImageFile(file);
+      if (validation.isValid) {
+        validFiles.push(file);
+      } else {
+        errors.push(`${file.name}: ${validation.error}`);
+      }
     });
 
-    if (validFiles.length !== files.length) {
+    if (errors.length > 0) {
       setErrors(prev => ({
         ...prev,
-        images: 'Algunos archivos no son válidos. Solo se permiten imágenes de hasta 5MB.'
+        images: errors.join('\n')
+      }));
+      return;
+    }
+
+    // Limitar a 5 imágenes en total
+    const totalImages = images.length + validFiles.length;
+    if (totalImages > 5) {
+      const allowedNew = 5 - images.length;
+      validFiles.splice(allowedNew);
+      setErrors(prev => ({
+        ...prev,
+        images: `Solo puedes tener máximo 5 imágenes. Se agregarán ${allowedNew} imagen(es).`
       }));
     }
 
-    const newImages = validFiles.map(file => ({
-      name: file.name,
-      url: URL.createObjectURL(file)
+    // Crear previews de las nuevas imágenes
+    const newImagePreviews = validFiles.map(file => ({
+      file: file,
+      url: URL.createObjectURL(file),
+      isNew: true
     }));
 
-    setImages(prev => [...prev, ...newImages].slice(0, 5));
+    // Agregar nuevas imágenes a la lista
+    setImages(prev => [...prev, ...newImagePreviews].slice(0, 5));
     setImageFiles(prev => [...prev, ...validFiles].slice(0, 5));
     
     if (errors.images) {
@@ -100,11 +126,40 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
         images: ''
       }));
     }
+    
+    // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
+    e.target.value = '';
   };
 
   const removeImage = (index) => {
+    const imageToRemove = images[index];
+    
+    // Si es una imagen nueva (tiene file), revocar la URL del objeto
+    if (imageToRemove.isNew && imageToRemove.url) {
+      URL.revokeObjectURL(imageToRemove.url);
+    }
+    
+    // Remover de la lista de imágenes
     setImages(prev => prev.filter((_, i) => i !== index));
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    
+    // Remover de la lista de archivos si es un archivo nuevo
+    if (imageToRemove.isNew) {
+      setImageFiles(prev => {
+        const newFiles = [...prev];
+        const fileIndex = newFiles.findIndex((_, i) => {
+          // Encontrar el índice del archivo correspondiente
+          let previewIndex = 0;
+          for (let j = 0; j < index; j++) {
+            if (images[j].isNew) previewIndex++;
+          }
+          return i === previewIndex;
+        });
+        if (fileIndex !== -1) {
+          newFiles.splice(fileIndex, 1);
+        }
+        return newFiles;
+      });
+    }
   };
 
   const validateForm = () => {
@@ -130,9 +185,7 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
       newErrors.precio = 'El precio debe ser un número válido';
     }
 
-    if (images.length === 0) {
-      newErrors.images = 'Al menos una imagen es requerida';
-    }
+    // Las imágenes no son obligatorias al editar (puede mantener las existentes)
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -155,8 +208,36 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
     setErrors({});
 
     try {
-      // Usar servicio de Supabase
-      const service = supabaseProductService;
+      // Separar imágenes existentes de las nuevas
+      const existingImageUrls = images.filter(img => !img.isNew).map(img => typeof img === 'string' ? img : img.url);
+      const newImageFiles = images.filter(img => img.isNew && img.file).map(img => img.file);
+
+      // Subir nuevas imágenes si las hay
+      let allImageUrls = [...existingImageUrls];
+      
+      if (newImageFiles.length > 0) {
+        const uploadResult = await supabaseImageService.uploadMultipleImages(
+          newImageFiles,
+          user.id,
+          product.id
+        );
+        
+        if (uploadResult.success) {
+          const newUrls = uploadResult.data.uploaded.map(img => img.url);
+          allImageUrls = [...existingImageUrls, ...newUrls];
+        } else {
+          setErrors({ submit: 'Error subiendo imágenes: ' + uploadResult.error });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Si no hay imágenes, mantener las existentes del producto
+      if (allImageUrls.length === 0 && product.images) {
+        allImageUrls = Array.isArray(product.images) 
+          ? product.images.filter(url => url && url.trim())
+          : product.images.split(',').filter(url => url && url.trim());
+      }
 
       // Datos para Supabase
       const productData = {
@@ -167,12 +248,10 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
         transaction_type: formData.tipoTransaccion,
         price: formData.precio ? parseFloat(formData.precio) : 0,
         location: formData.ubicacion,
-        images: imageFiles.length > 0 
-          ? imageFiles.map(file => file.name) 
-          : (Array.isArray(product.images) ? product.images : (product.images || '').split(',').filter(Boolean))
+        images: allImageUrls
       };
 
-      const result = await service.updateProduct(product.id, productData);
+      const result = await supabaseProductService.updateProduct(product.id, productData);
 
       if (result.success) {
         setSuccess(true);
@@ -405,22 +484,34 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
             {/* Vista previa de imágenes */}
             {images.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                {images.map((image, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={image.url || image}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                ))}
+                {images.map((image, index) => {
+                  const imageUrl = typeof image === 'string' ? image : (image.url || image);
+                  return (
+                    <div key={index} className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                        onError={(e) => {
+                          e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" font-family="sans-serif" font-size="14" dy="10.5" font-weight="bold" x="50%25" y="50%25" text-anchor="middle"%3EImagen%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                        title="Eliminar imagen"
+                      >
+                        <X size={12} />
+                      </button>
+                      {image.isNew && (
+                        <span className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-xs text-center py-0.5">
+                          Nueva
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

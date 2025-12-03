@@ -83,11 +83,35 @@ export const supabaseProductService = {
       
       console.log('📦 Supabase: Obteniendo producto...', productId);
       
-      const { data, error } = await supabase
+      // Obtener producto con conteo de favoritos
+      const { data: productData, error: productError } = await supabase
         .from('products')
         .select('*')
         .eq('id', productId)
         .single();
+
+      if (productError) {
+        console.error('📦 Supabase: Error en consulta:', productError);
+        throw productError;
+      }
+
+      // Obtener conteo de favoritos
+      const { count: favoritesCount, error: favoritesError } = await supabase
+        .from('favorites')
+        .select('*', { count: 'exact', head: true })
+        .eq('product_id', productId);
+
+      if (favoritesError) {
+        console.warn('📦 Supabase: Error obteniendo conteo de favoritos:', favoritesError);
+      }
+
+      // Agregar el conteo de favoritos al producto
+      const data = {
+        ...productData,
+        favorites: favoritesCount || 0
+      };
+      
+      const error = null;
 
       console.log('📦 Supabase: Respuesta de la consulta:', { data, error });
 

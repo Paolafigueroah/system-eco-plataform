@@ -11,8 +11,6 @@ import {
   Heart, 
   Eye, 
   Award,
-  Phone,
-  Globe,
   Camera,
   Upload
 } from 'lucide-react';
@@ -35,9 +33,7 @@ const UserProfile = ({ userId, onClose }) => {
   const [editData, setEditData] = useState({
     display_name: '',
     bio: '',
-    location: '',
-    phone: '',
-    website: ''
+    location: ''
   });
 
   useEffect(() => {
@@ -56,9 +52,7 @@ const UserProfile = ({ userId, onClose }) => {
         setEditData({
           display_name: result.data.display_name || '',
           bio: result.data.bio || '',
-          location: result.data.location || '',
-          phone: result.data.phone || '',
-          website: result.data.website || ''
+          location: result.data.location || ''
         });
       }
     } catch (error) {
@@ -96,47 +90,9 @@ const UserProfile = ({ userId, onClose }) => {
 
   const handleSave = async () => {
     try {
-      // Normalizar la URL del sitio web: agregar https:// si no tiene protocolo
-      const normalizedData = { ...editData };
-      if (normalizedData.website && normalizedData.website.trim()) {
-        const website = normalizedData.website.trim();
-        
-        // Validar y normalizar URL
-        try {
-          let normalizedUrl = website;
-          
-          // Agregar protocolo si falta
-          if (!website.match(/^https?:\/\//i)) {
-            normalizedUrl = `https://${website}`;
-          }
-          
-          // Validar formato de URL
-          const urlObj = new URL(normalizedUrl);
-          
-          // Validar que sea http o https
-          if (!['http:', 'https:'].includes(urlObj.protocol)) {
-            throw new Error('El protocolo debe ser http:// o https://');
-          }
-          
-          // Validar que el dominio no sea localhost o IP privada (opcional, para producción)
-          if (import.meta.env.PROD) {
-            const hostname = urlObj.hostname.toLowerCase();
-            if (hostname === 'localhost' || hostname.startsWith('127.') || hostname.startsWith('192.168.')) {
-              throw new Error('Las URLs locales no están permitidas en producción');
-            }
-          }
-          
-          normalizedData.website = normalizedUrl;
-        } catch (error) {
-          alert('URL inválida. Por favor ingresa una URL válida (ej: https://ejemplo.com)');
-          return;
-        }
-      }
-      
-      const result = await supabaseProfileService.updateProfile(userId, normalizedData);
+      const result = await supabaseProfileService.updateProfile(userId, editData);
       if (result.success) {
-        setProfile({ ...profile, ...normalizedData });
-        setEditData(normalizedData); // Actualizar también el estado local
+        setProfile({ ...profile, ...editData });
         setEditing(false);
       } else {
         alert('Error actualizando perfil: ' + result.error);
@@ -151,9 +107,7 @@ const UserProfile = ({ userId, onClose }) => {
     setEditData({
       display_name: profile?.display_name || '',
       bio: profile?.bio || '',
-      location: profile?.location || '',
-      phone: profile?.phone || '',
-      website: profile?.website || ''
+      location: profile?.location || ''
     });
     setEditing(false);
   };
@@ -247,49 +201,18 @@ const UserProfile = ({ userId, onClose }) => {
                       placeholder="Cuéntanos sobre ti..."
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Ubicación
-                      </label>
-                      <input
-                        type="text"
-                        name="location"
-                        value={editData.location}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Ciudad, País"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Teléfono
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={editData.phone}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="+1 234 567 8900"
-                      />
-                    </div>
-                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Sitio web
+                      Ubicación
                     </label>
                     <input
                       type="text"
-                      name="website"
-                      value={editData.website}
+                      name="location"
+                      value={editData.location}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="https://tu-sitio.com o tu-sitio.com"
+                      placeholder="Ciudad, País"
                     />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Puedes ingresar con o sin https://
-                    </p>
                   </div>
                   <div className="flex space-x-3">
                     <button
@@ -326,25 +249,6 @@ const UserProfile = ({ userId, onClose }) => {
                       <div className="flex items-center text-gray-600 dark:text-gray-400">
                         <MapPin size={16} className="mr-2" />
                         <span>{profile.location}</span>
-                      </div>
-                    )}
-                    {profile?.phone && (
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Phone size={16} className="mr-2" />
-                        <span>{profile.phone}</span>
-                      </div>
-                    )}
-                    {profile?.website && (
-                      <div className="flex items-center text-gray-600 dark:text-gray-400">
-                        <Globe size={16} className="mr-2" />
-                        <a 
-                          href={profile.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-emerald-600 hover:text-emerald-700"
-                        >
-                          {profile.website}
-                        </a>
                       </div>
                     )}
                     <div className="flex items-center text-gray-600 dark:text-gray-400">

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, Heart, MessageCircle, MapPin, Calendar, User, Phone, Mail, Share2, Flag, Star, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { supabaseProductService } from '../services/supabaseProductService';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
+import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
 import { supabaseReviewService } from '../services/supabaseReviewService';
 import { useAuth } from '../hooks/useAuth';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
@@ -20,8 +21,10 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
+  const favoriteSubscriptionRef = useRef(null);
 
   // Función para obtener el servicio correcto
   const getProductService = () => {
@@ -50,6 +53,7 @@ const ProductDetail = () => {
         if (result.success && result.data) {
           logger.log('Producto cargado exitosamente:', result.data);
           setProduct(result.data);
+          setFavoritesCount(result.data.favorites || 0);
           // Incrementar vistas del producto
           await productService.incrementViews(id);
         } else {
@@ -71,7 +75,7 @@ const ProductDetail = () => {
     }
   }, [id]);
 
-  // Verificar si el producto está en favoritos
+  // Verificar si el producto está en favoritos y suscribirse a cambios
   useEffect(() => {
     const checkFavorite = async () => {
       if (user && product) {
@@ -84,12 +88,43 @@ const ProductDetail = () => {
             setIsFavorite(result.data);
           }
         } catch (error) {
-          console.error('Error verificando favorito:', error);
+          logger.error('Error verificando favorito:', error);
         }
       }
     };
 
     checkFavorite();
+
+    // Suscribirse a cambios en favoritos para este producto
+    if (user && product) {
+      const subscription = supabaseRealtimeService.subscribeToFavorites(user.id, async (payload) => {
+        // Verificar si el cambio es para este producto
+        if (payload.new?.product_id === product.id || payload.old?.product_id === product.id) {
+          logger.log('Favorito actualizado en tiempo real para este producto:', payload);
+          // Recargar estado del favorito
+          checkFavorite();
+          
+          // Actualizar contador de favoritos
+          const favoritesService = getFavoritesService();
+          if (favoritesService) {
+            const countResult = await favoritesService.getProductFavoriteCount(product.id);
+            if (countResult.success) {
+              setFavoritesCount(countResult.data);
+              setProduct(prev => prev ? { ...prev, favorites: countResult.data } : null);
+            }
+          }
+        }
+      });
+
+      favoriteSubscriptionRef.current = subscription;
+
+      return () => {
+        if (favoriteSubscriptionRef.current) {
+          supabaseRealtimeService.unsubscribe(favoriteSubscriptionRef.current);
+          favoriteSubscriptionRef.current = null;
+        }
+      };
+    }
   }, [user, product]);
 
   const formatPrice = (price) => {
@@ -185,9 +220,24 @@ const ProductDetail = () => {
 
       const result = await favoritesService.toggleFavorite(product.id);
       if (result.success) {
-        setIsFavorite(!isFavorite);
+        // Verificar nuevamente el estado para asegurar sincronización
+        const checkResult = await favoritesService.isFavorite(product.id);
+        if (checkResult.success) {
+          setIsFavorite(checkResult.data);
+        } else {
+          // Fallback: usar el estado opuesto si la verificación falla
+          setIsFavorite(!isFavorite);
+        }
+        
+        // Actualizar contador de favoritos
+        const countResult = await favoritesService.getProductFavoriteCount(product.id);
+        if (countResult.success) {
+          setFavoritesCount(countResult.data);
+          // Actualizar también el producto en el estado
+          setProduct(prev => prev ? { ...prev, favorites: countResult.data } : null);
+        }
       } else {
-        console.error('Error:', result.error);
+        logger.error('Error:', result.error);
         alert(result.error);
       }
     } catch (error) {
@@ -524,7 +574,7 @@ const ProductDetail = () => {
                 </div>
                 <div className="flex items-center">
                   <Heart size={16} className="mr-1" />
-                  <span>{product.favorites || 0} favoritos</span>
+                  <span>{favoritesCount} favorito{favoritesCount !== 1 ? 's' : ''}</span>
                 </div>
               </div>
 

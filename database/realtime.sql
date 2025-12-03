@@ -12,13 +12,16 @@ ALTER PUBLICATION supabase_realtime ADD TABLE conversations;
 -- Habilitar Realtime para la tabla message_reads (opcional, para actualizaciones de estado)
 ALTER PUBLICATION supabase_realtime ADD TABLE message_reads;
 
+-- Habilitar Realtime para la tabla favorites (para actualizaciones en tiempo real)
+ALTER PUBLICATION supabase_realtime ADD TABLE favorites;
+
 -- Verificar que las tablas están en la publicación
 SELECT 
     schemaname,
     tablename
 FROM pg_publication_tables
 WHERE pubname = 'supabase_realtime'
-    AND tablename IN ('messages', 'conversations', 'message_reads');
+    AND tablename IN ('messages', 'conversations', 'message_reads', 'favorites');
 
 -- Nota: Si las tablas no aparecen, ejecuta:
 -- ALTER PUBLICATION supabase_realtime ADD TABLE messages;

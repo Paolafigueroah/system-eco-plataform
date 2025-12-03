@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Heart, MessageCircle, MapPin, Calendar, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
+import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
 import { getCategoryIcon, getCategoryIconColor } from '../utils/categoryIcons';
 import { logger } from '../utils/logger';
 
@@ -19,6 +20,7 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const favoriteSubscriptionRef = useRef(null);
 
   // Memoizar funciones para evitar recrearlas en cada render
   const formatPrice = useCallback((price) => {
@@ -35,7 +37,7 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
     });
   }, []);
 
-  // Verificar si el producto está en favoritos
+  // Verificar si el producto está en favoritos y suscribirse a cambios
   useEffect(() => {
     const checkFavorite = async () => {
       if (user && product) {
@@ -51,6 +53,27 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
     };
 
     checkFavorite();
+
+    // Suscribirse a cambios en favoritos para este producto
+    if (user && product) {
+      const subscription = supabaseRealtimeService.subscribeToFavorites(user.id, (payload) => {
+        // Verificar si el cambio es para este producto
+        if (payload.new?.product_id === product.id || payload.old?.product_id === product.id) {
+          logger.log('Favorito actualizado en tiempo real para este producto:', payload);
+          // Recargar estado del favorito
+          checkFavorite();
+        }
+      });
+
+      favoriteSubscriptionRef.current = subscription;
+
+      return () => {
+        if (favoriteSubscriptionRef.current) {
+          supabaseRealtimeService.unsubscribe(favoriteSubscriptionRef.current);
+          favoriteSubscriptionRef.current = null;
+        }
+      };
+    }
   }, [user, product]);
 
   // Manejar toggle de favorito
@@ -67,12 +90,23 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
     try {
       const result = await supabaseFavoritesService.toggleFavorite(product.id);
       if (result.success) {
-        const newFavoriteState = !isFavorite;
-        setIsFavorite(newFavoriteState);
-        
-        // Si se removió de favoritos y hay callback, notificar
-        if (!newFavoriteState && onProductRemoved) {
-          onProductRemoved(product.id);
+        // Verificar nuevamente el estado para asegurar sincronización
+        const checkResult = await supabaseFavoritesService.isFavorite(product.id);
+        if (checkResult.success) {
+          setIsFavorite(checkResult.data);
+          
+          // Si se removió de favoritos y hay callback, notificar
+          if (!checkResult.data && onProductRemoved) {
+            onProductRemoved(product.id);
+          }
+        } else {
+          // Fallback: usar el estado opuesto si la verificación falla
+          const newFavoriteState = !isFavorite;
+          setIsFavorite(newFavoriteState);
+          
+          if (!newFavoriteState && onProductRemoved) {
+            onProductRemoved(product.id);
+          }
         }
       } else {
         logger.error('Error:', result.error);
