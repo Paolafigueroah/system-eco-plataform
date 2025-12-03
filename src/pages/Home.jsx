@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Users, Code, Gift, TrendingUp, MessageCircle, Award, Plus, Search, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseProductService } from '../services/supabaseProductService';
@@ -13,12 +13,13 @@ import { logger } from '../utils/logger';
 
 const Home = () => {
   const { user, isAuthenticated } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 
   const features = [
     {
@@ -105,6 +106,14 @@ const Home = () => {
       setLoading(false);
     }
   }, [selectedCategory, searchTerm]);
+
+  // Leer parámetro de búsqueda de la URL al cargar
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchTerm(urlSearch);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadProducts();

@@ -11,6 +11,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,6 +34,21 @@ const Navbar = () => {
       navigate('/');
     } catch (error) {
       logger.error('Error al cerrar sesión:', error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      setShowSearch(false);
+      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm('');
+    }
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
     }
   };
 
@@ -322,19 +338,32 @@ const Navbar = () => {
                 <X size={24} />
               </button>
             </div>
-            <div className="p-6">
+            <form onSubmit={handleSearch} className="p-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={handleSearchKeyPress}
                   placeholder="Buscar productos..."
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  autoFocus
                 />
               </div>
-              <div className="mt-4 text-center text-gray-500 dark:text-gray-400">
-                <p>Funcionalidad de búsqueda en desarrollo</p>
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Presiona Enter para buscar
+                </p>
+                <button
+                  type="submit"
+                  disabled={!searchTerm.trim()}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Buscar
+                </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
