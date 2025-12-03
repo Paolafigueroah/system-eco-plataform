@@ -368,12 +368,13 @@ const EditarProducto = ({ product, onProductUpdated, onClose }) => {
               >
                 <option value="">Selecciona una categoría</option>
                 <option value="Electrónica">Electrónica</option>
-                <option value="Hogar">Hogar</option>
-                <option value="Ropa">Ropa</option>
-                <option value="Deportes">Deportes</option>
-                <option value="Libros">Libros</option>
-                <option value="Juguetes">Juguetes</option>
-                <option value="Otros">Otros</option>
+                <option value="Ropa y accesorios">Ropa y accesorios</option>
+                <option value="Libros y educación">Libros y educación</option>
+                <option value="Hogar y jardín">Hogar y jardín</option>
+                <option value="Juguetes y entretenimiento">Juguetes y entretenimiento</option>
+                <option value="Deportes y recreación">Deportes y recreación</option>
+                <option value="Arte y manualidades">Arte y manualidades</option>
+                <option value="Otros productos">Otros productos</option>
               </select>
               {errors.categoria && <p className="text-red-500 text-sm mt-1">{errors.categoria}</p>}
             </div>
