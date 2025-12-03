@@ -20,6 +20,43 @@ export const supabaseProductService = {
    * @example
    * const result = await supabaseProductService.getAllProducts({ category: 'electronics' });
    */
+  // Función helper para agregar conteo de favoritos a productos
+  addFavoritesCountToProducts: async (products) => {
+    if (!products || products.length === 0) return products;
+    
+    try {
+      // Obtener conteos de favoritos para todos los productos de una vez
+      const productIds = products.map(p => p.id);
+      
+      const { data: favoritesData, error: favoritesError } = await supabase
+        .from('favorites')
+        .select('product_id')
+        .in('product_id', productIds);
+
+      if (favoritesError) {
+        console.warn('⚠️ Error obteniendo conteos de favoritos:', favoritesError);
+        return products.map(p => ({ ...p, favorites: 0 }));
+      }
+
+      // Contar favoritos por producto
+      const favoritesCount = {};
+      if (favoritesData) {
+        favoritesData.forEach(fav => {
+          favoritesCount[fav.product_id] = (favoritesCount[fav.product_id] || 0) + 1;
+        });
+      }
+
+      // Agregar conteo a cada producto
+      return products.map(product => ({
+        ...product,
+        favorites: favoritesCount[product.id] || 0
+      }));
+    } catch (error) {
+      console.warn('⚠️ Error agregando conteos de favoritos:', error);
+      return products.map(p => ({ ...p, favorites: 0 }));
+    }
+  },
+
   getAllProducts: async (filters = {}) => {
     try {
       console.log('📦 Supabase: Obteniendo productos...', filters);
@@ -48,7 +85,10 @@ export const supabaseProductService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Obtener productos');
+      // Agregar conteo de favoritos
+      const productsWithFavorites = await supabaseProductService.addFavoritesCountToProducts(data || []);
+
+      return supabaseUtils.handleSuccess(productsWithFavorites, 'Obtener productos');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener productos');
     }
@@ -484,7 +524,10 @@ export const supabaseProductService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Obtener productos por categoría');
+      // Agregar conteo de favoritos
+      const productsWithFavorites = await supabaseProductService.addFavoritesCountToProducts(data || []);
+
+      return supabaseUtils.handleSuccess(productsWithFavorites, 'Obtener productos por categoría');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener productos por categoría');
     }
@@ -504,7 +547,10 @@ export const supabaseProductService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Buscar productos');
+      // Agregar conteo de favoritos
+      const productsWithFavorites = await supabaseProductService.addFavoritesCountToProducts(data || []);
+
+      return supabaseUtils.handleSuccess(productsWithFavorites, 'Buscar productos');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Buscar productos');
     }

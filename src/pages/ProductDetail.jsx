@@ -405,13 +405,13 @@ const ProductDetail = () => {
           {/* Imagen del producto */}
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-              <div className="relative h-96 bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700">
+              <div className="relative min-h-[500px] bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
                 {productImages.length > 0 ? (
                   <>
                     <img
                       src={productImages[currentImageIndex]}
                       alt={product.title || 'Imagen del producto'}
-                      className="w-full h-full object-cover cursor-pointer"
+                      className="w-full h-auto max-h-[600px] object-contain cursor-pointer"
                       loading="lazy"
                       decoding="async"
                       onClick={() => setShowImageModal(true)}
