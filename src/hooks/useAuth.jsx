@@ -54,6 +54,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const mapSessionUser = (sessionUser) => ({
+    ...sessionUser,
+    display_name: sessionUser?.user_metadata?.display_name || sessionUser?.email || 'Usuario',
+    displayName: sessionUser?.user_metadata?.display_name || sessionUser?.email || 'Usuario'
+  });
+
   useEffect(() => {
     // Escuchar cambios en el estado de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -61,14 +67,28 @@ export const AuthProvider = ({ children }) => {
         console.log('🔐 Auth state changed:', event, session?.user?.email);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          // Usar directamente los datos de la sesión para evitar llamadas adicionales
-          setUser(session.user);
+          const enrichedUser = await supabaseAuthService.getCurrentUser();
+          if (enrichedUser.success && enrichedUser.data) {
+            setUser({
+              ...session.user,
+              ...enrichedUser.data
+            });
+          } else {
+            setUser(mapSessionUser(session.user));
+          }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
         } else if (event === 'INITIAL_SESSION') {
-          // Solo en la carga inicial
           if (session?.user) {
-            setUser(session.user);
+            const enrichedUser = await supabaseAuthService.getCurrentUser();
+            if (enrichedUser.success && enrichedUser.data) {
+              setUser({
+                ...session.user,
+                ...enrichedUser.data
+              });
+            } else {
+              setUser(mapSessionUser(session.user));
+            }
           } else {
             setUser(null);
           }

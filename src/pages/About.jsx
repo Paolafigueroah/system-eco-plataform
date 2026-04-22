@@ -77,7 +77,7 @@ const About = () => {
       {/* Header Section */}
       <section className="text-center py-16">
         <h1 className="text-4xl md:text-5xl font-bold text-base-content mb-6">
-          BioConnect - Plataforma de Economía Circular
+          System Eco - Plataforma de Economía Circular
         </h1>
         <p className="text-xl text-base-content/80 max-w-3xl mx-auto">
           Una plataforma web que permite a usuarios y empresas intercambiar, vender o donar productos usados 

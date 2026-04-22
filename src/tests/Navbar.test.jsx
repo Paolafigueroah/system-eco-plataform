@@ -21,7 +21,7 @@ describe('Navbar', () => {
 
   it('debe renderizar el logo', () => {
     renderWithProviders(<Navbar />);
-    const logo = screen.getByAltText('BioConnect Logo');
+    const logo = screen.getByAltText('System Eco logo');
     expect(logo).toBeInTheDocument();
   });
 

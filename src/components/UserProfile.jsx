@@ -49,6 +49,10 @@ const UserProfile = ({ userId, onClose }) => {
       const result = await supabaseProfileService.getProfile(userId);
       if (result.success) {
         setProfile(result.data);
+        setStats((prev) => ({
+          ...prev,
+          memberSince: result.data?.created_at || null
+        }));
         setEditData({
           display_name: result.data.display_name || '',
           bio: result.data.bio || '',
@@ -72,12 +76,12 @@ const UserProfile = ({ userId, onClose }) => {
         const totalViews = result.data.reduce((sum, product) => sum + (product.views || 0), 0);
         const totalFavorites = result.data.reduce((sum, product) => sum + (product.favorites || 0), 0);
         
-        setStats({
+        setStats((prev) => ({
+          ...prev,
           totalProducts: result.data.length,
           totalViews,
-          totalFavorites,
-          memberSince: result.data[0]?.created_at || new Date().toISOString()
-        });
+          totalFavorites
+        }));
       }
     } catch (error) {
       console.error('Error cargando productos del usuario:', error);
@@ -121,7 +125,9 @@ const UserProfile = ({ userId, onClose }) => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'Fecha no disponible';
     const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'Fecha no disponible';
     return date.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',

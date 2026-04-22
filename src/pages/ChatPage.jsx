@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useTheme } from '../hooks/useTheme';
 import Chat from '../components/Chat';
 import { migrationConfig } from '../config/migrationConfig';
 
 const ChatPage = () => {
   const { user } = useAuth();
-  const { theme } = useTheme();
   const [showChat, setShowChat] = useState(false);
 
   if (!user) {
@@ -38,7 +36,7 @@ const ChatPage = () => {
             </div>
             <button
               onClick={() => setShowChat(!showChat)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 mt-4 md:mt-0 flex items-center space-x-2"
+              className="btn-secondary mt-4 md:mt-0 flex items-center space-x-2"
             >
               <MessageCircle className="h-5 w-5" />
               <span>{showChat ? 'Cerrar Chat' : 'Abrir Chat'}</span>
@@ -72,36 +70,37 @@ const ChatPage = () => {
           </div>
         )}
 
-        {/* Información del chat */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
-            <MessageCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Chat en Tiempo Real</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Mensajes instantáneos con actualizaciones en tiempo real usando Supabase
-            </p>
-          </div>
-
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
-            <div className="h-12 w-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-xl font-bold">🔒</span>
+        {!showChat && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
+              <MessageCircle className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Chat en Tiempo Real</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Mensajes instantáneos con actualizaciones en tiempo real usando Supabase
+              </p>
             </div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Conversaciones Privadas</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Solo tú y el destinatario pueden ver vuestros mensajes
-            </p>
-          </div>
 
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
-            <div className="h-12 w-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-xl font-bold">📱</span>
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
+              <div className="h-12 w-12 bg-sky-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl font-bold">🔒</span>
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Conversaciones Privadas</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Solo tú y el destinatario pueden ver vuestros mensajes
+              </p>
             </div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Diseño Responsive</h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Funciona perfectamente en dispositivos móviles y de escritorio
-            </p>
+
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
+              <div className="h-12 w-12 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-xl font-bold">📱</span>
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Diseño Responsive</h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Funciona perfectamente en dispositivos móviles y de escritorio
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Chat Modal para pantallas pequeñas */}
