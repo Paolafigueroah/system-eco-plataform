@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Heart, MessageCircle, MapPin, Calendar, Edit, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseFavoritesService } from '../services/supabaseFavoritesService';
 import { supabaseRealtimeService } from '../services/supabaseRealtimeService';
@@ -18,6 +18,7 @@ import { logger } from '../utils/logger';
  */
 const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const favoriteSubscriptionRef = useRef(null);
@@ -177,6 +178,33 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
   const isAvailable = product.status === 'active' || !product.status;
   const isSold = product.status === 'sold';
   const isInactive = product.status === 'inactive';
+  const sellerId = product.seller_id || product.user_id;
+
+  const handleShareToChat = () => {
+    if (!user) {
+      alert('Debes iniciar sesión para compartir productos por chat');
+      return;
+    }
+    if (!sellerId || sellerId === user.id) {
+      navigate(`/product/${product.id}`);
+      return;
+    }
+    navigate('/chat', {
+      state: {
+        productShare: {
+          recipientId: sellerId,
+          productId: product.id,
+          product: {
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            category: product.category,
+            images: product.images
+          }
+        }
+      }
+    });
+  };
 
   return (
     <motion.div
@@ -343,6 +371,16 @@ const ProductCard = ({ product, onEdit, onDelete, onProductRemoved }) => {
           >
             <MessageCircle size={16} aria-hidden="true" />
           </Link>
+          {!isOwner && (
+            <button
+              onClick={handleShareToChat}
+              className="bg-emerald-600 text-white p-2 rounded-lg hover:bg-emerald-700 transition-colors duration-200"
+              title="Compartir producto por chat"
+              aria-label="Compartir producto por chat"
+            >
+              <MessageCircle size={16} aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {/* Seller Info */}

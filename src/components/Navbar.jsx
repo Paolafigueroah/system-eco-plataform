@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Heart, Bell, Search } from 'lucide-react';
+import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Heart, Bell, Search, Building2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import ToggleTheme from './ToggleTheme';
 import NotificationCenter from './NotificationCenter';
@@ -56,6 +56,7 @@ const Navbar = () => {
     { path: '/', label: 'Inicio', icon: Home },
     { path: '/about', label: 'Acerca', icon: Info },
     { path: '/contact', label: 'Contacto', icon: Mail },
+    { path: '/empresas', label: 'Empresas', icon: Building2 },
   ];
 
   return (
@@ -150,6 +151,13 @@ const Navbar = () => {
                       title="Favoritos"
                     >
                       <Heart size={20} />
+                    </Link>
+                    <Link
+                      to="/empresas"
+                      className="p-2 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors duration-200"
+                      title="Panel empresas"
+                    >
+                      <Building2 size={20} />
                     </Link>
                     <button
                       onClick={() => setShowNotifications(true)}

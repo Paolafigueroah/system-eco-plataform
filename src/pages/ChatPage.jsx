@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Chat from '../components/Chat';
 import { migrationConfig } from '../config/migrationConfig';
 
 const ChatPage = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [showChat, setShowChat] = useState(false);
+  const initialProductShare = location.state?.productShare || null;
 
   if (!user) {
     return (
@@ -66,7 +69,7 @@ const ChatPage = () => {
           </div>
         ) : (
           <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-[70vh] min-h-[560px]">
-            <Chat onClose={() => setShowChat(false)} />
+            <Chat onClose={() => setShowChat(false)} initialProductShare={initialProductShare} />
           </div>
         )}
 
@@ -117,7 +120,11 @@ const ChatPage = () => {
               </button>
             </div>
             <div className="flex-1 h-[calc(100vh-80px)]">
-              <Chat onClose={() => setShowChat(false)} useFallback={migrationConfig.databaseType !== 'supabase'} />
+              <Chat
+                onClose={() => setShowChat(false)}
+                useFallback={migrationConfig.databaseType !== 'supabase'}
+                initialProductShare={initialProductShare}
+              />
             </div>
           </div>
         </div>

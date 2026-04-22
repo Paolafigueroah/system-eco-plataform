@@ -7,6 +7,7 @@ import { supabase, supabaseUtils } from '../supabaseConfig.js';
  * @namespace supabaseChatService
  */
 export const supabaseChatService = {
+  PRODUCT_SHARE_PREFIX: 'PRODUCT_SHARE::',
   /**
    * Crear una nueva conversación entre comprador y vendedor
    * 
@@ -281,6 +282,33 @@ export const supabaseChatService = {
     }
   },
 
+  // Compartir un producto directamente en una conversación
+  sendProductShare: async (conversationId, senderId, product) => {
+    try {
+      if (!product?.id) {
+        return supabaseUtils.handleError(
+          new Error('Producto inválido para compartir'),
+          'Compartir producto'
+        );
+      }
+
+      const payload = {
+        productId: product.id,
+        title: product.title || 'Producto',
+        price: Number(product.price || 0),
+        image: Array.isArray(product.images) ? product.images[0] : product.images || '',
+        category: product.category || 'Sin categoría'
+      };
+
+      const encodedPayload = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const content = `${supabaseChatService.PRODUCT_SHARE_PREFIX}${encodedPayload}`;
+
+      return await supabaseChatService.sendMessage(conversationId, senderId, content, 'product_share');
+    } catch (error) {
+      return supabaseUtils.handleError(error, 'Compartir producto');
+    }
+  },
+
   // Obtener mensajes de una conversación
   getConversationMessages: async (conversationId) => {
     try {
@@ -480,6 +508,17 @@ export const supabaseChatService = {
 
 // Utilidades para el chat
 export const chatUtils = {
+  parseProductShare: (messageContent, prefix = 'PRODUCT_SHARE::') => {
+    try {
+      if (!messageContent || !messageContent.startsWith(prefix)) return null;
+      const encoded = messageContent.slice(prefix.length);
+      const decoded = decodeURIComponent(escape(atob(encoded)));
+      const payload = JSON.parse(decoded);
+      return payload?.productId ? payload : null;
+    } catch {
+      return null;
+    }
+  },
   // Obtener iniciales de un nombre
   getInitials: (name) => {
     if (!name) return '?';

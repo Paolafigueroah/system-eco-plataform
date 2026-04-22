@@ -270,6 +270,32 @@ const ProductDetail = () => {
     navigate('/chat');
   };
 
+  const handleShareToChat = () => {
+    if (!user) {
+      alert('Debes iniciar sesión para compartir productos por chat');
+      return;
+    }
+    if (!product?.seller_id || product.seller_id === user.id) {
+      navigate('/chat');
+      return;
+    }
+    navigate('/chat', {
+      state: {
+        productShare: {
+          recipientId: product.seller_id,
+          productId: product.id,
+          product: {
+            id: product.id,
+            title: product.title,
+            price: product.price,
+            category: product.category,
+            images: product.images
+          }
+        }
+      }
+    });
+  };
+
   // Manejar compartir producto
   const handleShare = async () => {
     if (navigator.share) {
@@ -614,6 +640,13 @@ const ProductDetail = () => {
                         {isFavorite ? 'En Favoritos' : 'Favorito'}
                       </>
                     )}
+                  </button>
+                  <button
+                    onClick={handleShareToChat}
+                    className="flex-1 bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 transition-colors duration-200 flex items-center justify-center"
+                  >
+                    <MessageCircle size={16} className="mr-2" />
+                    Compartir
                   </button>
                 </div>
               </div>

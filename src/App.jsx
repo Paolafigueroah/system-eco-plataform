@@ -21,6 +21,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Favorites = lazy(() => import('./pages/Favorites'))
 const Auth = lazy(() => import('./pages/Auth'))
+const CompanyHub = lazy(() => import('./pages/CompanyHub'))
 
 import { initializeDatabase } from './utils/databaseInitializer'
 
@@ -148,6 +149,21 @@ function AppContent() {
                         </motion.div>
                       </ProtectedRoute>
                     } 
+                  />
+                  <Route
+                    path="/empresas"
+                    element={
+                      <ProtectedRoute>
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <CompanyHub />
+                        </motion.div>
+                      </ProtectedRoute>
+                    }
                   />
                 </Routes>
               </AnimatePresence>

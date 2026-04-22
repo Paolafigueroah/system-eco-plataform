@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
+import { useLocation } from 'react-router-dom';
 import { supabaseChatService as chatService, chatUtils } from '../services/supabaseChatService';
 import { useRealtime } from '../hooks/useRealtime.jsx';
 import ChatConversation from './ChatConversation';
@@ -14,9 +15,10 @@ import ChatConversationList from './ChatConversationList';
 import EnhancedChatNotifications from './EnhancedChatNotifications';
 import { logger } from '../utils/logger';
 
-const Chat = ({ onClose }) => {
+const Chat = ({ onClose, initialProductShare = null }) => {
   const { user } = useAuth();
   const { theme } = useTheme();
+  const location = useLocation();
   const { subscribeToConversations, unsubscribe } = useRealtime();
   
   const [conversations, setConversations] = useState([]);
@@ -28,6 +30,7 @@ const Chat = ({ onClose }) => {
   const [showNewConversationModal, setShowNewConversationModal] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
   const conversationsUnsubscribe = useRef(null);
+  const productShareHandledRef = useRef(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -85,6 +88,40 @@ const Chat = ({ onClose }) => {
       }
     };
   }, [user?.id, subscribeToConversations, unsubscribe]);
+
+  useEffect(() => {
+    const shareData = initialProductShare || location.state?.productShare;
+    if (!user?.id || !shareData || productShareHandledRef.current) return;
+    if (!shareData.recipientId || shareData.recipientId === user.id) return;
+
+    const sendInitialProductShare = async () => {
+      productShareHandledRef.current = true;
+      const conversationResult = await chatService.createConversation(
+        user.id,
+        shareData.recipientId,
+        shareData.product?.id || shareData.productId || null
+      );
+
+      if (!conversationResult.success || !conversationResult.data?.id) return;
+
+      await chatService.sendProductShare(
+        conversationResult.data.id,
+        user.id,
+        shareData.product || {
+          id: shareData.productId,
+          title: shareData.title,
+          price: shareData.price,
+          category: shareData.category,
+          images: shareData.image ? [shareData.image] : []
+        }
+      );
+
+      await loadConversations();
+      handleConversationSelect(conversationResult.data);
+    };
+
+    sendInitialProductShare();
+  }, [user?.id, initialProductShare, location.state]);
 
   const loadConversations = async () => {
     try {
