@@ -37,8 +37,8 @@ const CompanyHub = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Apartado para Empresas</h1>
           </div>
           <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
-            Este espacio es la base del panel empresarial en System Eco. Desde aqui podras operar catalogos
-            a escala, coordinar equipos y mejorar la atencion de clientes.
+            Este espacio es la base del panel empresarial en System Eco. Desde aquí podrás operar catálogos
+            a escala, coordinar equipos y mejorar la atención a clientes.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/dashboard" className="btn-primary">

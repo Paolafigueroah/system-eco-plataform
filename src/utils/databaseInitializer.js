@@ -18,9 +18,15 @@ export const initializeDatabase = async () => {
 
   // Crear la promesa de inicialización
   initializationPromise = (async () => {
+    const log = (...args) => {
+      if (import.meta.env.DEV) {
+        console.log(...args);
+      }
+    };
+
     try {
-      console.log('🚀 Iniciando base de datos...');
-      console.log('🗄️ Tipo de base de datos: supabase');
+      log('🚀 Iniciando base de datos...');
+      log('🗄️ Tipo de base de datos: supabase');
       
       // Inicializar Supabase
       const dbSuccess = await initSupabase();
@@ -29,21 +35,21 @@ export const initializeDatabase = async () => {
         throw new Error('Error inicializando Supabase');
       }
 
-      console.log('ℹ️ Usuarios se crean mediante registro en Supabase');
+      log('ℹ️ Usuarios se crean mediante registro en Supabase');
 
       // Crear productos de ejemplo
-      console.log('📦 Creando productos de ejemplo...');
+      log('📦 Creando productos de ejemplo...');
       try {
         await createSampleData();
       } catch (error) {
         console.error('❌ Error creando productos de ejemplo:', error);
       }
 
-      console.log('ℹ️ Conversaciones se crean automáticamente en Supabase');
+      log('ℹ️ Conversaciones se crean automáticamente en Supabase');
 
       // Marcar como inicializada
       isInitialized = true;
-      console.log('✅ Base de datos inicializada correctamente');
+      log('✅ Base de datos inicializada correctamente');
       
       return true;
     } catch (error) {

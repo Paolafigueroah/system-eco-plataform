@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { AuthProvider } from './hooks/useAuth.jsx'
 import { ThemeProvider, useTheme } from './hooks/useTheme.jsx'
 import Navbar from './components/Navbar'
+import AppFooter from './components/AppFooter'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineIndicator from './components/OfflineIndicator'
 import PWAInstaller from './components/PWAInstaller'
@@ -41,10 +42,13 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden" data-theme={theme}>
+    <div
+      className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden"
+      data-theme={theme}
+    >
       <ErrorBoundary>
         <Navbar />
-        <main className="container mx-auto px-4 py-8 overflow-x-hidden">
+        <main id="main-content" className="container mx-auto flex-1 px-4 py-8 overflow-x-hidden">
           <Suspense fallback={<LoadingSpinner />}>
             <AnimatePresence mode="wait" initial={false}>
               <Routes location={location} key={location.pathname}>
@@ -169,6 +173,7 @@ function AppContent() {
               </AnimatePresence>
             </Suspense>
           </main>
+          <AppFooter />
           <OfflineIndicator />
           <PWAInstaller />
         </ErrorBoundary>

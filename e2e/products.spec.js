@@ -12,7 +12,7 @@ test.describe('Product Management', () => {
     await page.waitForSelector('[data-testid="product-card"], .product-card, article', { timeout: 10000 }).catch(() => {});
     
     // Verificar que la página carga correctamente
-    await expect(page).toHaveTitle(/System Eco|BioConnect/i);
+    await expect(page).toHaveTitle(/System Eco/i);
   });
 
   test('debe poder navegar a detalle de producto', async ({ page }) => {

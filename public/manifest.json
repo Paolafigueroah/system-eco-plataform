@@ -1,6 +1,6 @@
 {
-  "name": "BioConnect - Plataforma de Economía Circular",
-  "short_name": "BioConnect",
+  "name": "System Eco — Plataforma de economía circular",
+  "short_name": "System Eco",
   "description": "Plataforma web para intercambiar, vender y donar productos usados. Fomenta la sostenibilidad y el consumo responsable.",
   "start_url": "/",
   "display": "standalone",

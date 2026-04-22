@@ -5,7 +5,7 @@ test.describe('Home Page', () => {
     await page.goto('/');
     
     // Verificar que la página carga
-    await expect(page).toHaveTitle(/BioConnect|System Eco/);
+    await expect(page).toHaveTitle(/System Eco/i);
     
     // Verificar elementos principales
     const heading = page.locator('h1, h2').first();

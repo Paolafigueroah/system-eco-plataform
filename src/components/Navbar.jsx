@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Bell, Search, Building2 } from 'lucide-react';
+import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Bell, Search, Building2, Heart } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import ToggleTheme from './ToggleTheme';
 import NotificationCenter from './NotificationCenter';

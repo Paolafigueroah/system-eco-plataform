@@ -41,7 +41,8 @@ class ErrorBoundary extends React.Component {
                 ¡Ups! Algo salió mal
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Ha ocurrido un error inesperado. Nuestro equipo ha sido notificado y está trabajando para solucionarlo.
+                Ocurrió un error al mostrar esta pantalla. Puedes reintentar o volver al inicio. Si el problema continúa,
+                escríbenos desde la página de contacto.
               </p>
             </div>
 
@@ -63,10 +64,10 @@ class ErrorBoundary extends React.Component {
               </button>
             </div>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <details className="mt-6 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                  Detalles técnicos (desarrollo)
+                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                  Detalles técnicos (solo en desarrollo)
                 </summary>
                 <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-700 dark:text-gray-300 overflow-auto max-h-40">
                   <p className="font-semibold mb-2">Error:</p>

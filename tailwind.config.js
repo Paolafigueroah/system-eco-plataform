@@ -21,7 +21,7 @@ export default {
         error: "#EF4444", // Rojo error
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
       },
     },
   },
