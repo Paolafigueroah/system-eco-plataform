@@ -47,7 +47,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     let isMounted = true;
     let subscription = null;
     let reconnectTimeout = null;
-    let statusCheckInterval = null;
+    let reconnectAttempts = 0;
     
     const setupSubscription = async () => {
       // Cargar mensajes iniciales
@@ -66,30 +66,25 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       setConnectionStatus('connecting');
 
       // Crear nueva suscripción
-      subscription = subscribeToMessages(conversation.id, (payload) => {
+      subscription = subscribeToMessages(conversation.id, {
+        onMessage: (payload) => {
         if (!isMounted) return;
         
         logger.chat('📨 Payload recibido en tiempo real', payload);
         
-        // El payload de Supabase Realtime tiene esta estructura:
-        // { eventType: 'INSERT'|'UPDATE'|'DELETE', new: {...}, old: {...} }
-        // O simplemente: { new: {...} } para INSERT
-        // También puede venir como payload directamente si es el record
         let newMsg = null;
         
         if (payload) {
-          // Intentar diferentes estructuras de payload
           newMsg = payload.new || payload.record || payload;
-          
-          // Si el payload tiene eventType, solo procesar INSERT
-          if (payload.eventType && payload.eventType !== 'INSERT') {
-            logger.chat('⚠️ Evento no es INSERT, ignorando', payload.eventType);
+          if (payload.eventType === 'DELETE') {
+            const deletedId = payload.old?.id;
+            if (deletedId) {
+              setMessages((prev) => prev.filter((message) => message.id !== deletedId));
+            }
             return;
           }
-          
-          // Verificar que tenga los campos necesarios de un mensaje
+
           if (newMsg && !newMsg.id && !newMsg.conversation_id) {
-            // Puede ser que el payload esté anidado
             newMsg = payload.new?.id ? payload.new : 
                     payload.record?.id ? payload.record : 
                     null;
@@ -97,9 +92,8 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         }
         
         if (!newMsg || !newMsg.id) {
-          logger.warn('⚠️ Payload sin datos de mensaje válidos, recargando...', payload);
+          logger.warn('⚠️ Payload sin datos válidos, recargando mensajes...', payload);
           if (isMounted) {
-            // Recargar mensajes después de un pequeño delay para dar tiempo a que se guarde en la BD
             setTimeout(() => {
               if (isMounted) {
                 loadMessages();
@@ -117,14 +111,13 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
         
         // Evitar duplicados cuando llegan eventos simultáneos
         setMessages((prev) => {
-          // Verificar si el mensaje ya existe
           const exists = prev.some(msg => msg.id === newMsg.id);
           if (exists) {
-            logger.warn('⚠️ Mensaje duplicado detectado, ignorando', newMsg.id);
+            if (payload.eventType === 'UPDATE') {
+              return prev.map((msg) => (msg.id === newMsg.id ? { ...msg, ...newMsg } : msg));
+            }
             return prev;
           }
-          logger.chat('✅ Agregando nuevo mensaje a la lista', newMsg);
-          // Ordenar por fecha para mantener el orden correcto
           const updated = [...prev, newMsg].sort((a, b) => {
             const dateA = new Date(a.created_at || 0);
             const dateB = new Date(b.created_at || 0);
@@ -138,53 +131,38 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           chatService.markMessagesAsRead(conversation.id, currentUser.id);
         }
         
-        // Scroll automático al nuevo mensaje
         setTimeout(() => {
           if (isMounted) {
             scrollToBottom();
           }
         }, 100);
-      });
-      
-      // Verificar estado de la suscripción
-      if (subscription) {
-        const checkStatus = () => {
+      },
+        onStatus: (status) => {
           if (!isMounted) return;
-          
-          // El canal de Supabase tiene diferentes estados
-          const channelState = subscription.state || subscription.constructor?.name;
-          
-          if (subscription.state === 'joined' || subscription.state === 'SUBSCRIBED') {
+          if (status === 'SUBSCRIBED') {
+            reconnectAttempts = 0;
             setConnectionStatus('connected');
-            logger.chat('✅ Conectado a tiempo real');
-          } else if (subscription.state === 'closed' || subscription.state === 'CLOSED' || subscription.state === 'CHANNEL_ERROR') {
+            return;
+          }
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
             setConnectionStatus('disconnected');
-            logger.warn('⚠️ Canal cerrado o con error, intentando reconectar...');
-            // Intentar reconectar después de 3 segundos
-            if (isMounted && !reconnectTimeout) {
+            if (reconnectAttempts < 3 && !reconnectTimeout) {
+              reconnectAttempts += 1;
               reconnectTimeout = setTimeout(() => {
                 if (isMounted) {
-                  logger.chat('🔄 Intentando reconectar...');
+                  reconnectTimeout = null;
                   setupSubscription();
                 }
-              }, 3000);
+              }, 1500 * reconnectAttempts);
             }
-          } else {
-            setConnectionStatus('connecting');
+            return;
           }
-        };
-        
-        // Verificar estado inicial después de un momento
-        setTimeout(checkStatus, 1000);
-        
-        // Verificar periódicamente (cada 5 segundos)
-        statusCheckInterval = setInterval(checkStatus, 5000);
-        
-        // Guardar referencia para limpiar
-        messagesUnsubscribe.current = { 
-          subscription, 
-          interval: statusCheckInterval 
-        };
+          setConnectionStatus('connecting');
+        }
+      });
+
+      if (subscription) {
+        messagesUnsubscribe.current = { subscription };
       } else {
         setConnectionStatus('disconnected');
         logger.error('❌ No se pudo crear la suscripción');
@@ -199,13 +177,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       if (reconnectTimeout) {
         clearTimeout(reconnectTimeout);
       }
-      if (statusCheckInterval) {
-        clearInterval(statusCheckInterval);
-      }
       if (messagesUnsubscribe.current) {
-        if (messagesUnsubscribe.current.interval) {
-          clearInterval(messagesUnsubscribe.current.interval);
-        }
         if (messagesUnsubscribe.current.subscription) {
           unsubscribe(messagesUnsubscribe.current.subscription);
         }

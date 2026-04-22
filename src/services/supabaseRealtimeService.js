@@ -3,16 +3,17 @@ import { supabase, supabaseUtils } from '../supabaseConfig.js';
 // Servicio de características en tiempo real con Supabase
 export const supabaseRealtimeService = {
   // Suscribirse a cambios en productos
-  subscribeToProducts: (callback) => {
+  subscribeToProducts: (callback, userId = null) => {
     try {
       console.log('⚡ Supabase: Suscribiéndose a cambios de productos...');
       
       const subscription = supabase
-        .channel('products_changes')
+        .channel(userId ? `products_changes_${userId}` : 'products_changes')
         .on('postgres_changes', {
           event: '*',
           schema: 'public',
-          table: 'products'
+          table: 'products',
+          ...(userId ? { filter: `user_id=eq.${userId}` } : {})
         }, (payload) => {
           console.log('📦 Producto actualizado en tiempo real:', payload);
           callback(payload);
@@ -69,31 +70,29 @@ export const supabaseRealtimeService = {
         }
       });
 
-      // Suscribirse a INSERT de mensajes
+      // Suscribirse a cambios en mensajes (insert/update/delete)
       channel.on('postgres_changes', {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'messages',
         filter: `conversation_id=eq.${conversationId}`
       }, (payload) => {
-        console.log('💬 Nuevo mensaje en tiempo real:', payload);
-        if (callback) callback(payload);
-      });
-
-      // Suscribirse a UPDATE de mensajes
-      channel.on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'messages',
-        filter: `conversation_id=eq.${conversationId}`
-      }, (payload) => {
-        console.log('💬 Mensaje actualizado en tiempo real:', payload);
-        if (callback) callback(payload);
+        console.log('💬 Mensaje en tiempo real:', payload);
+        if (typeof callback === 'function') {
+          callback(payload);
+          return;
+        }
+        if (callback?.onMessage) {
+          callback.onMessage(payload);
+        }
       });
 
       // Manejar estado de suscripción
       channel.subscribe((status) => {
         console.log(`📡 Estado de suscripción a mensajes (${conversationId}):`, status);
+        if (callback?.onStatus) {
+          callback.onStatus(status);
+        }
         if (status === 'SUBSCRIBED') {
           console.log('✅ Suscrito exitosamente a mensajes');
         } else if (status === 'CHANNEL_ERROR') {

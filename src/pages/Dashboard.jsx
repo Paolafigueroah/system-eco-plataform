@@ -57,6 +57,19 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  const recalculateStats = (products) => {
+    const totalViews = products.reduce((sum, product) => sum + (product.views || 0), 0);
+    const totalFavorites = products.reduce((sum, product) => sum + (product.favorites || 0), 0);
+    const activeProducts = products.filter((product) => product.status === 'active').length;
+
+    setStats({
+      totalProducts: products.length,
+      totalViews,
+      totalFavorites,
+      activeProducts
+    });
+  };
+
   useEffect(() => {
     loadUserData();
   }, []);
@@ -66,9 +79,35 @@ const Dashboard = () => {
       // Suscribirse a cambios en productos en tiempo real (una sola vez por usuario)
       const productsSubscription = subscribeToProducts((payload) => {
         logger.log('Producto actualizado en tiempo real', payload);
-        // Recargar productos cuando haya cambios
-        loadUserData();
-      });
+        if (payload.eventType === 'DELETE') {
+          const deletedId = payload.old?.id;
+          if (!deletedId) {
+            loadUserData();
+            return;
+          }
+          setUserProducts((prev) => {
+            const next = prev.filter((product) => product.id !== deletedId);
+            recalculateStats(next);
+            return next;
+          });
+          return;
+        }
+
+        const incomingProduct = payload.new;
+        if (!incomingProduct || incomingProduct.user_id !== user.id) {
+          loadUserData();
+          return;
+        }
+
+        setUserProducts((prev) => {
+          const exists = prev.some((product) => product.id === incomingProduct.id);
+          const next = exists
+            ? prev.map((product) => (product.id === incomingProduct.id ? { ...product, ...incomingProduct } : product))
+            : [incomingProduct, ...prev];
+          recalculateStats(next);
+          return next;
+        });
+      }, user.id);
 
       // Suscribirse a cambios en puntos en tiempo real
       const pointsSubscription = subscribeToUserPoints(user.id, (payload) => {
@@ -105,17 +144,7 @@ const Dashboard = () => {
       if (productsResult.success && productsResult.data) {
         setUserProducts(productsResult.data || []);
         
-        // Calcular estadísticas
-        const totalViews = (productsResult.data || []).reduce((sum, product) => sum + (product.views || 0), 0);
-        const totalFavorites = (productsResult.data || []).reduce((sum, product) => sum + (product.favorites || 0), 0);
-        const activeProducts = (productsResult.data || []).filter(product => product.status === 'active').length;
-        
-        setStats({
-          totalProducts: productsResult.data.length,
-          totalViews,
-          totalFavorites,
-          activeProducts
-        });
+        recalculateStats(productsResult.data || []);
       }
     } catch (error) {
       logger.error('Error cargando datos del usuario', error);

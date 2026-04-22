@@ -18,8 +18,8 @@ export const useRealtime = () => {
   }, []);
 
   // Suscribirse a productos
-  const subscribeToProducts = useCallback((callback) => {
-    const subscription = supabaseRealtimeService.subscribeToProducts(callback);
+  const subscribeToProducts = useCallback((callback, userId = null) => {
+    const subscription = supabaseRealtimeService.subscribeToProducts(callback, userId);
     if (subscription) {
       subscriptionsRef.current.push(subscription);
       setSubscriptions(prev => [...prev, subscription]);
