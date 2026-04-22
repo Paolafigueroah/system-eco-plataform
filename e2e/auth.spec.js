@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { hasE2ECredentials, loginWithCredentials } from './helpers';
 
 test.describe('Autenticación', () => {
   test('debe mostrar formulario de registro', async ({ page }) => {
@@ -54,6 +55,26 @@ test.describe('Autenticación', () => {
       const loginForm = page.locator('text=/iniciar sesión|sign in/i');
       await expect(loginForm.first()).toBeVisible();
     }
+  });
+
+  test('debe abrir flujo de reset password', async ({ page }) => {
+    await page.goto('/auth');
+    await page.getByRole('button', { name: '¿Olvidaste tu contraseña?' }).click();
+    await expect(page.getByRole('heading', { name: 'Restablecer Contraseña' })).toBeVisible();
+    await page.getByLabel('Correo electrónico para restablecer contraseña').fill('correo-invalido');
+    await page.getByRole('button', { name: 'Enviar Enlace' }).click();
+    await expect(page.getByText(/formato del correo electrónico no es válido/i)).toBeVisible();
+  });
+
+  test('debe proteger rutas privadas y redirigir a auth', async ({ page }) => {
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/\/auth/);
+  });
+
+  test('debe iniciar sesión con credenciales E2E si existen', async ({ page }) => {
+    test.skip(!hasE2ECredentials(), 'Set E2E_EMAIL and E2E_PASSWORD to run authenticated flow');
+    await loginWithCredentials(page);
+    await expect(page).toHaveURL(/\/dashboard|\/$/);
   });
 });
 

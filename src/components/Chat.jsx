@@ -3,7 +3,10 @@ import {
   MessageCircle, 
   X,
   User,
-  Search
+  Search,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
@@ -29,8 +32,22 @@ const Chat = ({ onClose, initialProductShare = null }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNewConversationModal, setShowNewConversationModal] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
+  const [productShareStatus, setProductShareStatus] = useState({
+    state: 'idle',
+    recipientName: '',
+    error: ''
+  });
+  const [toast, setToast] = useState(null);
   const conversationsUnsubscribe = useRef(null);
   const productShareHandledRef = useRef(false);
+  const lastProductShareRef = useRef(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 2800);
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -94,34 +111,107 @@ const Chat = ({ onClose, initialProductShare = null }) => {
     if (!user?.id || !shareData || productShareHandledRef.current) return;
     if (!shareData.recipientId || shareData.recipientId === user.id) return;
 
-    const sendInitialProductShare = async () => {
-      productShareHandledRef.current = true;
+    const sendInitialProductShare = async (payload, isRetry = false) => {
+      if (!isRetry) {
+        productShareHandledRef.current = true;
+      }
+      lastProductShareRef.current = payload;
+      setProductShareStatus({ state: 'sending', recipientName: '', error: '' });
+
       const conversationResult = await chatService.createConversation(
         user.id,
-        shareData.recipientId,
-        shareData.product?.id || shareData.productId || null
+        payload.recipientId,
+        payload.product?.id || payload.productId || null
       );
 
-      if (!conversationResult.success || !conversationResult.data?.id) return;
+      if (!conversationResult.success || !conversationResult.data?.id) {
+        setProductShareStatus({
+          state: 'error',
+          recipientName: '',
+          error: conversationResult.error || 'No se pudo crear la conversación'
+        });
+        return;
+      }
 
-      await chatService.sendProductShare(
+      const recipientName = conversationResult.data.other_user?.name || 'usuario';
+
+      const sendResult = await chatService.sendProductShare(
         conversationResult.data.id,
         user.id,
-        shareData.product || {
-          id: shareData.productId,
-          title: shareData.title,
-          price: shareData.price,
-          category: shareData.category,
-          images: shareData.image ? [shareData.image] : []
+        payload.product || {
+          id: payload.productId,
+          title: payload.title,
+          price: payload.price,
+          category: payload.category,
+          images: payload.image ? [payload.image] : []
         }
       );
 
+      if (!sendResult.success) {
+        setProductShareStatus({
+          state: 'error',
+          recipientName,
+          error: sendResult.error || 'No se pudo enviar el producto'
+        });
+        return;
+      }
+
       await loadConversations();
       handleConversationSelect(conversationResult.data);
+      setProductShareStatus({ state: 'success', recipientName, error: '' });
+      showToast(`Producto compartido con ${recipientName}`);
     };
 
-    sendInitialProductShare();
+    sendInitialProductShare(shareData);
   }, [user?.id, initialProductShare, location.state]);
+
+  const retryProductShare = async () => {
+    if (!lastProductShareRef.current) return;
+    const payload = lastProductShareRef.current;
+    setProductShareStatus({ state: 'sending', recipientName: '', error: '' });
+
+    const conversationResult = await chatService.createConversation(
+      user.id,
+      payload.recipientId,
+      payload.product?.id || payload.productId || null
+    );
+
+    if (!conversationResult.success || !conversationResult.data?.id) {
+      setProductShareStatus({
+        state: 'error',
+        recipientName: '',
+        error: conversationResult.error || 'No se pudo crear la conversación'
+      });
+      return;
+    }
+
+    const recipientName = conversationResult.data.other_user?.name || 'usuario';
+    const sendResult = await chatService.sendProductShare(
+      conversationResult.data.id,
+      user.id,
+      payload.product || {
+        id: payload.productId,
+        title: payload.title,
+        price: payload.price,
+        category: payload.category,
+        images: payload.image ? [payload.image] : []
+      }
+    );
+
+    if (!sendResult.success) {
+      setProductShareStatus({
+        state: 'error',
+        recipientName,
+        error: sendResult.error || 'No se pudo enviar el producto'
+      });
+      return;
+    }
+
+    await loadConversations();
+    handleConversationSelect(conversationResult.data);
+    setProductShareStatus({ state: 'success', recipientName, error: '' });
+    showToast(`Producto compartido con ${recipientName}`);
+  };
 
   const loadConversations = async () => {
     try {
@@ -302,6 +392,35 @@ const Chat = ({ onClose, initialProductShare = null }) => {
                 className="w-full px-3 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               />
             </div>
+            {productShareStatus.state !== 'idle' && (
+              <div className={`mt-3 rounded-lg px-3 py-2 text-sm flex items-center justify-between gap-3 ${
+                productShareStatus.state === 'error'
+                  ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-200'
+                  : productShareStatus.state === 'sending'
+                    ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200'
+                    : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200'
+              }`}>
+                <div className="flex items-center gap-2">
+                  {productShareStatus.state === 'sending' && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {productShareStatus.state === 'success' && <CheckCircle2 className="h-4 w-4" />}
+                  {productShareStatus.state === 'error' && <AlertTriangle className="h-4 w-4" />}
+                  <span>
+                    {productShareStatus.state === 'sending' && 'Enviando producto por chat...'}
+                    {productShareStatus.state === 'success' && `Producto compartido con ${productShareStatus.recipientName}.`}
+                    {productShareStatus.state === 'error' && `Error al compartir: ${productShareStatus.error}`}
+                  </span>
+                </div>
+                {productShareStatus.state === 'error' && (
+                  <button
+                    type="button"
+                    onClick={retryProductShare}
+                    className="text-xs font-semibold underline"
+                  >
+                    Reintentar
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Lista de conversaciones */}
@@ -420,6 +539,16 @@ const Chat = ({ onClose, initialProductShare = null }) => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed right-4 bottom-4 z-[100]">
+          <div className={`rounded-lg shadow-lg px-4 py-3 text-sm text-white ${
+            toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'
+          }`}>
+            {toast.message}
           </div>
         </div>
       )}

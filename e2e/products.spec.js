@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { hasE2ECredentials, loginWithCredentials } from './helpers';
 
 test.describe('Product Management', () => {
   test.beforeEach(async ({ page }) => {
@@ -32,6 +33,37 @@ test.describe('Product Management', () => {
       await searchInput.fill('test');
       await expect(searchInput).toHaveValue('test');
     }
+  });
+
+  test('debe permitir abrir modal de publicar producto (auth)', async ({ page }) => {
+    test.skip(!hasE2ECredentials(), 'Set E2E_EMAIL and E2E_PASSWORD to run authenticated flow');
+    await loginWithCredentials(page);
+    await page.goto('/dashboard');
+    await page.getByRole('button', { name: /Publicar Producto/i }).first().click();
+    await expect(page.getByRole('heading', { name: /Añadir Producto/i })).toBeVisible();
+  });
+
+  test('debe validar campos obligatorios al publicar producto (auth)', async ({ page }) => {
+    test.skip(!hasE2ECredentials(), 'Set E2E_EMAIL and E2E_PASSWORD to run authenticated flow');
+    await loginWithCredentials(page);
+    await page.goto('/dashboard');
+    await page.getByRole('button', { name: /Publicar Producto/i }).first().click();
+    await page.getByRole('button', { name: /^Publicar Producto$/i }).click();
+    await expect(page.getByText(/Por favor completa todos los campos obligatorios/i)).toBeVisible();
+  });
+
+  test('debe permitir abrir favoritos y navegar a ruta protegida (auth)', async ({ page }) => {
+    test.skip(!hasE2ECredentials(), 'Set E2E_EMAIL and E2E_PASSWORD to run authenticated flow');
+    await loginWithCredentials(page);
+    await page.goto('/');
+
+    const favoriteButtons = page.locator('button[title*="favorit" i]');
+    const favoriteCount = await favoriteButtons.count();
+    test.skip(favoriteCount === 0, 'No favorite action available in current product list');
+
+    await favoriteButtons.first().click();
+    await page.goto('/favorites');
+    await expect(page).toHaveURL(/\/favorites/);
   });
 });
 
