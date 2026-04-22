@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Heart, Bell, Search, Building2 } from 'lucide-react';
+import { Menu, X, Home, Info, Mail, User, LogOut, Package, MessageCircle, Bell, Search, Building2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import ToggleTheme from './ToggleTheme';
 import NotificationCenter from './NotificationCenter';
@@ -129,8 +129,8 @@ const Navbar = () => {
               {/* Auth Section */}
               {isAuthenticated ? (
                 <div className="hidden md:flex items-center space-x-2">
-                  {/* Quick Actions */}
-                  <div className="flex items-center space-x-1">
+                  {/* Quick Actions (simplificadas para reducir saturación visual) */}
+                  <div className="hidden lg:flex items-center space-x-1">
                     <Link
                       to="/dashboard"
                       className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors duration-200"
@@ -144,20 +144,6 @@ const Navbar = () => {
                       title="Chat"
                     >
                       <MessageCircle size={20} />
-                    </Link>
-                    <Link
-                      to="/favorites"
-                      className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200"
-                      title="Favoritos"
-                    >
-                      <Heart size={20} />
-                    </Link>
-                    <Link
-                      to="/empresas"
-                      className="p-2 text-gray-500 hover:text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/20 rounded-lg transition-colors duration-200"
-                      title="Panel empresas"
-                    >
-                      <Building2 size={20} />
                     </Link>
                     <button
                       onClick={() => setShowNotifications(true)}
@@ -175,11 +161,12 @@ const Navbar = () => {
                     <Link
                       to="/profile"
                       className="flex items-center space-x-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                      title="Perfil"
                     >
                       <div className="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                         {(user?.display_name || user?.displayName || user?.email || 'U').charAt(0).toUpperCase()}
                       </div>
-                      <div className="hidden lg:block text-left">
+                      <div className="hidden xl:block text-left">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px]">
                           {user?.display_name || user?.displayName || 'Usuario'}
                         </p>
