@@ -60,35 +60,37 @@ export const AuthProvider = ({ children }) => {
     displayName: sessionUser?.user_metadata?.display_name || sessionUser?.email || 'Usuario'
   });
 
+  const enrichUserProfile = async (sessionUser) => {
+    const enrichedUser = await supabaseAuthService.getCurrentUser();
+    if (enrichedUser.success && enrichedUser.data) {
+      setUser({
+        ...sessionUser,
+        ...enrichedUser.data
+      });
+    }
+  };
+
   useEffect(() => {
     // Escuchar cambios en el estado de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('🔐 Auth state changed:', event, session?.user?.email);
         
         if (event === 'SIGNED_IN' && session?.user) {
-          const enrichedUser = await supabaseAuthService.getCurrentUser();
-          if (enrichedUser.success && enrichedUser.data) {
-            setUser({
-              ...session.user,
-              ...enrichedUser.data
-            });
-          } else {
-            setUser(mapSessionUser(session.user));
-          }
+          const baseUser = mapSessionUser(session.user);
+          setUser(baseUser);
+          enrichUserProfile(session.user).catch((error) => {
+            console.warn('No se pudo enriquecer perfil en SIGNED_IN:', error);
+          });
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
         } else if (event === 'INITIAL_SESSION') {
           if (session?.user) {
-            const enrichedUser = await supabaseAuthService.getCurrentUser();
-            if (enrichedUser.success && enrichedUser.data) {
-              setUser({
-                ...session.user,
-                ...enrichedUser.data
-              });
-            } else {
-              setUser(mapSessionUser(session.user));
-            }
+            const baseUser = mapSessionUser(session.user);
+            setUser(baseUser);
+            enrichUserProfile(session.user).catch((error) => {
+              console.warn('No se pudo enriquecer perfil en INITIAL_SESSION:', error);
+            });
           } else {
             setUser(null);
           }
@@ -103,19 +105,16 @@ export const AuthProvider = ({ children }) => {
 
   const signIn = async (email, password) => {
     try {
-      setLoading(true); // Mostrar loading durante el proceso
       const result = await supabaseAuthService.signIn(email, password);
       
       if (result.success) {
         // El usuario se establecerá automáticamente por el listener de auth state
         return { success: true, user: result.data?.user };
       } else {
-        setLoading(false); // Ocultar loading en caso de error
         return { success: false, error: result.error };
       }
     } catch (error) {
       console.error('Error en signIn:', error);
-      setLoading(false); // Ocultar loading en caso de error
       return { success: false, error: 'Error interno del servidor' };
     }
   };

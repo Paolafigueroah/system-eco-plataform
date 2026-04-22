@@ -65,7 +65,7 @@ const ChatPage = () => {
             </button>
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-[600px]">
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-[70vh] min-h-[560px]">
             <Chat onClose={() => setShowChat(false)} />
           </div>
         )}
