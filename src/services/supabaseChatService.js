@@ -310,8 +310,10 @@ export const supabaseChatService = {
   },
 
   // Obtener mensajes de una conversación
-  getConversationMessages: async (conversationId) => {
+  getConversationMessages: async (conversationId, options = {}) => {
     try {
+      const { before, limit = 50 } = options;
+
       // Validación de parámetros
       if (!conversationId || typeof conversationId !== 'string') {
         return supabaseUtils.handleError(
@@ -334,14 +336,21 @@ export const supabaseChatService = {
       const currentUserId = user?.id;
 
       // Obtener mensajes con información del remitente
-      const { data: messages, error: messagesError } = await supabase
+      let query = supabase
         .from('messages')
         .select(`
           *,
           sender:profiles!sender_id(id, display_name, email)
         `)
         .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false })
+        .limit(Math.min(Math.max(Number(limit) || 50, 1), 200));
+
+      if (before) {
+        query = query.lt('created_at', before);
+      }
+
+      const { data: messages, error: messagesError } = await query;
 
       if (messagesError) throw messagesError;
 
@@ -363,7 +372,13 @@ export const supabaseChatService = {
         }
       }
 
-      return supabaseUtils.handleSuccess(messages || [], 'Obtener mensajes de conversación');
+      const orderedMessages = (messages || []).slice().sort((a, b) => {
+        const dateA = new Date(a.created_at || 0);
+        const dateB = new Date(b.created_at || 0);
+        return dateA - dateB;
+      });
+
+      return supabaseUtils.handleSuccess(orderedMessages, 'Obtener mensajes de conversación');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener mensajes de conversación');
     }

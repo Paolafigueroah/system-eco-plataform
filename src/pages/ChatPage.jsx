@@ -68,7 +68,7 @@ const ChatPage = () => {
             </button>
           </div>
         ) : (
-          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-[70vh] min-h-[560px]">
+          <div className="hidden md:flex md:flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-[70vh] min-h-[560px] overflow-hidden">
             <Chat onClose={() => setShowChat(false)} initialProductShare={initialProductShare} />
           </div>
         )}
@@ -109,8 +109,8 @@ const ChatPage = () => {
       {/* Chat Modal para pantallas pequeñas */}
       {showChat && (
         <div className="fixed inset-0 bg-black/50 z-50 md:hidden">
-          <div className="absolute inset-0 bg-white dark:bg-gray-900">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="absolute inset-0 bg-white dark:bg-gray-900 flex flex-col min-h-0">
+            <div className="flex shrink-0 items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Chat</h2>
               <button
                 onClick={() => setShowChat(false)}
@@ -119,7 +119,7 @@ const ChatPage = () => {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="flex-1 h-[calc(100vh-80px)]">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
               <Chat
                 onClose={() => setShowChat(false)}
                 useFallback={migrationConfig.databaseType !== 'supabase'}

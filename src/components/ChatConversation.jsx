@@ -25,18 +25,24 @@ import EmojiPicker from './EmojiPicker';
 import MessageSearch from './MessageSearch';
 import { useTheme } from '../hooks/useTheme';
 import { logger } from '../utils/logger';
+import { performanceMetrics } from '../utils/performanceMetrics';
+
+const PAGE_SIZE = 40;
 
 const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
   const { theme } = useTheme();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [sending, setSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('connecting');
   const [lastMessageStatus, setLastMessageStatus] = useState('sent');
   const [showSearch, setShowSearch] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const messagesUnsubscribe = useRef(null);
   const typingTimeoutRef = useRef(null);
   const { subscribeToMessages, unsubscribe } = useRealtime();
@@ -52,7 +58,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     const setupSubscription = async () => {
       // Cargar mensajes iniciales
       if (isMounted) {
-        await loadMessages();
+        await loadMessages({ reset: true });
         // Marcar mensajes como leídos
         chatService.markMessagesAsRead(conversation.id, currentUser.id);
       }
@@ -96,7 +102,7 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
           if (isMounted) {
             setTimeout(() => {
               if (isMounted) {
-                loadMessages();
+                loadMessages({ reset: true });
               }
             }, 500);
           }
@@ -193,25 +199,88 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
     scrollToBottom();
   }, [messages]);
 
-  const loadMessages = async () => {
+  const loadMessages = async ({ reset = false } = {}) => {
     try {
-      setLoading(true);
+      if (reset) {
+        setLoading(true);
+        setHasMoreMessages(true);
+      }
       logger.chat('Cargando mensajes para conversación', conversation.id);
+      const endTimer = performanceMetrics.startTimer('chat.load_messages');
       
-      const result = await chatService.getConversationMessages(conversation.id);
+      const result = await chatService.getConversationMessages(conversation.id, {
+        limit: PAGE_SIZE
+      });
       
       if (result.success) {
         logger.chat('Mensajes cargados', result.data);
         setMessages(result.data);
+        setHasMoreMessages((result.data || []).length === PAGE_SIZE);
+        endTimer({ conversationId: conversation.id, reset });
       } else {
         logger.error('Error al cargar mensajes', result.error);
         setMessages([]);
+        setHasMoreMessages(false);
+        endTimer({ conversationId: conversation.id, reset, error: result.error });
       }
     } catch (error) {
       logger.error('Error cargando mensajes', error);
       setMessages([]);
+      setHasMoreMessages(false);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadOlderMessages = async () => {
+    if (loadingMore || !hasMoreMessages || messages.length === 0) return;
+
+    const oldest = messages[0]?.created_at;
+    if (!oldest) return;
+
+    const container = messagesContainerRef.current;
+    const previousScrollHeight = container?.scrollHeight || 0;
+
+    try {
+      setLoadingMore(true);
+      const endTimer = performanceMetrics.startTimer('chat.load_older_messages');
+      const result = await chatService.getConversationMessages(conversation.id, {
+        before: oldest,
+        limit: PAGE_SIZE
+      });
+
+      if (!result.success) {
+        endTimer({ conversationId: conversation.id, error: result.error });
+        return;
+      }
+
+      const older = result.data || [];
+      setHasMoreMessages(older.length === PAGE_SIZE);
+
+      setMessages((prev) => {
+        const merged = [...older, ...prev];
+        const unique = new Map();
+        merged.forEach((msg) => {
+          if (msg?.id) unique.set(msg.id, msg);
+        });
+        return Array.from(unique.values()).sort((a, b) => {
+          const dateA = new Date(a.created_at || 0);
+          const dateB = new Date(b.created_at || 0);
+          return dateA - dateB;
+        });
+      });
+
+      endTimer({ conversationId: conversation.id, count: older.length });
+
+      requestAnimationFrame(() => {
+        if (!container) return;
+        const newScrollHeight = container.scrollHeight;
+        container.scrollTop = newScrollHeight - previousScrollHeight;
+      });
+    } catch (error) {
+      logger.error('Error cargando mensajes antiguos', error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -444,7 +513,22 @@ const ChatConversation = ({ conversation, currentUser, onBack, onClose }) => {
       </div>
 
       {/* Área de mensajes */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-white dark:bg-gray-900">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-white dark:bg-gray-900"
+      >
+        {!loading && hasMoreMessages && (
+          <div className="flex justify-center pb-2">
+            <button
+              type="button"
+              onClick={loadOlderMessages}
+              disabled={loadingMore}
+              className="text-xs sm:text-sm px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+            >
+              {loadingMore ? 'Cargando mensajes anteriores...' : 'Cargar mensajes anteriores'}
+            </button>
+          </div>
+        )}
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="loading loading-spinner loading-lg"></div>

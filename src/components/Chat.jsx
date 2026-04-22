@@ -17,6 +17,7 @@ import ChatConversation from './ChatConversation';
 import ChatConversationList from './ChatConversationList';
 import EnhancedChatNotifications from './EnhancedChatNotifications';
 import { logger } from '../utils/logger';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 
 const Chat = ({ onClose, initialProductShare = null }) => {
   const { user } = useAuth();
@@ -28,7 +29,7 @@ const Chat = ({ onClose, initialProductShare = null }) => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showConversationList, setShowConversationList] = useState(true);
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, 300);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNewConversationModal, setShowNewConversationModal] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
@@ -245,12 +246,10 @@ const Chat = ({ onClose, initialProductShare = null }) => {
       return;
     }
     setSelectedConversation(conversation);
-    setShowConversationList(false);
   };
 
   const handleBackToConversations = () => {
     setSelectedConversation(null);
-    setShowConversationList(true);
   };
 
   const handleNewConversation = async () => {
@@ -334,14 +333,14 @@ const Chat = ({ onClose, initialProductShare = null }) => {
   };
 
   const filteredConversations = React.useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
+    const term = debouncedSearchTerm.trim().toLowerCase();
     if (!term) return conversations;
     return conversations.filter(c => {
       const name = (c.other_user?.name || c.other_user?.email || '').toLowerCase();
       const last = (c.last_message || '').toLowerCase();
       return name.includes(term) || last.includes(term);
     });
-  }, [conversations, searchTerm]);
+  }, [conversations, debouncedSearchTerm]);
 
   if (!user) {
     return (
@@ -356,10 +355,13 @@ const Chat = ({ onClose, initialProductShare = null }) => {
   }
 
   return (
-    <div className="flex h-full bg-white dark:bg-gray-900">
-      {/* Lista de Conversaciones */}
-      {showConversationList && (
-        <div className="w-full sm:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+    <div className="flex h-full min-h-0 w-full flex-col bg-white dark:bg-gray-900 md:flex-row">
+      {/* Lista: en móvil ocupa toda la altura; con conversación abierta se oculta hasta md (barra lateral en tablet+) */}
+      <div
+        className={`flex flex-col border-gray-200 dark:border-gray-700 md:border-r min-h-0 w-full md:w-80 lg:w-96 md:shrink-0 ${
+          selectedConversation ? 'hidden md:flex' : 'flex flex-1 md:flex-none'
+        }`}
+      >
           {/* Header */}
           <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -373,7 +375,8 @@ const Chat = ({ onClose, initialProductShare = null }) => {
                   <MessageCircle className="h-4 w-4" />
                 </button>
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={() => onClose?.()}
                   className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <X className="h-4 w-4" />
@@ -465,12 +468,10 @@ const Chat = ({ onClose, initialProductShare = null }) => {
               Nueva Conversación
             </button>
           </div>
-        </div>
-      )}
+      </div>
 
-      {/* Conversación Seleccionada */}
-      {selectedConversation && (
-        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
+      {selectedConversation ? (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white dark:bg-gray-900">
           <ChatConversation
             conversation={selectedConversation}
             currentUser={user}
@@ -478,16 +479,11 @@ const Chat = ({ onClose, initialProductShare = null }) => {
             onClose={onClose}
           />
         </div>
-      )}
-
-      {/* Vista de Bienvenida (cuando no hay conversación seleccionada en desktop) */}
-      {!showConversationList && !selectedConversation && (
-        <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-900">
-          <div className="text-center">
-            <MessageCircle className="h-24 w-24 text-gray-300 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
-              Selecciona una conversación
-            </h2>
+      ) : (
+        <div className="hidden min-h-0 flex-1 flex-col items-center justify-center bg-white dark:text-gray-300 dark:bg-gray-900 md:flex">
+          <div className="text-center px-4">
+            <MessageCircle className="mx-auto mb-6 h-24 w-24 text-gray-300 dark:text-gray-600" />
+            <h2 className="mb-2 text-2xl font-bold text-gray-700 dark:text-gray-200">Selecciona una conversación</h2>
             <p className="text-gray-500 dark:text-gray-400">
               Elige una conversación de la lista para comenzar a chatear
             </p>
