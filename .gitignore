@@ -42,3 +42,9 @@ playwright/.cache
 # Build outputs
 build
 out
+
+# Database dumps / backups
+*.backup
+*.dump
+*.sql.gz
+db_dumps/

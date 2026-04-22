@@ -75,7 +75,7 @@ const Navbar = () => {
               <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 p-1.5">
                 <img 
                   src="/logo.svg" 
-                  alt="BioConnect Logo" 
+                  alt="System Eco logo" 
                   className="w-full h-full object-contain"
                   style={{ imageRendering: 'crisp-edges' }}
                   loading="eager"
@@ -85,7 +85,7 @@ const Navbar = () => {
                 />
               </div>
               <span className="hidden sm:block text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                BioConnect
+                System Eco
               </span>
             </Link>
 

@@ -140,7 +140,7 @@ const Home = () => {
         <div className="absolute inset-0 -z-10">
           <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-300/20 rounded-full blur-3xl animate-float"></div>
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-sky-300/20 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-300/20 rounded-full blur-3xl animate-pulse-slow"></div>
         </div>
 
         <div className="container mx-auto px-4 xl:px-6 relative z-10">
@@ -148,7 +148,7 @@ const Home = () => {
             <div className="animate-fade-in-up">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold mb-6 md:mb-8 leading-tight">
                 <span className="gradient-text text-shadow">
-                  BioConnect - Economía Circular
+                  System Eco - Economía Circular
                 </span>
               </h1>
               <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-8 md:mb-12 max-w-4xl lg:max-w-5xl mx-auto leading-relaxed">
@@ -380,7 +380,7 @@ const Home = () => {
       {/* Benefits Section */}
       <section className="py-20 relative overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-emerald-50 to-purple-50 dark:from-gray-800 dark:via-emerald-900/20 dark:to-purple-900/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-emerald-50 to-teal-50 dark:from-gray-800 dark:via-emerald-900/20 dark:to-teal-900/20"></div>
         <div className="absolute top-10 right-10 w-64 h-64 bg-sky-200/30 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-10 left-10 w-80 h-80 bg-emerald-200/30 rounded-full blur-3xl animate-float" style={{animationDelay: '3s'}}></div>
         
@@ -422,7 +422,7 @@ const Home = () => {
       {/* CTA Section */}
       <section className="py-20 relative overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 via-sky-500 to-purple-600"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-500 to-sky-600"></div>
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute top-0 left-0 w-full h-full">
           <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-float"></div>

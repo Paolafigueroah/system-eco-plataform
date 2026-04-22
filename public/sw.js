@@ -48,6 +48,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Nunca interceptar ni cachear APIs/autenticación de Supabase ni otros proveedores externos.
+  if (
+    url.origin.includes('supabase.co') ||
+    url.pathname.startsWith('/rest/v1/') ||
+    url.pathname.startsWith('/auth/v1/') ||
+    url.pathname.startsWith('/realtime/v1/') ||
+    url.origin.includes('googleapis.com') ||
+    url.origin.includes('google.com')
+  ) {
+    return;
+  }
   
   // Estrategia para imágenes: Cache First
   if (request.destination === 'image') {
@@ -78,40 +90,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Estrategia para API: Network First con timeout
-  if (url.pathname.startsWith('/rest/v1/') || url.pathname.startsWith('/realtime/')) {
-    event.respondWith(
-      Promise.race([
-        fetch(request),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), 5000)
-        )
-      ]).then((networkResponse) => {
-        if (networkResponse.ok) {
-          const responseClone = networkResponse.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-        }
-        return networkResponse;
-      }).catch(() => {
-        return caches.match(request).then((cachedResponse) => {
-          return cachedResponse || new Response(JSON.stringify({ error: 'Offline' }), {
-            headers: { 'Content-Type': 'application/json' }
-          });
-        });
-      })
-    );
-    return;
-  }
-
-  // Ignorar requests a Supabase y APIs externas
-  if (url.origin.includes('supabase.co') || 
-      url.origin.includes('googleapis.com') ||
-      url.origin.includes('google.com')) {
-    return; // Dejar pasar sin cachear
-  }
-
   // Para assets estáticos, usar Cache First
   if (request.destination === 'image' || 
       request.destination === 'style' ||

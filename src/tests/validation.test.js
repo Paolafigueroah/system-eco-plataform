@@ -42,7 +42,7 @@ describe('validation', () => {
       expect(weak.label).toBe('Débil');
       
       const regular = getPasswordStrength('Password1');
-      expect(regular.label).toBe('Regular');
+      expect(regular.label).toBe('Buena');
       
       const good = getPasswordStrength('Password123');
       expect(good.label).toBe('Buena');

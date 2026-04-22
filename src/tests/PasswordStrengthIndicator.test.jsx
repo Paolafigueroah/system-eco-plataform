@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
 
@@ -19,8 +19,18 @@ describe('PasswordStrengthIndicator', () => {
 
   it('debe mostrar checkmarks para requisitos cumplidos', () => {
     render(<PasswordStrengthIndicator password="Password123@" />);
-    const checks = screen.getAllByRole('img', { hidden: true });
-    expect(checks.length).toBeGreaterThan(0);
+    const requirements = [
+      /Al menos 8 caracteres/i,
+      /Una letra minúscula/i,
+      /Una letra mayúscula/i,
+      /Un número/i,
+      /Un símbolo/i
+    ];
+
+    requirements.forEach((requirementRegex) => {
+      const item = screen.getByText(requirementRegex).closest('li');
+      expect(item?.className).toContain('text-green-600');
+    });
   });
 });
 

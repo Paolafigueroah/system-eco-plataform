@@ -1,5 +1,16 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
 
+const getAuthRedirectBaseUrl = () => {
+  const configuredSiteUrl = import.meta.env.VITE_SITE_URL?.trim();
+  const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  if (configuredSiteUrl) {
+    return configuredSiteUrl.replace(/\/$/, '');
+  }
+
+  return currentOrigin.replace(/\/$/, '');
+};
+
 /**
  * Servicio de autenticación con Supabase
  * Proporciona funciones para registro, login, logout y gestión de usuarios
@@ -170,8 +181,8 @@ export const supabaseAuthService = {
         );
       }
 
-      // Construir URL de redirección
-      const redirectUrl = `${window.location.origin}/reset-password`;
+      // Construir URL de redirección (priorizar dominio canónico configurado)
+      const redirectUrl = `${getAuthRedirectBaseUrl()}/reset-password`;
       console.log('🔐 URL de redirección:', redirectUrl);
       
       const { data, error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -242,7 +253,7 @@ export const supabaseAuthService = {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${getAuthRedirectBaseUrl()}/dashboard`
         }
       });
 
@@ -262,7 +273,7 @@ export const supabaseAuthService = {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'twitter',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${getAuthRedirectBaseUrl()}/dashboard`
         }
       });
 

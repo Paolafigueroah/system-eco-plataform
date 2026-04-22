@@ -182,7 +182,7 @@ const ResetPassword = () => {
             )}
             
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/auth')}
               className="btn-primary w-full"
             >
               Volver al Login
@@ -200,7 +200,7 @@ const ResetPassword = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/auth')}
               className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />

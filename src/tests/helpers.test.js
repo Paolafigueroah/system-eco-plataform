@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { formatPrice, formatDate, truncateText } from './helpers';
+import { formatCurrency, formatDate, truncateText } from '../utils/helpers';
 
 describe('helpers', () => {
-  describe('formatPrice', () => {
+  describe('formatCurrency', () => {
     it('debe formatear precios correctamente', () => {
-      expect(formatPrice(1000)).toBe('$1,000');
-      expect(formatPrice(0)).toBe('$0');
-      expect(formatPrice(123.45)).toBe('$123.45');
+      expect(formatCurrency(1000)).toBe('$1,000.00');
+      expect(formatCurrency(0)).toBe('$0.00');
+      expect(formatCurrency(123.45)).toBe('$123.45');
     });
   });
 

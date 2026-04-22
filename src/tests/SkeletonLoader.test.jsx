@@ -4,8 +4,8 @@ import SkeletonLoader from '../components/SkeletonLoader';
 
 describe('SkeletonLoader', () => {
   it('debe renderizar skeleton de tipo card', () => {
-    render(<SkeletonLoader variant="card" />);
-    const skeleton = screen.getByRole('generic');
+    const { container } = render(<SkeletonLoader variant="card" />);
+    const skeleton = container.firstChild;
     expect(skeleton).toBeInTheDocument();
   });
 
@@ -16,14 +16,14 @@ describe('SkeletonLoader', () => {
   });
 
   it('debe renderizar skeleton de tipo text', () => {
-    render(<SkeletonLoader variant="text" count={2} />);
-    const skeleton = screen.getByRole('generic');
+    const { container } = render(<SkeletonLoader variant="text" count={2} />);
+    const skeleton = container.firstChild;
     expect(skeleton).toBeInTheDocument();
   });
 
   it('debe renderizar skeleton de tipo image', () => {
-    render(<SkeletonLoader variant="image" />);
-    const skeleton = screen.getByRole('generic');
+    const { container } = render(<SkeletonLoader variant="image" />);
+    const skeleton = container.firstChild;
     expect(skeleton).toBeInTheDocument();
   });
 });
