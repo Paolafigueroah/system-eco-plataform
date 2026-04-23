@@ -1,4 +1,5 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
+import { PRODUCTS_OWNER_COLUMN } from '../config/productSchema.js';
 
 // Servicio de características en tiempo real con Supabase
 export const supabaseRealtimeService = {
@@ -13,7 +14,7 @@ export const supabaseRealtimeService = {
           event: '*',
           schema: 'public',
           table: 'products',
-          ...(userId ? { filter: `user_id=eq.${userId}` } : {})
+          ...(userId ? { filter: `${PRODUCTS_OWNER_COLUMN}=eq.${userId}` } : {})
         }, (payload) => {
           console.log('📦 Producto actualizado en tiempo real:', payload);
           callback(payload);

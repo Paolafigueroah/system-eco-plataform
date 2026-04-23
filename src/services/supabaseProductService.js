@@ -1,4 +1,9 @@
 import { supabase, supabaseUtils } from '../supabaseConfig.js';
+import {
+  PRODUCTS_OWNER_COLUMN,
+  normalizeProductOwnerFields,
+  normalizeProductOwnerFieldsList
+} from '../config/productSchema.js';
 
 /**
  * Servicio de productos con Supabase
@@ -35,7 +40,7 @@ export const supabaseProductService = {
 
       if (favoritesError) {
         console.warn('⚠️ Error obteniendo conteos de favoritos:', favoritesError);
-        return products.map(p => ({ ...p, favorites: 0 }));
+        return products.map((p) => normalizeProductOwnerFields({ ...p, favorites: 0 }));
       }
 
       // Contar favoritos por producto
@@ -47,13 +52,15 @@ export const supabaseProductService = {
       }
 
       // Agregar conteo a cada producto
-      return products.map(product => ({
-        ...product,
-        favorites: favoritesCount[product.id] || 0
-      }));
+      return products.map((product) =>
+        normalizeProductOwnerFields({
+          ...product,
+          favorites: favoritesCount[product.id] || 0
+        })
+      );
     } catch (error) {
       console.warn('⚠️ Error agregando conteos de favoritos:', error);
-      return products.map(p => ({ ...p, favorites: 0 }));
+      return products.map((p) => normalizeProductOwnerFields({ ...p, favorites: 0 }));
     }
   },
 
@@ -86,7 +93,9 @@ export const supabaseProductService = {
       if (error) throw error;
 
       // Agregar conteo de favoritos
-      const productsWithFavorites = await supabaseProductService.addFavoritesCountToProducts(data || []);
+      const normalized = normalizeProductOwnerFieldsList(data || []);
+      const productsWithFavorites =
+        await supabaseProductService.addFavoritesCountToProducts(normalized);
 
       return supabaseUtils.handleSuccess(productsWithFavorites, 'Obtener productos');
     } catch (error) {
@@ -146,10 +155,10 @@ export const supabaseProductService = {
       }
 
       // Agregar el conteo de favoritos al producto
-      const data = {
+      const data = normalizeProductOwnerFields({
         ...productData,
         favorites: favoritesCount || 0
-      };
+      });
       
       const error = null;
 
@@ -198,12 +207,15 @@ export const supabaseProductService = {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('seller_id', userId)
+        .eq(PRODUCTS_OWNER_COLUMN, userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Obtener productos por usuario');
+      return supabaseUtils.handleSuccess(
+        normalizeProductOwnerFieldsList(data || []),
+        'Obtener productos por usuario'
+      );
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener productos por usuario');
     }
@@ -277,11 +289,11 @@ export const supabaseProductService = {
         price: productData.price || productData.precio || 0,
         location: productData.location || productData.ubicacion,
         images: productData.images || [],
-        seller_id: user.id,
         status: 'active',
         views: 0,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        [PRODUCTS_OWNER_COLUMN]: user.id
       };
 
       const { data, error } = await supabase
@@ -292,7 +304,7 @@ export const supabaseProductService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Crear producto');
+      return supabaseUtils.handleSuccess(normalizeProductOwnerFields(data), 'Crear producto');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Crear producto');
     }
@@ -330,7 +342,10 @@ export const supabaseProductService = {
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Actualizar estado del producto');
+      return supabaseUtils.handleSuccess(
+        normalizeProductOwnerFields(data),
+        'Actualizar estado del producto'
+      );
     } catch (error) {
       return supabaseUtils.handleError(error, 'Actualizar estado del producto');
     }
@@ -415,13 +430,13 @@ export const supabaseProductService = {
           updated_at: new Date().toISOString()
         })
         .eq('id', productId)
-        .eq('seller_id', user.id) // Solo el propietario puede actualizar
+        .eq(PRODUCTS_OWNER_COLUMN, user.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Actualizar producto');
+      return supabaseUtils.handleSuccess(normalizeProductOwnerFields(data), 'Actualizar producto');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Actualizar producto');
     }
@@ -455,13 +470,13 @@ export const supabaseProductService = {
         .from('products')
         .delete()
         .eq('id', productId)
-        .eq('seller_id', user.id) // Solo el propietario puede eliminar
+        .eq(PRODUCTS_OWNER_COLUMN, user.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Eliminar producto');
+      return supabaseUtils.handleSuccess(normalizeProductOwnerFields(data), 'Eliminar producto');
     } catch (error) {
       return supabaseUtils.handleError(error, 'Eliminar producto');
     }
@@ -475,12 +490,15 @@ export const supabaseProductService = {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('seller_id', userId)
+        .eq(PRODUCTS_OWNER_COLUMN, userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return supabaseUtils.handleSuccess(data, 'Obtener productos del usuario');
+      return supabaseUtils.handleSuccess(
+        normalizeProductOwnerFieldsList(data || []),
+        'Obtener productos del usuario'
+      );
     } catch (error) {
       return supabaseUtils.handleError(error, 'Obtener productos del usuario');
     }
@@ -525,7 +543,9 @@ export const supabaseProductService = {
       if (error) throw error;
 
       // Agregar conteo de favoritos
-      const productsWithFavorites = await supabaseProductService.addFavoritesCountToProducts(data || []);
+      const normalized = normalizeProductOwnerFieldsList(data || []);
+      const productsWithFavorites =
+        await supabaseProductService.addFavoritesCountToProducts(normalized);
 
       return supabaseUtils.handleSuccess(productsWithFavorites, 'Obtener productos por categoría');
     } catch (error) {
@@ -548,7 +568,9 @@ export const supabaseProductService = {
       if (error) throw error;
 
       // Agregar conteo de favoritos
-      const productsWithFavorites = await supabaseProductService.addFavoritesCountToProducts(data || []);
+      const normalized = normalizeProductOwnerFieldsList(data || []);
+      const productsWithFavorites =
+        await supabaseProductService.addFavoritesCountToProducts(normalized);
 
       return supabaseUtils.handleSuccess(productsWithFavorites, 'Buscar productos');
     } catch (error) {
